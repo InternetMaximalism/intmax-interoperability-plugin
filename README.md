@@ -1,0 +1,1 @@
+# IntMax interoperability plugin

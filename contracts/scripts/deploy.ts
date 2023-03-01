@@ -1,7 +1,7 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const FlagManager = await ethers.getContractFactory("FlagManager");
+  const FlagManager = await ethers.getContractFactory("FlagManagerTest");
   const flagManager = await FlagManager.deploy();
 
   await flagManager.deployed();

@@ -37,15 +37,22 @@ contract FlagManager {
     /**
      * This event occurs when certain flags are registered.
      * @param flagId is the ID of the flag.
-     * @param remittance is the remittance data associated with the flag.
+     * @param recipient is the account.
+     * @param assetId is the asset ID.
+     * @param amount is the amount.
      */
-    event Register(uint256 flagId, Remittance remittance);
+    event Register(
+        uint256 indexed flagId,
+        address indexed recipient,
+        uint256 indexed assetId,
+        uint256 amount
+    );
 
     /**
      * This event occurs when certain flags are activated.
      * @param flagId is the ID of the flag.
      */
-    event Activate(uint256 flagId);
+    event Activate(uint256 indexed flagId);
 
     /**
      * This function registers a new flag.
@@ -77,7 +84,7 @@ contract FlagManager {
         _isValidRemittance(remittance);
         remittances[flagId] = remittance;
         nextFlagId += 1;
-        emit Register(flagId, remittance);
+        emit Register(flagId, recipient, assetId, amount);
     }
 
     function isRegistered(uint256 flagId) public view returns (bool) {

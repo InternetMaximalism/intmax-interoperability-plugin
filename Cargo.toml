@@ -4,13 +4,13 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-dotenv = "0.15.0"
+anyhow = "1.0"
+dotenv = "0.15"
+ethers = { version = "1.5", features = ["abigen", "ethers-solc", "legacy", "rustls", "ws"] }
 hex = "0.4"
 hex-literal = "0.3"
-secp256k1 = { version = "0.20", features = ["recovery"] }
-serde = "1.0.152"
-serde_json = "1.0.93"
-tokio = { version = "0.2", features = ["full"] }
-web3 = { version = "0.15", features = ["signing"] }
+serde = "1.0"
+serde_json = "1.0"
+tokio = { version = "1.18", features = ["macros"] }
 
 [lib]

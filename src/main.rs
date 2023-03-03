@@ -1,59 +1,48 @@
-use std::str::FromStr;
+use std::{sync::Arc, time::Duration};
 
 use dotenv::dotenv;
-use secp256k1::key::SecretKey;
-use web3::{
-    signing::{Key, SecretKeyRef},
-    types::{H160, U256},
+use ethers::{
+    core::types::{Address, U256},
+    middleware::SignerMiddleware,
+    prelude::k256::ecdsa::SigningKey,
+    providers::{Http, Provider},
+    signers::LocalWallet,
+    utils::secret_key_to_address,
 };
-
-use intmax_interoperability_plugin::*;
+use intmax_interoperability_plugin::FlagManagerContractWrapper;
 
 #[tokio::main]
 async fn main() {
     let _ = dotenv().ok();
-    let secret_key = SecretKey::from_str(
-        &std::env::var("PRIVATE_KEY").expect("PRIVATE_KEY must be set in .env file."),
-    )
-    .unwrap();
-    let rpc_url = std::env::var("RPC_URL").expect("RPC_URL must be set in .env file.");
-
-    let transport = web3::transports::Http::new(&rpc_url).unwrap();
-    let web3 = web3::Web3::new(transport);
-
-    // let accounts = web3.eth().accounts().await.unwrap();
-    // dbg!(&accounts);
-
-    let my_account = SecretKeyRef::new(&secret_key).address();
-
-    // // Deploying a contract
-    // let deployer_account = accounts[0];
-    // let contract = Contract::deploy(web3.eth(), artifacts.abi)?
-    //     .confirmations(0)
-    //     .options(Options::with(|_opt| {
-    //         // _opt.value = Some(5u32.into());x
-    //         // _opt.gas_price = Some(1_000_000_000u32.into());
-    //         // _opt.gas = Some(30_000_000u32.into());
-    //     }))
-    //     .execute(artifacts.bytecode, (), deployer_account)
-    //     .await?;
-
-    let contract_address: H160 = std::env::var("CONTRACT_ADDRESS")
-        .expect("CONTRACT_ADDRESS must be set in .env file.")
+    let secret_key = std::env::var("PRIVATE_KEY").expect("PRIVATE_KEY must be set in .env file");
+    let rpc_url = std::env::var("RPC_URL").expect("RPC_URL must be set in .env file");
+    let chain_id: u64 = std::env::var("CHAIN_ID")
+        .expect("CHAIN_ID must be set in .env file")
         .parse()
         .unwrap();
-    let contract = FlagManagerContract::new(&web3, contract_address);
-    let next_flag_id: U256 = contract.next_flag_id().await.unwrap();
-    // assert_eq!(next_flag_id, 1u32.into());
+
+    let provider = Provider::<Http>::try_from(&rpc_url)
+        .unwrap()
+        .interval(Duration::from_millis(10u64));
+    let signer_key = SigningKey::from_bytes(&hex::decode(&secret_key).unwrap()).unwrap();
+    let my_account = secret_key_to_address(&signer_key);
+    let wallet = LocalWallet::new_with_signer(signer_key, my_account, chain_id);
+    let client = SignerMiddleware::new(provider, wallet);
+    let client = Arc::new(client);
+
+    let contract_address: Address = std::env::var("CONTRACT_ADDRESS")
+        .expect("CONTRACT_ADDRESS must be set in .env file")
+        .parse()
+        .unwrap();
+    let contract = FlagManagerContractWrapper::new(contract_address, client);
+
+    let next_flag_id: U256 = contract.next_flag_id().call().await.unwrap();
+    dbg!(next_flag_id);
 
     println!("start register()");
-    let _res = contract
-        .register(
-            SecretKeyRef::new(&secret_key),
-            my_account,
-            1u8.into(),
-            100u64.into(),
-        )
+    contract
+        .register(my_account, 1u8.into(), 100u64.into())
+        .send()
         .await
         .unwrap();
     println!("end register()");
@@ -68,10 +57,7 @@ async fn main() {
     dbg!(logs);
 
     println!("start activate()");
-    let _res = contract
-        .activate(SecretKeyRef::new(&secret_key), next_flag_id)
-        .await
-        .unwrap();
+    contract.test_activate(next_flag_id).send().await.unwrap();
     println!("end activate()");
 
     let logs = contract.get_activate_events().await.unwrap();

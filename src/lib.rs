@@ -1,28 +1,23 @@
-use serde::Deserialize;
-use web3::{
-    contract::{Contract, Options},
-    types::{TransactionReceipt, H160, U256},
-    Transport,
+use std::sync::Arc;
+
+use ethers::{
+    contract::abigen,
+    core::types::{Address, U256},
+    providers::Middleware,
+    types::Filter,
 };
 
-extern crate tokio;
-
-#[derive(Clone, Debug, PartialEq, Deserialize)]
-pub struct HardHatSolidityArtifacts {
-    #[serde(rename = "contractName")]
-    pub contract_name: String,
-    pub abi: web3::ethabi::Contract,
-    pub bytecode: String,
-    #[serde(rename = "deployedBytecode")]
-    pub deployed_bytecode: String,
-}
+abigen!(
+    FlagManagerContract,
+    "./contracts/artifacts/FlagManager.test.sol/FlagManagerTest.json"
+);
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub struct RegisterEvent {
     /// topic 0
     pub flag_id: U256,
     /// topic 1
-    pub recipient: H160,
+    pub recipient: Address,
     /// topic 2
     pub asset_id: U256,
     pub amount: U256,
@@ -34,129 +29,147 @@ pub struct ActivateEvent {
     pub flag_id: U256,
 }
 
-pub struct FlagManagerContract<T: Transport> {
-    pub contract: Contract<T>,
-    // eth: web3::api::Eth<T>,
+pub struct FlagManagerContractWrapper<M> {
+    pub contract: FlagManagerContract<M>,
+    pub address: Address,
+    client: Arc<M>,
 }
 
-impl<T: Transport> std::ops::Deref for FlagManagerContract<T> {
-    type Target = Contract<T>;
+impl<M> std::ops::Deref for FlagManagerContractWrapper<M> {
+    type Target = FlagManagerContract<M>;
 
     fn deref(&self) -> &Self::Target {
         &self.contract
     }
 }
 
-pub fn send_options() -> Options {
-    Options::with(|opt| {
-        opt.gas_price = Some(1_000_000_000u32.into());
-        opt.gas = Some(30_000_000u32.into());
-    })
-}
-
-impl<T: Transport> FlagManagerContract<T> {
-    pub fn new(web3: &web3::Web3<T>, contract_address: H160) -> Self {
-        let artifacts: HardHatSolidityArtifacts = serde_json::from_str(include_str!(
-            "../contracts/artifacts/contracts/FlagManager.test.sol/FlagManagerTest.json"
-        ))
-        .unwrap();
-
+impl<M: Middleware> FlagManagerContractWrapper<M> {
+    pub fn new(contract_address: Address, client: Arc<M>) -> Self {
         Self {
-            contract: Contract::new(web3.eth(), contract_address, artifacts.abi),
+            contract: FlagManagerContract::new(contract_address, client.clone()),
+            address: contract_address,
+            client,
         }
     }
 
-    pub async fn next_flag_id(&self) -> web3::contract::Result<U256> {
-        self.query("nextFlagId", (), None, Options::default(), None)
-            .await
-    }
+    // pub async fn next_flag_id(&self) -> web3::contract::Result<U256> {
+    //     self.query("nextFlagId", (), None, Options::default(), None)
+    //         .await
+    // }
 
-    pub async fn is_registered(&self, flag_id: U256) -> web3::contract::Result<bool> {
-        self.query("isRegistered", (flag_id,), None, Options::default(), None)
-            .await
-    }
+    // pub async fn is_registered(&self, flag_id: U256) -> web3::contract::Result<bool> {
+    //     self.query("isRegistered", (flag_id,), None, Options::default(), None)
+    //         .await
+    // }
 
-    pub async fn is_activated(&self, flag_id: U256) -> web3::contract::Result<bool> {
-        self.query("isActivated", (flag_id,), None, Options::default(), None)
-            .await
-    }
+    // pub async fn is_activated(&self, flag_id: U256) -> web3::contract::Result<bool> {
+    //     self.query("isActivated", (flag_id,), None, Options::default(), None)
+    //         .await
+    // }
 
-    pub async fn register(
-        &self,
-        signer_key: impl web3::signing::Key,
-        recipient: H160,
-        asset_id: U256,
-        amount: U256,
-    ) -> web3::Result<TransactionReceipt> {
-        let gas = self
-            .estimate_gas(
-                "register",
-                (recipient, asset_id, amount),
-                signer_key.address(),
-                Options::default(),
-            )
-            .await
-            .unwrap();
-        dbg!(gas);
-        self.signed_call_with_confirmations(
-            "register",
-            (recipient, asset_id, amount),
-            Options::with(|opt| {
-                opt.gas = Some(gas);
-            }),
-            0,
-            signer_key,
-        )
-        .await
-    }
+    // pub async fn register(
+    //     &self,
+    //     signer_key: impl web3::signing::Key,
+    //     recipient: H160,
+    //     asset_id: U256,
+    //     amount: U256,
+    // ) -> web3::Result<TransactionReceipt> {
+    //     let gas = self
+    //         .estimate_gas(
+    //             "register",
+    //             (recipient, asset_id, amount),
+    //             signer_key.address(),
+    //             Options::default(),
+    //         )
+    //         .await
+    //         .unwrap();
+    //     dbg!(gas);
+    //     self.signed_call_with_confirmations(
+    //         "register",
+    //         (recipient, asset_id, amount),
+    //         Options::with(|opt| {
+    //             opt.gas = Some(gas);
+    //         }),
+    //         0,
+    //         signer_key,
+    //     )
+    //     .await
+    // }
 
-    pub async fn activate(
-        &self,
-        signer_key: impl web3::signing::Key,
-        flag_id: U256,
-    ) -> web3::Result<TransactionReceipt> {
-        let gas = self
-            .estimate_gas(
-                "testActivate",
-                (flag_id,),
-                signer_key.address(),
-                Options::default(),
-            )
-            .await
-            .unwrap();
-        dbg!(gas);
-        self.signed_call_with_confirmations(
-            "testActivate",
-            (flag_id,),
-            Options::with(|opt| {
-                opt.gas = Some(gas);
-            }),
-            0,
-            signer_key,
-        )
-        .await
-    }
+    // pub async fn activate(
+    //     &self,
+    //     signer_key: impl web3::signing::Key,
+    //     flag_id: U256,
+    // ) -> web3::Result<TransactionReceipt> {
+    //     let gas = self
+    //         .estimate_gas(
+    //             "testActivate",
+    //             (flag_id,),
+    //             signer_key.address(),
+    //             Options::default(),
+    //         )
+    //         .await
+    //         .unwrap();
+    //     dbg!(gas);
+    //     self.signed_call_with_confirmations(
+    //         "testActivate",
+    //         (flag_id,),
+    //         Options::with(|opt| {
+    //             opt.gas = Some(gas);
+    //         }),
+    //         0,
+    //         signer_key,
+    //     )
+    //     .await
+    // }
 
-    pub async fn get_register_events(&self) -> web3::contract::Result<Vec<RegisterEvent>> {
-        let logs: Vec<(U256, H160, U256, U256)> = self.events("Register", (), (), ()).await?;
+    pub async fn get_register_events(&self) -> anyhow::Result<Vec<RegisterEvent>> {
+        let filter = Filter::new()
+            .address(self.address)
+            .event("Register(uint256,address,uint256,uint256)")
+            .from_block(0);
+        let logs = self
+            .client
+            .get_logs(&filter)
+            .await
+            .map_err(|err| anyhow::anyhow!("{}", err))?;
         let logs = logs
             .into_iter()
-            .map(|v| RegisterEvent {
-                flag_id: v.0,
-                recipient: v.1,
-                asset_id: v.2,
-                amount: v.3,
+            .map(|log| {
+                let flag_id = U256::from_big_endian(log.topics[1].as_bytes());
+                let recipient = Address::from(log.topics[2]);
+                let asset_id = U256::from_big_endian(log.topics[3].as_bytes());
+                let amount = U256::from_big_endian(&log.data);
+
+                RegisterEvent {
+                    flag_id,
+                    recipient,
+                    asset_id,
+                    amount,
+                }
             })
             .collect::<Vec<_>>();
 
         Ok(logs)
     }
 
-    pub async fn get_activate_events(&self) -> web3::contract::Result<Vec<ActivateEvent>> {
-        let logs: Vec<(U256,)> = self.events("Activate", (), (), ()).await?;
+    pub async fn get_activate_events(&self) -> anyhow::Result<Vec<ActivateEvent>> {
+        let filter = Filter::new()
+            .address(self.address)
+            .event("Activate(uint256)")
+            .from_block(0);
+        let logs = self
+            .client
+            .get_logs(&filter)
+            .await
+            .map_err(|err| anyhow::anyhow!("{}", err))?;
         let logs = logs
             .into_iter()
-            .map(|v| ActivateEvent { flag_id: v.0 })
+            .map(|log| {
+                let flag_id = U256::from_big_endian(log.topics[1].as_bytes());
+
+                ActivateEvent { flag_id }
+            })
             .collect::<Vec<_>>();
 
         Ok(logs)
@@ -165,58 +178,45 @@ impl<T: Transport> FlagManagerContract<T> {
 
 #[cfg(test)]
 mod tests {
-    use std::str::FromStr;
+    use std::{sync::Arc, time::Duration};
 
-    use secp256k1::key::SecretKey;
-    use web3::{
-        signing::{Key, SecretKeyRef},
-        types::U256,
+    use ethers::{
+        core::types::{Address, U256},
+        middleware::SignerMiddleware,
+        prelude::k256::ecdsa::SigningKey,
+        providers::{Http, Provider},
+        signers::LocalWallet,
+        utils::secret_key_to_address,
     };
 
     use super::*;
 
     #[tokio::test]
     async fn it_works() {
-        let secret_key =
-            SecretKey::from_str("ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80")
-                .unwrap();
-        let rpc_url = "http://localhost:8545";
+        let provider = Provider::<Http>::try_from("http://localhost:8545")
+            .unwrap()
+            .interval(Duration::from_millis(10u64));
+        let secret_key = "ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
+        let chain_id = 31337;
 
-        let transport = web3::transports::Http::new(rpc_url).unwrap();
-        let web3 = web3::Web3::new(transport);
+        let signer_key = SigningKey::from_bytes(&hex::decode(secret_key).unwrap()).unwrap();
+        let my_account = secret_key_to_address(&signer_key);
+        let wallet = LocalWallet::new_with_signer(signer_key, my_account, chain_id);
+        let client = SignerMiddleware::new(provider, wallet);
+        let client = Arc::new(client);
 
-        // let accounts = web3.eth().accounts().await.unwrap();
-        // dbg!(&accounts);
-
-        let my_account = SecretKeyRef::new(&secret_key).address();
-
-        // // Deploying a contract
-        // let deployer_account = accounts[0];
-        // let contract = Contract::deploy(web3.eth(), artifacts.abi)?
-        //     .confirmations(0)
-        //     .options(Options::with(|_opt| {
-        //         // _opt.value = Some(5u32.into());x
-        //         // _opt.gas_price = Some(1_000_000_000u32.into());
-        //         // _opt.gas = Some(30_000_000u32.into());
-        //     }))
-        //     .execute(artifacts.bytecode, (), deployer_account)
-        //     .await?;
-
-        let contract_address: H160 = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+        let contract_address: Address = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
             .parse()
             .unwrap();
-        let contract = FlagManagerContract::new(&web3, contract_address);
-        let next_flag_id: U256 = contract.next_flag_id().await.unwrap();
-        // assert_eq!(next_flag_id, 1u32.into());
+        let contract = FlagManagerContractWrapper::new(contract_address, client);
+
+        let next_flag_id: U256 = contract.next_flag_id().call().await.unwrap();
+        dbg!(next_flag_id);
 
         println!("start register()");
-        let _res = contract
-            .register(
-                SecretKeyRef::new(&secret_key),
-                my_account,
-                1u8.into(),
-                100u64.into(),
-            )
+        contract
+            .register(my_account, 1u8.into(), 100u64.into())
+            .send()
             .await
             .unwrap();
         println!("end register()");
@@ -231,10 +231,7 @@ mod tests {
         dbg!(logs);
 
         println!("start activate()");
-        let _res = contract
-            .activate(SecretKeyRef::new(&secret_key), next_flag_id)
-            .await
-            .unwrap();
+        contract.test_activate(next_flag_id).send().await.unwrap();
         println!("end activate()");
 
         let logs = contract.get_activate_events().await.unwrap();

@@ -1,0 +1,14 @@
+[tasks.copy-env]
+script = [
+  "cp -n example.env .env",
+]
+
+[tasks.deploy-contracts]
+script = [
+  "if [ ! -e .env ]",
+  "then echo '.env does not exist'; exit 1",
+  "fi",
+  "export $(grep -v '^#' .env | xargs)",
+  "cd contracts",
+  "forge create --rpc-url $RPC_URL --private-key $PRIVATE_KEY --legacy contracts/FlagManager.test.sol:FlagManagerTest"
+]

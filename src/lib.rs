@@ -34,13 +34,16 @@ pub struct ActivateEvent {
     pub flag_id: U256,
 }
 
-pub struct FlagManagerContract<T: Transport>(pub Contract<T>);
+pub struct FlagManagerContract<T: Transport> {
+    pub contract: Contract<T>,
+    // eth: web3::api::Eth<T>,
+}
 
 impl<T: Transport> std::ops::Deref for FlagManagerContract<T> {
     type Target = Contract<T>;
 
     fn deref(&self) -> &Self::Target {
-        &self.0
+        &self.contract
     }
 }
 
@@ -58,7 +61,9 @@ impl<T: Transport> FlagManagerContract<T> {
         ))
         .unwrap();
 
-        Self(Contract::new(web3.eth(), contract_address, artifacts.abi))
+        Self {
+            contract: Contract::new(web3.eth(), contract_address, artifacts.abi),
+        }
     }
 
     pub async fn next_flag_id(&self) -> web3::contract::Result<U256> {
@@ -83,10 +88,22 @@ impl<T: Transport> FlagManagerContract<T> {
         asset_id: U256,
         amount: U256,
     ) -> web3::Result<TransactionReceipt> {
+        let gas = self
+            .estimate_gas(
+                "register",
+                (recipient, asset_id, amount),
+                signer_key.address(),
+                Options::default(),
+            )
+            .await
+            .unwrap();
+        dbg!(gas);
         self.signed_call_with_confirmations(
             "register",
             (recipient, asset_id, amount),
-            send_options(),
+            Options::with(|opt| {
+                opt.gas = Some(gas);
+            }),
             0,
             signer_key,
         )
@@ -98,10 +115,22 @@ impl<T: Transport> FlagManagerContract<T> {
         signer_key: impl web3::signing::Key,
         flag_id: U256,
     ) -> web3::Result<TransactionReceipt> {
+        let gas = self
+            .estimate_gas(
+                "testActivate",
+                (flag_id,),
+                signer_key.address(),
+                Options::default(),
+            )
+            .await
+            .unwrap();
+        dbg!(gas);
         self.signed_call_with_confirmations(
             "testActivate",
             (flag_id,),
-            send_options(),
+            Options::with(|opt| {
+                opt.gas = Some(gas);
+            }),
             0,
             signer_key,
         )
@@ -109,7 +138,7 @@ impl<T: Transport> FlagManagerContract<T> {
     }
 
     pub async fn get_register_events(&self) -> web3::contract::Result<Vec<RegisterEvent>> {
-        let logs: Vec<(U256, H160, U256, U256)> = self.0.events("Register", (), (), ()).await?;
+        let logs: Vec<(U256, H160, U256, U256)> = self.events("Register", (), (), ()).await?;
         let logs = logs
             .into_iter()
             .map(|v| RegisterEvent {
@@ -124,7 +153,7 @@ impl<T: Transport> FlagManagerContract<T> {
     }
 
     pub async fn get_activate_events(&self) -> web3::contract::Result<Vec<ActivateEvent>> {
-        let logs: Vec<(U256,)> = self.0.events("Activate", (), (), ()).await?;
+        let logs: Vec<(U256,)> = self.events("Activate", (), (), ()).await?;
         let logs = logs
             .into_iter()
             .map(|v| ActivateEvent { flag_id: v.0 })
@@ -139,17 +168,27 @@ mod tests {
     use std::str::FromStr;
 
     use secp256k1::key::SecretKey;
-    use web3::{signing::SecretKeyRef, types::U256};
+    use web3::{
+        signing::{Key, SecretKeyRef},
+        types::U256,
+    };
 
     use super::*;
 
     #[tokio::test]
-    async fn it_works() -> web3::contract::Result<()> {
-        let transport = web3::transports::Http::new("http://localhost:8545")?;
+    async fn it_works() {
+        let secret_key =
+            SecretKey::from_str("ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80")
+                .unwrap();
+        let rpc_url = "http://localhost:8545";
+
+        let transport = web3::transports::Http::new(rpc_url).unwrap();
         let web3 = web3::Web3::new(transport);
 
-        let accounts = web3.eth().accounts().await?;
+        // let accounts = web3.eth().accounts().await.unwrap();
         // dbg!(&accounts);
+
+        let my_account = SecretKeyRef::new(&secret_key).address();
 
         // // Deploying a contract
         // let deployer_account = accounts[0];
@@ -163,48 +202,45 @@ mod tests {
         //     .execute(artifacts.bytecode, (), deployer_account)
         //     .await?;
 
-        let contract_address: H160 = "0xc3e53F4d16Ae77Db1c982e75a937B9f60FE63690"
+        let contract_address: H160 = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
             .parse()
             .unwrap();
         let contract = FlagManagerContract::new(&web3, contract_address);
-        let next_flag_id: U256 = contract.next_flag_id().await?;
+        let next_flag_id: U256 = contract.next_flag_id().await.unwrap();
         // assert_eq!(next_flag_id, 1u32.into());
 
         println!("start register()");
-        let secret_key =
-            SecretKey::from_str("ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80")
-                .unwrap();
         let _res = contract
             .register(
                 SecretKeyRef::new(&secret_key),
-                accounts[1],
+                my_account,
                 1u8.into(),
                 100u64.into(),
             )
-            .await?;
+            .await
+            .unwrap();
         println!("end register()");
 
-        let next_next_flag_id: U256 = contract.next_flag_id().await?;
+        let next_next_flag_id: U256 = contract.next_flag_id().await.unwrap();
         assert_eq!(next_next_flag_id, next_flag_id + U256::from(1u8));
 
-        let is_registered = contract.is_registered(next_flag_id).await?;
+        let is_registered = contract.is_registered(next_flag_id).await.unwrap();
         assert!(is_registered);
 
-        let logs = contract.get_register_events().await?;
+        let logs = contract.get_register_events().await.unwrap();
         dbg!(logs);
 
         println!("start activate()");
         let _res = contract
             .activate(SecretKeyRef::new(&secret_key), next_flag_id)
-            .await?;
+            .await
+            .unwrap();
         println!("end activate()");
 
-        let logs = contract.get_activate_events().await?;
+        let logs = contract.get_activate_events().await.unwrap();
         dbg!(logs);
 
-        let is_activated = contract.is_activated(next_flag_id).await?;
+        let is_activated = contract.is_activated(next_flag_id).await.unwrap();
         assert!(is_activated);
-
-        Ok(())
     }
 }

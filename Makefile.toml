@@ -3,6 +3,12 @@ script = [
   "cp -n example.env .env",
 ]
 
+[tasks.compile-contracts]
+script = [
+  "cd contracts",
+  "forge compile --out artifacts"
+]
+
 [tasks.deploy-contracts]
 script = [
   "if [ ! -e .env ]",

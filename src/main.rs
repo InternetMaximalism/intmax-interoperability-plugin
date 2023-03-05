@@ -41,7 +41,7 @@ async fn main() {
 
     println!("start register()");
     contract
-        .register(my_account, 1u8.into(), 100u64.into())
+        .test_register(my_account, 1u8.into(), 100u64.into())
         .send()
         .await
         .unwrap();

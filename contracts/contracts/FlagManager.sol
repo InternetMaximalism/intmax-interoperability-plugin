@@ -60,11 +60,11 @@ contract FlagManager {
      * @param assetId is the asset ID you want to transfer.
      * @param amount is the amount you want to transfer.
      */
-    function register(
+    function _register(
         address recipient,
         uint256 assetId,
         uint256 amount
-    ) public returns (uint256 flagId) {
+    ) internal returns (uint256 flagId) {
         // Uncomment this line, and the import of "hardhat/console.sol", to print a log in your terminal
         // console.log("Unlock time is %o and block timestamp is %o", unlockTime, block.timestamp);
 

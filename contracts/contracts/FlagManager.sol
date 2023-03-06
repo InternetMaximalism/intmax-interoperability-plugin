@@ -6,7 +6,7 @@ pragma solidity ^0.8.9;
 
 contract FlagManager {
     struct Remittance {
-        address recipient;
+        bytes32 recipient;
         uint256 assetId;
         uint256 amount;
     }
@@ -43,7 +43,7 @@ contract FlagManager {
      */
     event Register(
         uint256 indexed flagId,
-        address indexed recipient,
+        bytes32 indexed recipient,
         uint256 indexed assetId,
         uint256 amount
     );
@@ -61,7 +61,7 @@ contract FlagManager {
      * @param amount is the amount you want to transfer.
      */
     function _register(
-        address recipient,
+        bytes32 recipient,
         uint256 assetId,
         uint256 amount
     ) internal returns (uint256 flagId) {
@@ -107,7 +107,7 @@ contract FlagManager {
     }
 
     function _isValidRemittance(Remittance memory remittance) internal pure {
-        require(remittance.assetId <= MAX_ASSET_ID, "invalid asset ID");
+        // require(remittance.assetId <= MAX_ASSET_ID, "invalid asset ID");
         require(
             remittance.amount <= MAX_REMITTANCE_AMOUNT,
             "invalid remittance amount"

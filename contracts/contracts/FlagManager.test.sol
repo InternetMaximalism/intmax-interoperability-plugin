@@ -11,7 +11,7 @@ contract FlagManagerTest is FlagManager {
      * @param amount is the amount you want to transfer.
      */
     function testRegister(
-        address recipient,
+        bytes32 recipient,
         uint256 assetId,
         uint256 amount
     ) external returns (uint256 flagId) {

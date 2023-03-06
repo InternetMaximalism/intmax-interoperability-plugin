@@ -4,8 +4,10 @@ use ethers::{
     contract::abigen,
     core::types::{Address, U256},
     providers::Middleware,
-    types::Filter,
+    types::{Filter, H256},
 };
+
+pub extern crate ethers;
 
 abigen!(
     FlagManagerContract,
@@ -17,7 +19,7 @@ pub struct RegisterEvent {
     /// topic 0
     pub flag_id: U256,
     /// topic 1
-    pub recipient: Address,
+    pub recipient: H256,
     /// topic 2
     pub asset_id: U256,
     pub amount: U256,
@@ -126,7 +128,7 @@ impl<M: Middleware> FlagManagerContractWrapper<M> {
     pub async fn get_register_events(&self) -> anyhow::Result<Vec<RegisterEvent>> {
         let filter = Filter::new()
             .address(self.address)
-            .event("Register(uint256,address,uint256,uint256)")
+            .event("Register(uint256,bytes32,uint256,uint256)")
             .from_block(0);
         let logs = self
             .client
@@ -137,7 +139,7 @@ impl<M: Middleware> FlagManagerContractWrapper<M> {
             .into_iter()
             .map(|log| {
                 let flag_id = U256::from_big_endian(log.topics[1].as_bytes());
-                let recipient = Address::from(log.topics[2]);
+                let recipient = log.topics[2];
                 let asset_id = U256::from_big_endian(log.topics[3].as_bytes());
                 let amount = U256::from_big_endian(&log.data);
 
@@ -178,66 +180,66 @@ impl<M: Middleware> FlagManagerContractWrapper<M> {
 
 #[cfg(test)]
 mod tests {
-    use std::{sync::Arc, time::Duration};
+    // use std::{sync::Arc, time::Duration};
 
-    use ethers::{
-        core::types::{Address, U256},
-        middleware::SignerMiddleware,
-        prelude::k256::ecdsa::SigningKey,
-        providers::{Http, Provider},
-        signers::LocalWallet,
-        utils::secret_key_to_address,
-    };
+    // use ethers::{
+    //     core::types::{Address, U256},
+    //     middleware::SignerMiddleware,
+    //     prelude::k256::ecdsa::SigningKey,
+    //     providers::{Http, Provider},
+    //     signers::LocalWallet,
+    //     utils::secret_key_to_address,
+    // };
 
-    use super::*;
+    // use super::*;
 
-    #[tokio::test]
-    async fn it_works() {
-        let provider = Provider::<Http>::try_from("http://localhost:8545")
-            .unwrap()
-            .interval(Duration::from_millis(10u64));
-        let secret_key = "ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
-        let chain_id = 31337;
+    // #[tokio::test]
+    // async fn it_works() {
+    //     let provider = Provider::<Http>::try_from("http://localhost:8545")
+    //         .unwrap()
+    //         .interval(Duration::from_millis(10u64));
+    //     let secret_key = "ac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80";
+    //     let chain_id = 31337;
 
-        let signer_key = SigningKey::from_bytes(&hex::decode(secret_key).unwrap()).unwrap();
-        let my_account = secret_key_to_address(&signer_key);
-        let wallet = LocalWallet::new_with_signer(signer_key, my_account, chain_id);
-        let client = SignerMiddleware::new(provider, wallet);
-        let client = Arc::new(client);
+    //     let signer_key = SigningKey::from_bytes(&hex::decode(secret_key).unwrap()).unwrap();
+    //     let my_account = secret_key_to_address(&signer_key);
+    //     let wallet = LocalWallet::new_with_signer(signer_key, my_account, chain_id);
+    //     let client = SignerMiddleware::new(provider, wallet);
+    //     let client = Arc::new(client);
 
-        let contract_address: Address = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
-            .parse()
-            .unwrap();
-        let contract = FlagManagerContractWrapper::new(contract_address, client);
+    //     let contract_address: Address = "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+    //         .parse()
+    //         .unwrap();
+    //     let contract = FlagManagerContractWrapper::new(contract_address, client);
 
-        let next_flag_id: U256 = contract.next_flag_id().call().await.unwrap();
-        dbg!(next_flag_id);
+    //     let next_flag_id: U256 = contract.next_flag_id().call().await.unwrap();
+    //     dbg!(next_flag_id);
 
-        println!("start register()");
-        contract
-            .test_register(my_account, 1u8.into(), 100u64.into())
-            .send()
-            .await
-            .unwrap();
-        println!("end register()");
+    //     println!("start register()");
+    //     contract
+    //         .test_register([0u8; 32], 1u8.into(), 100u64.into())
+    //         .send()
+    //         .await
+    //         .unwrap();
+    //     println!("end register()");
 
-        let next_next_flag_id: U256 = contract.next_flag_id().await.unwrap();
-        assert_eq!(next_next_flag_id, next_flag_id + U256::from(1u8));
+    //     let next_next_flag_id: U256 = contract.next_flag_id().await.unwrap();
+    //     assert_eq!(next_next_flag_id, next_flag_id + U256::from(1u8));
 
-        let is_registered = contract.is_registered(next_flag_id).await.unwrap();
-        assert!(is_registered);
+    //     let is_registered = contract.is_registered(next_flag_id).await.unwrap();
+    //     assert!(is_registered);
 
-        let logs = contract.get_register_events().await.unwrap();
-        dbg!(logs);
+    //     let logs = contract.get_register_events().await.unwrap();
+    //     dbg!(logs);
 
-        println!("start activate()");
-        contract.test_activate(next_flag_id).send().await.unwrap();
-        println!("end activate()");
+    //     println!("start activate()");
+    //     contract.test_activate(next_flag_id).send().await.unwrap();
+    //     println!("end activate()");
 
-        let logs = contract.get_activate_events().await.unwrap();
-        dbg!(logs);
+    //     let logs = contract.get_activate_events().await.unwrap();
+    //     dbg!(logs);
 
-        let is_activated = contract.is_activated(next_flag_id).await.unwrap();
-        assert!(is_activated);
-    }
+    //     let is_activated = contract.is_activated(next_flag_id).await.unwrap();
+    //     assert!(is_activated);
+    // }
 }

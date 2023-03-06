@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0"
 dotenv = "0.15"
-ethers = { version = "1.5", features = ["abigen", "ethers-solc", "legacy", "rustls", "ws"] }
+ethers = { version = "1.5", features = ["abigen", "ethers-solc", "legacy", "rustls"] }
 hex = "0.4"
 hex-literal = "0.3"
 serde = "1.0"

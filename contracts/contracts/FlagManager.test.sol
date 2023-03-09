@@ -12,7 +12,7 @@ contract FlagManagerTest is FlagManager {
      */
     function testRegister(
         bytes32 recipient,
-        bytes calldata assetId,
+        uint256 assetId,
         uint256 amount
     ) external returns (uint256 flagId) {
         return _register(recipient, assetId, amount);

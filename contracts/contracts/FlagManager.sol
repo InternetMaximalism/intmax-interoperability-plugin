@@ -7,7 +7,7 @@ pragma solidity ^0.8.9;
 contract FlagManager {
     struct Remittance {
         bytes32 recipient;
-        uint256 assetId;
+        bytes assetId;
         uint256 amount;
     }
 
@@ -44,7 +44,7 @@ contract FlagManager {
     event Register(
         uint256 indexed flagId,
         bytes32 indexed recipient,
-        uint256 indexed assetId,
+        bytes indexed assetId,
         uint256 amount
     );
 
@@ -62,7 +62,7 @@ contract FlagManager {
      */
     function _register(
         bytes32 recipient,
-        uint256 assetId,
+        bytes memory assetId,
         uint256 amount
     ) internal returns (uint256 flagId) {
         // Uncomment this line, and the import of "hardhat/console.sol", to print a log in your terminal

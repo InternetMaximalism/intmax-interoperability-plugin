@@ -13,7 +13,7 @@ use intmax_interoperability_plugin::FlagManagerContractWrapper;
 
 #[tokio::main]
 async fn main() {
-    let _ = dotenv().ok();
+    dotenv().ok();
     let secret_key = std::env::var("PRIVATE_KEY").expect("PRIVATE_KEY must be set in .env file");
     let rpc_url = std::env::var("RPC_URL").expect("RPC_URL must be set in .env file");
     let chain_id: u64 = std::env::var("CHAIN_ID")

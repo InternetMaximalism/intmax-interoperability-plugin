@@ -1,12 +1,12 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const FlagManager = await ethers.getContractFactory("FlagManagerTest");
-  const flagManager = await FlagManager.deploy();
+  const OfferManager = await ethers.getContractFactory("OfferManagerTest");
+  const offerManager = await OfferManager.deploy();
 
-  await flagManager.deployed();
+  await offerManager.deployed();
 
-  console.log(`Deploy a FlagManager contract: ${flagManager.address}`);
+  console.log(`Deploy a OfferManager contract: ${offerManager.address}`);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

@@ -6,7 +6,6 @@ import "./OfferManager.sol";
 contract OfferManagerTest is OfferManager {
     /**
      * This function registers a new offer.
-     * @param maker is the maker's account.
      * @param makerAssetId is the asset ID a maker sell to taker.
      * @param makerAmount is the amount a maker sell to taker.
      * @param taker is the taker's account.
@@ -14,7 +13,6 @@ contract OfferManagerTest is OfferManager {
      * @param takerAmount is the amount a taker should pay.
      */
     function testRegister(
-        address maker,
         uint256 makerAssetId,
         uint256 makerAmount,
         bytes32 taker,
@@ -23,7 +21,7 @@ contract OfferManagerTest is OfferManager {
     ) external returns (uint256 flagId) {
         return
             _register(
-                maker,
+                msg.sender,
                 makerAssetId,
                 makerAmount,
                 taker,

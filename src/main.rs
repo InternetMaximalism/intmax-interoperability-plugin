@@ -42,14 +42,13 @@ async fn main() {
     println!("start register()");
     contract
         .test_register(
-            Address::default(), // maker
-            1u8.into(),         // maker_asset_id
-            100u64.into(),      // maker_amount
-            [0u8; 32],          // taker
+            1u8.into(),    // maker_asset_id
+            100u64.into(), // maker_amount
+            [0u8; 32],     // taker
             "0x0000000000000000000000000000000000000000"
                 .parse()
                 .unwrap(), // taker_token_address
-            1u8.into(),         // taker_amount
+            1u8.into(),    // taker_amount
         )
         .send()
         .await

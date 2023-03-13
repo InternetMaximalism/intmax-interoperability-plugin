@@ -53,7 +53,6 @@ contract OfferManager {
 
     /**
      * This function registers a new offer.
-     * @param maker is the maker's account.
      * @param makerAssetId is the asset ID a maker sell to taker.
      * @param makerAmount is the amount a maker sell to taker.
      * @param taker is the taker's account.
@@ -61,7 +60,6 @@ contract OfferManager {
      * @param takerAmount is the amount a taker should pay.
      */
     function register(
-        address maker,
         uint256 makerAssetId,
         uint256 makerAmount,
         bytes32 taker,
@@ -74,7 +72,7 @@ contract OfferManager {
 
         return
             _register(
-                maker,
+                msg.sender,
                 makerAssetId,
                 makerAmount,
                 taker,

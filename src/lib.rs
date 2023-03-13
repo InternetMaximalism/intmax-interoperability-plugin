@@ -10,8 +10,8 @@ use ethers::{
 pub extern crate ethers;
 
 abigen!(
-    FlagManagerContract,
-    "./contracts/artifacts/FlagManager.test.sol/FlagManagerTest.json"
+    OfferManagerContract,
+    "./contracts/artifacts/OfferManager.test.sol/OfferManagerTest.json"
 );
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -31,24 +31,24 @@ pub struct ActivateEvent {
     pub flag_id: U256,
 }
 
-pub struct FlagManagerContractWrapper<M> {
-    pub contract: FlagManagerContract<M>,
+pub struct OfferManagerContractWrapper<M> {
+    pub contract: OfferManagerContract<M>,
     pub address: Address,
     client: Arc<M>,
 }
 
-impl<M> std::ops::Deref for FlagManagerContractWrapper<M> {
-    type Target = FlagManagerContract<M>;
+impl<M> std::ops::Deref for OfferManagerContractWrapper<M> {
+    type Target = OfferManagerContract<M>;
 
     fn deref(&self) -> &Self::Target {
         &self.contract
     }
 }
 
-impl<M: Middleware> FlagManagerContractWrapper<M> {
+impl<M: Middleware> OfferManagerContractWrapper<M> {
     pub fn new(contract_address: Address, client: Arc<M>) -> Self {
         Self {
-            contract: FlagManagerContract::new(contract_address, client.clone()),
+            contract: OfferManagerContract::new(contract_address, client.clone()),
             address: contract_address,
             client,
         }

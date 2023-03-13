@@ -9,7 +9,7 @@ use ethers::{
     signers::LocalWallet,
     utils::secret_key_to_address,
 };
-use intmax_interoperability_plugin::FlagManagerContractWrapper;
+use intmax_interoperability_plugin::OfferManagerContractWrapper;
 
 #[tokio::main]
 async fn main() {
@@ -34,35 +34,44 @@ async fn main() {
         .expect("CONTRACT_ADDRESS must be set in .env file")
         .parse()
         .unwrap();
-    let contract = FlagManagerContractWrapper::new(contract_address, client);
+    let contract = OfferManagerContractWrapper::new(contract_address, client);
 
-    let next_flag_id: U256 = contract.next_flag_id().call().await.unwrap();
-    dbg!(next_flag_id);
+    let next_offer_id: U256 = contract.next_offer_id().call().await.unwrap();
+    dbg!(next_offer_id);
 
     println!("start register()");
     contract
-        .test_register([0u8; 32], 1u8.into(), 100u64.into())
+        .test_register(
+            Address::default(), // maker
+            1u8.into(),         // maker_asset_id
+            100u64.into(),      // maker_amount
+            [0u8; 32],          // taker
+            "0x0000000000000000000000000000000000000000"
+                .parse()
+                .unwrap(), // taker_token_address
+            1u8.into(),         // taker_amount
+        )
         .send()
         .await
         .unwrap();
     println!("end register()");
 
-    let next_next_flag_id: U256 = contract.next_flag_id().await.unwrap();
-    assert_eq!(next_next_flag_id, next_flag_id + U256::from(1u8));
+    let next_next_offer_id: U256 = contract.next_offer_id().await.unwrap();
+    assert_eq!(next_next_offer_id, next_offer_id + U256::from(1u8));
 
-    let is_registered = contract.is_registered(next_flag_id).await.unwrap();
+    let is_registered = contract.is_registered(next_offer_id).await.unwrap();
     assert!(is_registered);
 
     let logs = contract.get_register_events().await.unwrap();
     dbg!(logs);
 
     println!("start activate()");
-    contract.test_activate(next_flag_id).send().await.unwrap();
+    contract.test_activate(next_offer_id).send().await.unwrap();
     println!("end activate()");
 
     let logs = contract.get_activate_events().await.unwrap();
     dbg!(logs);
 
-    let is_activated = contract.is_activated(next_flag_id).await.unwrap();
+    let is_activated = contract.is_activated(next_offer_id).await.unwrap();
     assert!(is_activated);
 }

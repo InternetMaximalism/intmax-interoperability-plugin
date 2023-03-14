@@ -61,7 +61,7 @@ async fn main() {
     let is_registered = contract.is_registered(next_offer_id).await.unwrap();
     assert!(is_registered);
 
-    let logs = contract.get_register_events().await.unwrap();
+    let logs = contract.get_register_events(vec![]).await.unwrap();
     dbg!(logs);
 
     println!("start activate()");

@@ -88,7 +88,7 @@ contract OfferManager {
 
         // The taker transfers taker's asset to maker.
         require(_checkTakerTokenAddress(offer.takerTokenAddress));
-        bool res = maker.send(msg.value);
+        bool res = maker.send(offer.takerAmount);
         require(res, "failed to send Ether");
 
         _activate(offerId);

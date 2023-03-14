@@ -1,7 +1,7 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const OfferManager = await ethers.getContractFactory("OfferManagerTest");
+  const OfferManager = await ethers.getContractFactory("OfferManager");
   const offerManager = await OfferManager.deploy();
 
   await offerManager.deployed();

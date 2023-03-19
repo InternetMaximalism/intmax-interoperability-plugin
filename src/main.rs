@@ -9,7 +9,7 @@ use ethers::{
     signers::LocalWallet,
     utils::secret_key_to_address,
 };
-use intmax_interoperability_plugin::OfferManagerContractWrapper;
+use intmax_interoperability_plugin::contracts::offer_manager::OfferManagerContractWrapper;
 
 #[tokio::main]
 async fn main() {

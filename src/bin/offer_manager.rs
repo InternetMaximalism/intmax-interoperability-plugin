@@ -15,13 +15,10 @@ use intmax_interoperability_plugin::contracts::offer_manager::OfferManagerContra
 async fn main() {
     let _ = dotenv().ok();
     let secret_key = std::env::var("PRIVATE_KEY").expect("PRIVATE_KEY must be set in .env file");
-    let rpc_url = std::env::var("RPC_URL").expect("RPC_URL must be set in .env file");
-    let chain_id: u64 = std::env::var("CHAIN_ID")
-        .expect("CHAIN_ID must be set in .env file")
-        .parse()
-        .unwrap();
+    let rpc_url = "https://rpc.public.zkevm-test.net";
+    let chain_id = 1442u64;
 
-    let provider = Provider::<Http>::try_from(&rpc_url)
+    let provider = Provider::<Http>::try_from(rpc_url)
         .unwrap()
         .interval(Duration::from_millis(10u64));
     let signer_key = SigningKey::from_bytes(&hex::decode(&secret_key).unwrap()).unwrap();
@@ -30,8 +27,7 @@ async fn main() {
     let client = SignerMiddleware::new(provider, wallet);
     let client = Arc::new(client);
 
-    let contract_address: Address = std::env::var("CONTRACT_ADDRESS")
-        .expect("CONTRACT_ADDRESS must be set in .env file")
+    let contract_address: Address = "0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7"
         .parse()
         .unwrap();
     let contract = OfferManagerContractWrapper::new(contract_address, client);

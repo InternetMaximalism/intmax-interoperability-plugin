@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.9;
 
-contract OfferManager {
+import "./OfferManagerInterface.sol";
+
+contract OfferManager is OfferManagerInterface {
     struct Offer {
         address maker;
         uint256 makerAssetId;
@@ -24,34 +26,6 @@ contract OfferManager {
      * @dev This is the mapping from offer ID to offer data.
      */
     mapping(uint256 => Offer) offers;
-
-    /**
-     * This event occurs when certain offers are registered.
-     * @param offerId is the ID of the offer.
-     * @param maker is the maker's account.
-     * @param taker is the taker's account.
-     * @param makerAssetId is the asset ID a maker sell to taker.
-     * @param makerAmount is the amount a maker sell to taker.
-     * @param takerTokenAddress is the token address a taker should pay.
-     * @param takerAmount is the amount a taker should pay.
-     */
-    event Register(
-        uint256 indexed offerId,
-        address indexed maker,
-        bytes32 indexed taker,
-        uint256 makerAssetId,
-        uint256 makerAmount,
-        address takerTokenAddress,
-        uint256 takerAmount
-    );
-
-    /**
-     * This event occurs when certain offers are activated.
-     * @param offerId is the ID of the offer.
-     */
-    event Activate(uint256 indexed offerId);
-
-    event Deactivate(uint256 indexed offerId);
 
     /**
      * This function registers a new offer.
@@ -113,7 +87,10 @@ contract OfferManager {
     function deactivate(uint256 offerId) external returns (bool) {
         Offer memory offer = offers[offerId];
 
-        require(msg.sender == offer.maker, "");
+        require(
+            msg.sender == offer.maker,
+            "offers can be deactivated by its maker"
+        );
 
         _deactivate(offerId);
 

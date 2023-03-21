@@ -1,6 +1,6 @@
 # IntMax interoperability plugin
 
-## How to use
+## How to test
 
 Setup a local node.
 
@@ -23,5 +23,5 @@ cargo make deploy-contracts
 Interact to the contract.
 
 ```sh
-cargo run
+cargo run --bin offer_manager
 ```

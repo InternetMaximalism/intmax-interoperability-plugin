@@ -1,5 +1,6 @@
 {
-  "name": "hardhat-project",
+  "name": "intmax-interoperability-contracts",
+  "version": "0.1.0",
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^2.0.1",
     "hardhat": "^2.12.7"

@@ -13,18 +13,22 @@ contract OfferManagerTest is OfferManager {
      * @param takerAmount is the amount a taker should pay.
      */
     function testRegister(
+        bytes32 makerIntmax,
         uint256 makerAssetId,
         uint256 makerAmount,
-        bytes32 taker,
+        address taker,
+        bytes32 takerIntmax,
         address takerTokenAddress,
         uint256 takerAmount
     ) external returns (uint256 flagId) {
         return
             _register(
                 msg.sender,
+                makerIntmax,
                 makerAssetId,
                 makerAmount,
                 taker,
+                takerIntmax,
                 takerTokenAddress,
                 takerAmount
             );

@@ -20,7 +20,7 @@ describe("OfferManager", function () {
     it("Should return the valid next flag ID", async function () {
       const { offerManager } = await loadFixture(deployFlagManager);
 
-      expect(await offerManager.nextFlagId()).to.equal(0);
+      expect(await offerManager.nextOfferId()).to.equal(0);
     });
   });
 });

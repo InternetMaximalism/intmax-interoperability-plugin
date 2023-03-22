@@ -28,7 +28,7 @@ pub struct RegisterEvent {
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub struct ActivateEvent {
     /// topic 0
-    pub flag_id: U256,
+    pub offer_id: U256,
 
     /// topic 1
     pub taker: H256,
@@ -117,10 +117,10 @@ impl<M: Middleware> OfferManagerContractWrapper<M> {
         let logs = logs
             .into_iter()
             .map(|log| {
-                let flag_id = U256::from_big_endian(log.topics[1].as_bytes());
-                let taker = H256::from(log.topics[2]);
+                let offer_id = U256::from_big_endian(log.topics[1].as_bytes());
+                let taker = log.topics[2];
 
-                ActivateEvent { flag_id, taker }
+                ActivateEvent { offer_id, taker }
             })
             .collect::<Vec<_>>();
 

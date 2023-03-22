@@ -38,9 +38,11 @@ async fn main() {
     println!("start register()");
     contract
         .test_register(
+            [0u8; 32],     // maker_intmax
             1u8.into(),    // maker_asset_id
             100u64.into(), // maker_amount
-            [0u8; 32],     // taker
+            my_account,    // taker
+            [0u8; 32],     // taker_intmax
             "0x0000000000000000000000000000000000000000"
                 .parse()
                 .unwrap(), // taker_token_address

@@ -74,6 +74,8 @@ interface OfferManagerInterface {
      */
     function deactivate(uint256 offerId) external returns (bool);
 
+    function nextOfferId() external view returns (uint256);
+
     function getOffer(
         uint256 offerId
     )

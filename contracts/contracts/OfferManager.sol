@@ -43,7 +43,7 @@ contract OfferManager is OfferManagerInterface {
             _checkTakerTokenAddress(takerTokenAddress),
             "`takerTokenAddress` only allows zero address (= ETH)"
         );
-        require(_checkTaker(takerIntmax), "`taker` should not be zero");
+        require(_checkTaker(takerIntmax), "`takerIntmax` should not be zero");
 
         return
             _register(

@@ -18,8 +18,6 @@ pub struct RegisterEvent {
     pub offer_id: U256,
     /// topic 1
     pub maker: H160,
-    /// topic 2
-    pub taker: H256,
 
     pub asset_id: U256,
     pub maker_amount: U256,
@@ -31,6 +29,9 @@ pub struct RegisterEvent {
 pub struct ActivateEvent {
     /// topic 0
     pub flag_id: U256,
+
+    /// topic 1
+    pub taker: H256,
 }
 
 pub struct OfferManagerContractWrapper<M> {
@@ -60,10 +61,10 @@ impl<M: Middleware> OfferManagerContractWrapper<M> {
         &self,
         topic1: Vec<H256>,
     ) -> anyhow::Result<Vec<RegisterEvent>> {
-        // Register(offerId, maker, taker, makerAssetId, makerAmount, takerTokenAddress, takerAmount)
+        // Register(indexed offerId, indexed maker, makerIntmax, makerAssetId, makerAmount, taker, takerTokenAddress, takerAmount)
         let filter = Filter::new()
             .address(self.address)
-            .event("Register(uint256,address,bytes32,uint256,uint256,address,uint256)")
+            .event("Register(uint256,address,bytes32,uint256,uint256,address,address,uint256)")
             .topic1(topic1.clone())
             .from_block(0);
         let logs = self
@@ -82,18 +83,16 @@ impl<M: Middleware> OfferManagerContractWrapper<M> {
 
                 let offer_id = U256::from_big_endian(log.topics[1].as_bytes());
                 let maker = H160::from(log.topics[2]);
-                let taker = log.topics[3];
                 dbg!(&log.data);
-                let asset_id = U256::from_big_endian(&log.data[0..32]);
-                let maker_amount = U256::from_big_endian(&log.data[32..64]);
-                let taker_token_address = H160::from(H256::from_slice(&log.data[64..96]));
-                let taker_amount = U256::from_big_endian(&log.data[96..128]);
+                let maker_asset_id = U256::from_big_endian(&log.data[32..64]);
+                let maker_amount = U256::from_big_endian(&log.data[64..96]);
+                let taker_token_address = H256::from_slice(&log.data[128..160]).into();
+                let taker_amount = U256::from_big_endian(&log.data[160..192]);
 
                 Some(RegisterEvent {
                     offer_id,
                     maker,
-                    taker,
-                    asset_id,
+                    asset_id: maker_asset_id,
                     maker_amount,
                     taker_token_address,
                     taker_amount,
@@ -105,9 +104,10 @@ impl<M: Middleware> OfferManagerContractWrapper<M> {
     }
 
     pub async fn get_activate_events(&self) -> anyhow::Result<Vec<ActivateEvent>> {
+        // Activate(indexed offerId, indexed takerIntmax)
         let filter = Filter::new()
             .address(self.address)
-            .event("Activate(uint256)")
+            .event("Activate(uint256,bytes32)")
             .from_block(0);
         let logs = self
             .client
@@ -118,8 +118,9 @@ impl<M: Middleware> OfferManagerContractWrapper<M> {
             .into_iter()
             .map(|log| {
                 let flag_id = U256::from_big_endian(log.topics[1].as_bytes());
+                let taker = H256::from(log.topics[2]);
 
-                ActivateEvent { flag_id }
+                ActivateEvent { flag_id, taker }
             })
             .collect::<Vec<_>>();
 

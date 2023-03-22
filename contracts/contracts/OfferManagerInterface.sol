@@ -59,6 +59,11 @@ interface OfferManagerInterface {
         uint256 takerAmount
     ) external returns (uint256 flagId);
 
+    /**
+     * This function updates taker.
+     * @param offerId is the ID of the offer.
+     * @param newTaker is a new taker.
+     */
     function updateTaker(uint256 offerId, bytes32 newTaker) external;
 
     /**

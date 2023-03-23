@@ -90,9 +90,9 @@ contract OfferManager is OfferManagerInterface {
             msg.value >= offer.takerAmount,
             "please send enough money to activate"
         );
-        payable(offer.maker).transfer(msg.value);
 
         _activate(offerId);
+        payable(offer.maker).transfer(msg.value);
 
         return true;
     }

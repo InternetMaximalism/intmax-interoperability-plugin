@@ -16,5 +16,6 @@ script = [
   "fi",
   "export $(grep -v '^#' .env | xargs)",
   "cd contracts",
-  "forge create --rpc-url $RPC_URL --private-key $PRIVATE_KEY --legacy contracts/OfferManager.test.sol:OfferManagerTest"
+  "forge create --rpc-url $RPC_URL --private-key $PRIVATE_KEY --legacy contracts/OfferManager.test.sol:OfferManagerTest",
+  "forge create --rpc-url $RPC_URL --private-key $PRIVATE_KEY --legacy contracts/OfferManagerReverse.sol:OfferManagerReverse"
 ]

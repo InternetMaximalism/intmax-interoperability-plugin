@@ -5,31 +5,36 @@ interface OfferManagerReverseInterface {
     /**
      * This event occurs when certain offers are registered.
      * @param offerId is the ID of the offer.
-     * @param maker is the maker's account.
+     * @param taker is the taker's account.
+     * @param takerIntmax is the taker's intmax account.
+     * @param takerTokenAddress is the token address a taker should pay.
+     * @param takerAmount is the amount a taker should pay.
      * @param makerIntmax is the maker's intmax account.
      * @param makerAssetId is the asset ID a maker sell to taker.
      * @param makerAmount is the amount a maker sell to taker.
-     * @param taker is the taker's account.
-     * @param takerTokenAddress is the token address a taker should pay.
-     * @param takerAmount is the amount a taker should pay.
      */
     event Lock(
         uint256 indexed offerId,
-        address indexed maker,
+        address indexed taker,
+        bytes32 takerIntmax,
+        address takerTokenAddress,
+        uint256 takerAmount,
         bytes32 makerIntmax,
         uint256 makerAssetId,
-        uint256 makerAmount,
-        address taker,
-        address takerTokenAddress,
-        uint256 takerAmount
+        uint256 makerAmount
     );
+
+    /**
+     * @param offerId is the ID of the offer.
+     * @param maker is the maker's account.
+     */
+    event UpdateMaker(uint256 indexed offerId, address indexed maker);
 
     /**
      * This event occurs when certain offers are activated.
      * @param offerId is the ID of the offer.
-     * @param takerIntmax is the taker's intmax account.
      */
-    event Unlock(uint256 indexed offerId, bytes32 indexed takerIntmax);
+    event Unlock(uint256 indexed offerId, address maker);
 
     /**
      *
@@ -50,9 +55,9 @@ interface OfferManagerReverseInterface {
     /**
      * This function updates taker.
      * @param offerId is the ID of the offer.
-     * @param newTaker is a new taker.
+     * @param newMaker is a new maker.
      */
-    function updateTaker(uint256 offerId, address newTaker) external;
+    function updateMaker(uint256 offerId, address newMaker) external;
 
     /**
      * This function activate a offer in exchange for payment.

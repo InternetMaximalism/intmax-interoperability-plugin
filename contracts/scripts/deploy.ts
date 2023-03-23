@@ -7,6 +7,17 @@ async function main() {
   await offerManager.deployed();
 
   console.log(`Deploy a OfferManager contract: ${offerManager.address}`);
+
+  const OfferManagerReverse = await ethers.getContractFactory(
+    "OfferManagerReverse"
+  );
+  const offerManagerReverse = await OfferManagerReverse.deploy();
+
+  await offerManagerReverse.deployed();
+
+  console.log(
+    `Deploy a OfferManagerReverse contract: ${offerManagerReverse.address}`
+  );
 }
 
 // We recommend this pattern to be able to use async/await everywhere

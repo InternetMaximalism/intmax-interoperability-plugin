@@ -38,7 +38,7 @@ contract OfferManager is OfferManagerInterface {
         bytes32 takerIntmax,
         address takerTokenAddress,
         uint256 takerAmount
-    ) external returns (uint256 flagId) {
+    ) external returns (uint256 offerId) {
         require(
             _checkTakerTokenAddress(takerTokenAddress),
             "`takerTokenAddress` only allows zero address (= ETH)"

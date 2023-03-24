@@ -1,10 +1,10 @@
 use std::sync::Arc;
 
 use ethers::{
-    contract::{abigen, builders::Event},
+    contract::abigen,
     core::types::{Address, U256},
     providers::Middleware,
-    types::{H160, H256},
+    types::H160,
 };
 
 abigen!(

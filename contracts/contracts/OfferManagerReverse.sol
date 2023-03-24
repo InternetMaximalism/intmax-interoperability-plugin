@@ -38,14 +38,6 @@ contract OfferManagerReverse is OfferManagerReverseInterface {
 
     receive() external payable {}
 
-    /**
-     *
-     * @param takerIntmax is intmax 上で asset を受け取りたいアカウント
-     * @param maker is このチェーン上で送る宛先アカウント
-     * @param makerIntmax is intmax 上で asset を送ってほしいアカウント (zero の場合は誰でも)
-     * @param makerAssetId is intmax 上で送ってほしい asset
-     * @param makerAmount is intmax 上で送ってほしい asset の量
-     */
     function lock(
         bytes32 takerIntmax,
         address maker,
@@ -84,11 +76,6 @@ contract OfferManagerReverse is OfferManagerReverseInterface {
         emit UpdateMaker(offerId, newMaker);
     }
 
-    /**
-     * This function activate a offer in exchange for payment.
-     * @param offerId is the ID of the offer.
-     * @param witness is the witness that maker sends asset to taker on intmax.
-     */
     function unlock(
         uint256 offerId,
         bytes memory witness

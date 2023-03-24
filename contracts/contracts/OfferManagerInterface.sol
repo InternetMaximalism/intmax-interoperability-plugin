@@ -37,6 +37,10 @@ interface OfferManagerInterface {
      */
     event Activate(uint256 indexed offerId, bytes32 indexed takerIntmax);
 
+    /**
+     * This event occurs when certain offers are deactivated.
+     * @param offerId is the ID of the offer.
+     */
     event Deactivate(uint256 indexed offerId);
 
     /**

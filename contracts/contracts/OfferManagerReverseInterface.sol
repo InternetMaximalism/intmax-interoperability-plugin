@@ -37,12 +37,12 @@ interface OfferManagerReverseInterface {
     event Unlock(uint256 indexed offerId, address maker);
 
     /**
-     *
-     * @param makerIntmax is intmax 上で asset を受け取りたいアカウント
-     * @param taker is このチェーン上で送る宛先アカウント
-     * @param takerIntmax is intmax 上で asset を送ってほしいアカウント (zero の場合は誰でも)
-     * @param takerAssetId is intmax 上で送ってほしい asset
-     * @param takerAmount is intmax 上で送ってほしい asset の量
+     * This function locks its own token and requests the token held by the counterparty on intmax.
+     * @param makerIntmax is the account that wants to receive assets on intmax.
+     * @param taker is the destination account to send on this chain.
+     * @param takerIntmax is the account (or anyone in the case of zero) you want to send assets to on intmax.
+     * @param takerAssetId is the asset you want sent on intmax.
+     * @param takerAmount is the amount of assets you want sent on intmax.
      */
     function lock(
         bytes32 makerIntmax,
@@ -53,14 +53,14 @@ interface OfferManagerReverseInterface {
     ) external payable returns (uint256 offerId);
 
     /**
-     * This function updates taker.
+     * This function updates maker.
      * @param offerId is the ID of the offer.
      * @param newMaker is a new maker.
      */
     function updateMaker(uint256 offerId, address newMaker) external;
 
     /**
-     * This function activate a offer in exchange for payment.
+     * This function unlocks the locked token when a transaction is accepted on intmax.
      * @param offerId is the ID of the offer.
      * @param witness is the witness that maker sends asset to taker on intmax.
      */

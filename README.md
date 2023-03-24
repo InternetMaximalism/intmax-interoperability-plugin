@@ -32,38 +32,53 @@ cargo run --bin offer_manager
 
 ## How to develop Solidity
 
-See also sample-auction-app
+See also [sample-auction-app](https://github.com/InternetMaximalism/intmax-rollup-cli-flag/tree/main/packages/sample-auction-app/contract).
 
-### register()
+### [register()](./contracts/contracts/OfferManagerInterface.sol#L42-L60)
 
 ```solidity
-/**
-  * This function registers a new offer.
-  * @param makerIntmax is the maker's intmax account.
-  * @param makerAssetId is the asset ID a maker sell to taker.
-  * @param makerAmount is the amount a maker sell to taker.
-  * @param taker is the taker's account.
-  * @param takerIntmax is the taker's intmax account.
-  * @param takerTokenAddress is the token address a taker should pay.
-  * @param takerAmount is the amount a taker should pay.
-  */
-function register(
-    bytes32 makerIntmax,
-    uint256 makerAssetId,
-    uint256 makerAmount,
-    address taker,
-    bytes32 takerIntmax,
-    address takerTokenAddress,
-    uint256 takerAmount
-) external returns (uint256 flagId);
+OfferManagerInterface offerManager;
+uint256 offerId = offerManager.register(
+    makerIntmax,
+    makerAssetId,
+    makerAmount,
+    taker,
+    takerIntmax,
+    takerTokenAddress,
+    takerAmount
+);
 ```
 
-### activate()
+### [activate()](./contracts/contracts/OfferManagerInterface.sol#L69-L73)
 
 ```solidity
-/**
-  * This function activate a offer in exchange for payment.
-  * @param offerId is the ID of the offer.
-  */
-function activate(uint256 offerId) external payable returns (bool);
+OfferManagerInterface offerManager;
+bool success = offerManager.activate{
+    value: takerAmount
+}(offerId);
+require(success, "fail to activate offer");
+```
+
+### [lock()](./contracts/contracts/OfferManagerReverseInterface.sol#L39-L53)
+
+```solidity
+OfferManagerReverseInterface offerManagerReverse;
+uint256 offerId = offerManagerReverse.lock(
+    makerIntmax,
+    taker,
+    takerIntmax,
+    takerAssetId,
+    takerAmount
+);
+```
+
+### [unlock()](./contracts/contracts/OfferManagerReverseInterface.sol#L62-L70)
+
+```solidity
+OfferManagerReverseInterface offerManagerReverse;
+bool success = offerManagerReverse.unlock(
+    offerId,
+    witness
+);
+require(success, "fail to unlock offer");
 ```

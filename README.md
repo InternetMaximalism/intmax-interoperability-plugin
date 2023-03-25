@@ -34,7 +34,14 @@ cargo run --bin offer_manager
 
 See also [sample-auction-app](https://github.com/InternetMaximalism/intmax-rollup-cli-flag/tree/main/packages/sample-auction-app/contract).
 
-### [register()](./contracts/contracts/OfferManagerInterface.sol#L42-L60)
+### Offer Manager (Pattern 1)
+
+1. Mike burns the intmax token A.
+2. Mike registers a new offer and declares that he will transfer his burned assets to the account that has transferred ETH to him.
+3. Tom accepts the offer and transfers the ETH to Mike.
+4. Tom can merge the assets transferred from Mike on intmax.
+
+#### [register()](./contracts/contracts/OfferManagerInterface.sol#L42-L60)
 
 ```solidity
 OfferManagerInterface offerManager;
@@ -49,7 +56,7 @@ uint256 offerId = offerManager.register(
 );
 ```
 
-### [activate()](./contracts/contracts/OfferManagerInterface.sol#L69-L73)
+#### [activate()](./contracts/contracts/OfferManagerInterface.sol#L69-L73)
 
 ```solidity
 OfferManagerInterface offerManager;
@@ -59,24 +66,29 @@ bool success = offerManager.activate{
 require(success, "fail to activate offer");
 ```
 
-### [lock()](./contracts/contracts/OfferManagerReverseInterface.sol#L39-L53)
+### Offer Manager (Pattern 2)
+
+1. Tom locks his ETH and registers the offer. This declares that he will transfer the locked assets to the account that has transferred the specified token on intmax to him.
+2. Mike accepts the offer and transfers the tokens on intmax to Tom.
+3. Mike can receive Tom's ETH.
+
+#### [register()](./contracts/contracts/OfferManagerReverseInterface.sol#L39-L53)
 
 ```solidity
 OfferManagerReverseInterface offerManagerReverse;
-uint256 offerId = offerManagerReverse.lock(
-    makerIntmax,
-    taker,
+uint256 offerId = offerManagerReverse.register(
     takerIntmax,
-    takerAssetId,
-    takerAmount
+    maker,
+    makerAssetId,
+    makerAmount
 );
 ```
 
-### [unlock()](./contracts/contracts/OfferManagerReverseInterface.sol#L62-L70)
+#### [activate()](./contracts/contracts/OfferManagerReverseInterface.sol#L62-L70)
 
 ```solidity
 OfferManagerReverseInterface offerManagerReverse;
-bool success = offerManagerReverse.unlock(
+bool success = offerManagerReverse.activate(
     offerId,
     witness
 );

@@ -6,13 +6,25 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "hardhat/console.sol";
 
 contract OfferManagerReverse is OfferManagerReverseInterface {
+    /**
+     * @dev Struct representing an offer created by a maker and taken by a taker.
+     * @param maker is the address of the maker who creates the offer.
+     * @param makerIntmaxAddress is the intmax address of the maker.
+     * @param makerAssetId is the asset ID that the maker is selling to the taker.
+     * @param makerAmount is the amount of the asset that the maker is selling to the taker.
+     * @param taker is the address of the taker who takes the offer.
+     * @param takerIntmaxAddress is the intmax address of the taker.
+     * @param takerTokenAddress is the address of the token that the taker needs to pay.
+     * @param takerAmount is the amount of the token that the taker needs to pay.
+     * @param isActivated is a boolean flag indicating whether the offer is activated or not.
+     */
     struct Offer {
         address maker;
-        bytes32 makerIntmax;
+        bytes32 makerIntmaxAddress;
         uint256 makerAssetId;
         uint256 makerAmount;
         address taker;
-        bytes32 takerIntmax;
+        bytes32 takerIntmaxAddress;
         address takerTokenAddress;
         uint256 takerAmount;
         bool isActivated;
@@ -39,9 +51,9 @@ contract OfferManagerReverse is OfferManagerReverseInterface {
     receive() external payable {}
 
     function lock(
-        bytes32 takerIntmax,
+        bytes32 takerIntmaxAddress,
         address maker,
-        bytes32 makerIntmax,
+        bytes32 makerIntmaxAddress,
         uint256 makerAssetId,
         uint256 makerAmount
     ) external payable returns (uint256 offerId) {
@@ -49,26 +61,34 @@ contract OfferManagerReverse is OfferManagerReverseInterface {
         //     makerTokenAddress == address(0),
         //     "`makerTokenAddress` only allows zero address (= ETH)"
         // );
-        require(makerIntmax != bytes32(0), "`makerIntmax` should not be zero");
+        require(
+            makerIntmaxAddress != bytes32(0),
+            "`makerIntmaxAddress` should not be zero"
+        );
 
         return
             _lock(
                 msg.sender, // taker
-                takerIntmax,
+                takerIntmaxAddress,
                 address(0), // ETH
                 msg.value, // takerAmount
                 maker,
-                makerIntmax,
+                makerIntmaxAddress,
                 makerAssetId,
                 makerAmount
             );
     }
 
     function updateMaker(uint256 offerId, address newMaker) external {
+        // The offer must exist.
+        require(isLocked(offerId), "This offer ID has not been registered.");
+
+        // Caller must have the permission to update the offer.
         require(
             msg.sender == _offers[offerId].taker,
             "offers can be updated by its taker"
         );
+
         require(newMaker != address(0), "`newMaker` should not be zero");
 
         _offers[offerId].maker = newMaker;
@@ -82,15 +102,15 @@ contract OfferManagerReverse is OfferManagerReverseInterface {
     ) external returns (bool) {
         Offer memory offer = _offers[offerId];
 
-        // address makerIntmax = _offers[offerId].makerIntmax;
-        // if (makerIntmax != address(0)) {
+        // address makerIntmaxAddress = _offers[offerId].makerIntmaxAddress;
+        // if (makerIntmaxAddress != address(0)) {
         //     require(
-        //         senderIntmax == makerIntmax,
+        //         senderIntmax == makerIntmaxAddress,
         //         "offers can be activated by its taker"
         //     );
         // }
 
-        _checkWitness(offer.takerIntmax, witness);
+        _checkWitness(offer.takerIntmaxAddress, witness);
 
         // The taker transfers taker's asset to maker.
         require(
@@ -111,11 +131,11 @@ contract OfferManagerReverse is OfferManagerReverseInterface {
         view
         returns (
             address maker,
-            bytes32 makerIntmax,
+            bytes32 makerIntmaxAddress,
             uint256 makerAssetId,
             uint256 makerAmount,
             address taker,
-            bytes32 takerIntmax,
+            bytes32 takerIntmaxAddress,
             address takerTokenAddress,
             uint256 takerAmount,
             bool activated
@@ -123,11 +143,11 @@ contract OfferManagerReverse is OfferManagerReverseInterface {
     {
         Offer storage offer = _offers[offerId];
         maker = offer.maker;
-        makerIntmax = offer.makerIntmax;
+        makerIntmaxAddress = offer.makerIntmaxAddress;
         makerAssetId = offer.makerAssetId;
         makerAmount = offer.makerAmount;
         taker = offer.taker;
-        takerIntmax = offer.takerIntmax;
+        takerIntmaxAddress = offer.takerIntmaxAddress;
         takerTokenAddress = offer.takerTokenAddress;
         takerAmount = offer.takerAmount;
         activated = offer.isActivated;
@@ -143,11 +163,11 @@ contract OfferManagerReverse is OfferManagerReverseInterface {
 
     function _lock(
         address taker,
-        bytes32 takerIntmax,
+        bytes32 takerIntmaxAddress,
         address takerTokenAddress,
         uint256 takerAmount,
         address maker,
-        bytes32 makerIntmax,
+        bytes32 makerIntmaxAddress,
         uint256 makerAssetId,
         uint256 makerAmount
     ) internal returns (uint256 offerId) {
@@ -157,11 +177,11 @@ contract OfferManagerReverse is OfferManagerReverseInterface {
 
         Offer memory offer = Offer({
             taker: taker,
-            takerIntmax: takerIntmax,
+            takerIntmaxAddress: takerIntmaxAddress,
             takerTokenAddress: takerTokenAddress,
             takerAmount: takerAmount,
             maker: maker,
-            makerIntmax: makerIntmax,
+            makerIntmaxAddress: makerIntmaxAddress,
             makerAssetId: makerAssetId,
             makerAmount: makerAmount,
             isActivated: false
@@ -173,10 +193,10 @@ contract OfferManagerReverse is OfferManagerReverseInterface {
         emit Lock(
             offerId,
             taker,
-            takerIntmax,
+            takerIntmaxAddress,
             takerTokenAddress,
             takerAmount,
-            makerIntmax,
+            makerIntmaxAddress,
             makerAssetId,
             makerAmount
         );

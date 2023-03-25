@@ -43,8 +43,8 @@ contract OfferManager is OfferManagerInterface {
     mapping(uint256 => Offer) _offers;
 
     /**
-     * Emits a `Register` event with the offer details.
-     * Emits an `UpdateTaker` event with the taker's intmax address and offer ID.
+     * Emits a `OfferRegistered` event with the offer details.
+     * Emits an `OfferTakerUpdated` event with the taker's intmax address and offer ID.
      */
     function register(
         bytes32 makerIntmaxAddress,
@@ -78,7 +78,7 @@ contract OfferManager is OfferManagerInterface {
     }
 
     /**
-     * Emits an `UpdateTaker` event with the new taker's intmax address and offer ID.
+     * Emits an `OfferTakerUpdated` event with the new taker's intmax address and offer ID.
      */
     function updateTaker(
         uint256 offerId,
@@ -103,11 +103,11 @@ contract OfferManager is OfferManagerInterface {
 
         _offers[offerId].takerIntmaxAddress = newTakerIntmaxAddress;
 
-        emit UpdateTaker(offerId, newTakerIntmaxAddress);
+        emit OfferTakerUpdated(offerId, newTakerIntmaxAddress);
     }
 
     /**
-     * Emits an `Activate` event with the offer ID and the taker's Intmax address.
+     * Emits an `OfferActivated` event with the offer ID and the taker's Intmax address.
      */
     function activate(uint256 offerId) external payable returns (bool) {
         address taker = _offers[offerId].taker;
@@ -132,6 +132,9 @@ contract OfferManager is OfferManagerInterface {
         return true;
     }
 
+    /**
+     * Emits an `OfferDeactivated` event with the offer ID.
+     */
     function deactivate(uint256 offerId) external returns (bool) {
         require(
             msg.sender == _offers[offerId].maker,
@@ -209,7 +212,7 @@ contract OfferManager is OfferManagerInterface {
         _isValidOffer(offer);
         _offers[offerId] = offer;
         nextOfferId += 1;
-        emit Register(
+        emit OfferRegistered(
             offerId,
             maker,
             makerIntmaxAddress,
@@ -219,16 +222,19 @@ contract OfferManager is OfferManagerInterface {
             takerTokenAddress,
             takerAmount
         );
-        emit UpdateTaker(offerId, takerIntmaxAddress);
+        emit OfferTakerUpdated(offerId, takerIntmaxAddress);
     }
 
     /**
-     * @dev Marks the offer as completed.
-     * @param offerId is the ID of the offer to complete.
+     * @dev Marks the offer as activated.
+     * @param offerId is the ID of the offer.
      */
-    function _completeOffer(uint256 offerId) internal {
-        require(isRegistered(offerId), "this offer ID has not been registered");
-        require(!isActivated(offerId), "this offer ID is already activated");
+    function _markOfferAsActivated(uint256 offerId) internal {
+        require(
+            isRegistered(offerId),
+            "This offer ID has not been registered."
+        );
+        require(!isActivated(offerId), "This offer ID is already activated.");
         _offers[offerId].isActivated = true;
     }
 
@@ -237,8 +243,8 @@ contract OfferManager is OfferManagerInterface {
      * @param offerId is the ID of the offer.
      */
     function _activate(uint256 offerId) internal {
-        _completeOffer(offerId);
-        emit Activate(offerId, _offers[offerId].takerIntmaxAddress);
+        _markOfferAsActivated(offerId);
+        emit OfferActivated(offerId, _offers[offerId].takerIntmaxAddress);
     }
 
     /**
@@ -246,16 +252,30 @@ contract OfferManager is OfferManagerInterface {
      * @param offerId is the ID of the offer.
      */
     function _deactivate(uint256 offerId) internal {
-        _completeOffer(offerId);
-        emit Deactivate(offerId);
+        _markOfferAsActivated(offerId);
+        emit OfferDeactivated(offerId);
     }
 
+    /**
+     * @dev Verify the validity of the offer.
+     * @param offer is the offer that needs to be verified.
+     *
+     * Requirements:
+     * - The `makerAmount` in the offer must be less than or equal to `MAX_REMITTANCE_AMOUNT`.
+     */
     function _isValidOffer(Offer memory offer) internal pure {
-        // require(offer.makerAssetId <= MAX_ASSET_ID, "invalid asset ID");
         require(
             offer.makerAmount <= MAX_REMITTANCE_AMOUNT,
-            "invalid offer amount"
+            "Invalid offer amount: exceeds maximum remittance amount."
         );
+        // require(
+        //     offer.makerAmount > 0,
+        //     "Maker amount must be greater than zero"
+        // );
+        // require(
+        //     offer.takerAmount > 0,
+        //     "Taker amount must be greater than zero"
+        // );
     }
 
     function _checkTaker(bytes32 taker) internal pure returns (bool) {
@@ -265,7 +285,7 @@ contract OfferManager is OfferManagerInterface {
 
     function _checkTakerTokenAddress(
         address takerTokenAddress
-    ) internal pure returns (bool) {
+    ) internal pure virtual returns (bool) {
         // TODO: should allow ERC20
         return takerTokenAddress == address(0);
     }

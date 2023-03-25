@@ -13,7 +13,7 @@ interface OfferManagerInterface {
      * @param takerTokenAddress is the token address a taker should pay.
      * @param takerAmount is the amount a taker should pay.
      */
-    event Register(
+    event OfferRegistered(
         uint256 indexed offerId,
         address indexed maker,
         bytes32 makerIntmaxAddress,
@@ -25,10 +25,11 @@ interface OfferManagerInterface {
     );
 
     /**
+     * This event occurs when the taker of an offer is updated.
      * @param offerId is the ID of the offer.
      * @param takerIntmaxAddress is the taker's intmax account.
      */
-    event UpdateTaker(
+    event OfferTakerUpdated(
         uint256 indexed offerId,
         bytes32 indexed takerIntmaxAddress
     );
@@ -36,15 +37,18 @@ interface OfferManagerInterface {
     /**
      * This event occurs when certain offers are activated.
      * @param offerId is the ID of the offer.
-     * @param takerIntmaxAddress is the taker's intmax account.
+     * @param takerIntmaxAddress is the taker's intmax address.
      */
-    event Activate(uint256 indexed offerId, bytes32 indexed takerIntmaxAddress);
+    event OfferActivated(
+        uint256 indexed offerId,
+        bytes32 indexed takerIntmaxAddress
+    );
 
     /**
-     * This event occurs when certain offers are deactivated.
+     * This event occurs when an offer is deactivated.
      * @param offerId is the ID of the offer.
      */
-    event Deactivate(uint256 indexed offerId);
+    event OfferDeactivated(uint256 indexed offerId);
 
     /**
      * @dev Registers a new offer.

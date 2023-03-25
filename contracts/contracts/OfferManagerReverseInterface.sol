@@ -13,7 +13,7 @@ interface OfferManagerReverseInterface {
      * @param makerAssetId is the asset ID a maker sell to taker.
      * @param makerAmount is the amount a maker sell to taker.
      */
-    event Lock(
+    event OfferRegistered(
         uint256 indexed offerId,
         address indexed taker,
         bytes32 takerIntmaxAddress,
@@ -25,31 +25,31 @@ interface OfferManagerReverseInterface {
     );
 
     /**
+     * This event occurs when the maker of an offer is updated.
      * @param offerId is the ID of the offer.
      * @param maker is the maker's account.
      */
-    event UpdateMaker(uint256 indexed offerId, address indexed maker);
+    event OfferMakerUpdated(uint256 indexed offerId, address indexed maker);
 
     /**
      * This event occurs when certain offers are activated.
      * @param offerId is the ID of the offer.
      */
-    event Unlock(uint256 indexed offerId, address maker);
+    event OfferActivated(uint256 indexed offerId, address maker);
 
     /**
-     * @dev This function locks its own token and requests the token held by the counterparty on intmax.
-     * @param makerIntmaxAddress is the account that wants to receive assets on intmax.
-     * @param taker is the destination account to send on this chain.
-     * @param takerIntmaxAddress is the account (or anyone in the case of zero) you want to send assets to on intmax.
-     * @param takerAssetId is the asset you want sent on intmax.
-     * @param takerAmount is the amount of assets you want sent on intmax.
+     * @dev Locks the taker's funds and creates a new offer to exchange them for the maker's asset on intmax.
+     * @param takerIntmaxAddress is the taker's Intmax address.
+     * @param maker is the address of the maker who will receive the taker's funds.
+     * @param makerAssetId is the ID of the maker's asset.
+     * @param makerAmount is the amount of the maker's asset that the taker will receive.
+     * @return offerId is the ID of the newly created offer.
      */
-    function lock(
-        bytes32 makerIntmaxAddress,
-        address taker,
+    function register(
         bytes32 takerIntmaxAddress,
-        uint256 takerAssetId,
-        uint256 takerAmount
+        address maker,
+        uint256 makerAssetId,
+        uint256 makerAmount
     ) external payable returns (uint256 offerId);
 
     /**
@@ -64,13 +64,17 @@ interface OfferManagerReverseInterface {
     function updateMaker(uint256 offerId, address newMaker) external;
 
     /**
-     * @dev This function unlocks the locked token when a transaction is accepted on intmax.
+     * @dev This function accepts an offer and transfers the taker's asset to the maker.
      * @param offerId is the ID of the offer.
      * @param witness is the witness that maker sends asset to taker on intmax.
+     * @return A boolean indicating whether the offer was successfully unlocked.
+     *
+     * Requirements:
+     * - The offer must exist.
      */
-    function unlock(
+    function activate(
         uint256 offerId,
-        bytes memory witness
+        bytes calldata witness
     ) external returns (bool);
 
     function nextOfferId() external view returns (uint256);
@@ -92,7 +96,7 @@ interface OfferManagerReverseInterface {
             bool activated
         );
 
-    function isLocked(uint256 offerId) external view returns (bool);
+    function isRegistered(uint256 offerId) external view returns (bool);
 
-    function isUnlocked(uint256 offerId) external view returns (bool);
+    function isActivated(uint256 offerId) external view returns (bool);
 }

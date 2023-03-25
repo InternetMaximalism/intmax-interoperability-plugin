@@ -59,12 +59,12 @@ impl<M: Middleware> OfferManagerContractWrapper<M> {
         &self,
         topic1: Vec<H256>,
     ) -> anyhow::Result<Vec<RegisterEvent>> {
-        let filter: Event<M, RegisterFilter> = self
-            .register_filter()
+        let filter: Event<M, OfferRegisteredFilter> = self
+            .offer_registered_filter()
             .address(self.address.into())
             .topic1(topic1.clone())
             .from_block(0);
-        let logs: Vec<RegisterFilter> = filter
+        let logs: Vec<OfferRegisteredFilter> = filter
             .query()
             .await
             .map_err(|err| anyhow::anyhow!("{}", err))?;
@@ -97,11 +97,11 @@ impl<M: Middleware> OfferManagerContractWrapper<M> {
 
     pub async fn get_activate_events(&self) -> anyhow::Result<Vec<ActivateEvent>> {
         // Activate(indexed offerId, indexed takerIntmax)
-        let filter: Event<M, ActivateFilter> = self
-            .activate_filter()
+        let filter: Event<M, OfferActivatedFilter> = self
+            .offer_activated_filter()
             .address(self.address.into())
             .from_block(0);
-        let logs: Vec<ActivateFilter> = filter
+        let logs: Vec<OfferActivatedFilter> = filter
             .query()
             .await
             .map_err(|err| anyhow::anyhow!("{}", err))?;
@@ -109,7 +109,7 @@ impl<M: Middleware> OfferManagerContractWrapper<M> {
             .into_iter()
             .map(|log| ActivateEvent {
                 offer_id: log.offer_id,
-                taker: H256::from(log.taker_intmax),
+                taker: H256::from(log.taker_intmax_address),
             })
             .collect::<Vec<_>>();
 

@@ -17,7 +17,7 @@ describe("OfferManager", function () {
   }
 
   describe("Deployment", function () {
-    it("Should return the valid next flag ID", async function () {
+    it("Should return the valid next offer ID", async function () {
       const { offerManager } = await loadFixture(deployOfferManager);
 
       expect(await offerManager.nextOfferId()).to.equal(0);

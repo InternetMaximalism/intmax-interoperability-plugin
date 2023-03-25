@@ -6,13 +6,25 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "hardhat/console.sol";
 
 contract OfferManagerReverse is OfferManagerReverseInterface {
+    /**
+     * @dev Struct representing an offer created by a maker and taken by a taker.
+     * @param maker is the address of the maker who creates the offer.
+     * @param makerIntmaxAddress is the intmax address of the maker.
+     * @param makerAssetId is the asset ID that the maker is selling to the taker.
+     * @param makerAmount is the amount of the asset that the maker is selling to the taker.
+     * @param taker is the address of the taker who takes the offer.
+     * @param takerIntmaxAddress is the intmax address of the taker.
+     * @param takerTokenAddress is the address of the token that the taker needs to pay.
+     * @param takerAmount is the amount of the token that the taker needs to pay.
+     * @param isActivated is a boolean flag indicating whether the offer is activated or not.
+     */
     struct Offer {
         address maker;
-        bytes32 makerIntmax;
+        bytes32 makerIntmaxAddress;
         uint256 makerAssetId;
         uint256 makerAmount;
         address taker;
-        bytes32 takerIntmax;
+        bytes32 takerIntmaxAddress;
         address takerTokenAddress;
         uint256 takerAmount;
         bool isActivated;
@@ -38,67 +50,78 @@ contract OfferManagerReverse is OfferManagerReverseInterface {
 
     receive() external payable {}
 
-    function lock(
-        bytes32 takerIntmax,
+    function register(
+        bytes32 takerIntmaxAddress,
         address maker,
-        bytes32 makerIntmax,
         uint256 makerAssetId,
         uint256 makerAmount
     ) external payable returns (uint256 offerId) {
+        require(_checkMaker(maker), "`maker` must not be zero.");
         // require(
-        //     makerTokenAddress == address(0),
-        //     "`makerTokenAddress` only allows zero address (= ETH)"
+        //     takerTokenAddress == address(0),
+        //     "`takerTokenAddress` only allows zero address (= ETH)"
         // );
-        require(makerIntmax != bytes32(0), "`makerIntmax` should not be zero");
+        // require(
+        //     makerIntmaxAddress == bytes32(0),
+        //     "`makerIntmaxAddress` must be zero"
+        // );
 
         return
-            _lock(
+            _register(
                 msg.sender, // taker
-                takerIntmax,
+                takerIntmaxAddress,
                 address(0), // ETH
                 msg.value, // takerAmount
                 maker,
-                makerIntmax,
+                bytes32(0), // anyone activates this offer
                 makerAssetId,
                 makerAmount
             );
     }
 
     function updateMaker(uint256 offerId, address newMaker) external {
+        // The offer must exist.
+        require(
+            isRegistered(offerId),
+            "This offer ID has not been registered."
+        );
+
+        // Caller must have the permission to update the offer.
         require(
             msg.sender == _offers[offerId].taker,
-            "offers can be updated by its taker"
+            "Offers can be updated by its taker."
         );
-        require(newMaker != address(0), "`newMaker` should not be zero");
+
+        require(_checkMaker(newMaker), "`newMaker` should not be zero.");
 
         _offers[offerId].maker = newMaker;
 
-        emit UpdateMaker(offerId, newMaker);
+        emit OfferMakerUpdated(offerId, newMaker);
     }
 
-    function unlock(
+    function activate(
         uint256 offerId,
-        bytes memory witness
+        bytes calldata witness
     ) external returns (bool) {
         Offer memory offer = _offers[offerId];
 
-        // address makerIntmax = _offers[offerId].makerIntmax;
-        // if (makerIntmax != address(0)) {
+        // address makerIntmaxAddress = _offers[offerId].makerIntmaxAddress;
+        // if (makerIntmaxAddress != address(0)) {
         //     require(
-        //         senderIntmax == makerIntmax,
+        //         witness.senderIntmax == makerIntmaxAddress,
         //         "offers can be activated by its taker"
         //     );
         // }
 
-        _checkWitness(offer.takerIntmax, witness);
+        _checkWitness(offer.takerIntmaxAddress, witness);
 
-        // The taker transfers taker's asset to maker.
         require(
             msg.sender == offer.maker,
-            "Only maker allows to unlock this offer"
+            "Only the maker can unlock this offer."
         );
-        _unlock(offerId);
+        _markOfferAsActivated(offerId);
 
+        // The maker transfers token to taker.
         payable(offer.maker).transfer(offer.takerAmount);
 
         return true;
@@ -111,11 +134,11 @@ contract OfferManagerReverse is OfferManagerReverseInterface {
         view
         returns (
             address maker,
-            bytes32 makerIntmax,
+            bytes32 makerIntmaxAddress,
             uint256 makerAssetId,
             uint256 makerAmount,
             address taker,
-            bytes32 takerIntmax,
+            bytes32 takerIntmaxAddress,
             address takerTokenAddress,
             uint256 takerAmount,
             bool activated
@@ -123,45 +146,62 @@ contract OfferManagerReverse is OfferManagerReverseInterface {
     {
         Offer storage offer = _offers[offerId];
         maker = offer.maker;
-        makerIntmax = offer.makerIntmax;
+        makerIntmaxAddress = offer.makerIntmaxAddress;
         makerAssetId = offer.makerAssetId;
         makerAmount = offer.makerAmount;
         taker = offer.taker;
-        takerIntmax = offer.takerIntmax;
+        takerIntmaxAddress = offer.takerIntmaxAddress;
         takerTokenAddress = offer.takerTokenAddress;
         takerAmount = offer.takerAmount;
         activated = offer.isActivated;
     }
 
-    function isLocked(uint256 offerId) public view returns (bool) {
+    function isRegistered(uint256 offerId) public view returns (bool) {
         return (_offers[offerId].taker != address(0));
     }
 
-    function isUnlocked(uint256 offerId) public view returns (bool) {
+    function isActivated(uint256 offerId) public view returns (bool) {
         return _offers[offerId].isActivated;
     }
 
-    function _lock(
+    /**
+     * @dev Accepts an offer from a maker and registers it with a new offer ID.
+     * @param taker is the address of the taker.
+     * @param takerIntmaxAddress is the intmax address of the taker.
+     * @param takerTokenAddress is the address of the token the taker will transfer.
+     * @param takerAmount is the amount of token the taker will transfer.
+     * @param maker is the address of the maker.
+     * @param makerIntmaxAddress is the intmax address of the maker.
+     * @param makerAssetId is the ID of the asset the maker will transfer on intmax.
+     * @param makerAmount is the amount of asset the maker will transfer on intmax.
+     * @return offerId is the ID of the newly registered offer.
+     *
+     * Requirements:
+     * - The taker must not be the zero address.
+     * - The offer ID must not be already registered.
+     * - The maker's offer amount must be less than or equal to MAX_REMITTANCE_AMOUNT.
+     */
+    function _register(
         address taker,
-        bytes32 takerIntmax,
+        bytes32 takerIntmaxAddress,
         address takerTokenAddress,
         uint256 takerAmount,
         address maker,
-        bytes32 makerIntmax,
+        bytes32 makerIntmaxAddress,
         uint256 makerAssetId,
         uint256 makerAmount
     ) internal returns (uint256 offerId) {
-        // require(taker != address(0), "The taker must not be zero address.");
+        require(taker != address(0), "The taker must not be zero address.");
         offerId = nextOfferId;
-        // require(!isLocked(offerId), "This offer ID is already registered.");
+        require(!isRegistered(offerId), "Offer ID already registered.");
 
         Offer memory offer = Offer({
             taker: taker,
-            takerIntmax: takerIntmax,
+            takerIntmaxAddress: takerIntmaxAddress,
             takerTokenAddress: takerTokenAddress,
             takerAmount: takerAmount,
             maker: maker,
-            makerIntmax: makerIntmax,
+            makerIntmaxAddress: makerIntmaxAddress,
             makerAssetId: makerAssetId,
             makerAmount: makerAmount,
             isActivated: false
@@ -170,38 +210,81 @@ contract OfferManagerReverse is OfferManagerReverseInterface {
         _isValidOffer(offer);
         _offers[offerId] = offer;
         nextOfferId += 1;
-        emit Lock(
+        emit OfferRegistered(
             offerId,
             taker,
-            takerIntmax,
+            takerIntmaxAddress,
             takerTokenAddress,
             takerAmount,
-            makerIntmax,
+            makerIntmaxAddress,
             makerAssetId,
             makerAmount
         );
-        emit UpdateMaker(offerId, maker);
+        emit OfferMakerUpdated(offerId, maker);
     }
 
-    function _unlock(uint256 offerId) internal {
-        require(isLocked(offerId), "This offer ID has not been registered.");
-        require(!isUnlocked(offerId), "This offer ID is already activated.");
+    /**
+     * @dev Marks the offer as activated.
+     * @param offerId is the ID of the offer.
+     */
+    function _markOfferAsActivated(uint256 offerId) internal {
+        require(
+            isRegistered(offerId),
+            "This offer ID has not been registered."
+        );
+        require(!isActivated(offerId), "This offer ID is already activated.");
         _offers[offerId].isActivated = true;
-        emit Unlock(offerId, _offers[offerId].maker);
     }
 
+    /**
+     * This function activates a offer and emits an `Unlock` event.
+     * @param offerId is the ID of the offer to be unlocked.
+     */
+    function _activate(uint256 offerId) internal {
+        _markOfferAsActivated(offerId);
+        emit OfferActivated(offerId, _offers[offerId].maker);
+    }
+
+    /**
+     * @dev Verify the validity of the witness signature.
+     * @param hashedMessage is the hash of the message that the signature corresponds to.
+     * @param signature is the signature that needs to be verified.
+     *
+     * Requirements:
+     * - The recovered signer from the signature must be the same as the owner address.
+     */
     function _checkWitness(
-        bytes32 hashed_message,
+        bytes32 hashedMessage,
         bytes memory signature
-    ) internal view {
-        address signer = ECDSA.recover(hashed_message, signature);
-        require(signer == OWNER_ADDRESS, "fail to verify signature");
+    ) internal view virtual {
+        address signer = ECDSA.recover(hashedMessage, signature);
+        require(signer == OWNER_ADDRESS, "Fail to verify signature.");
     }
 
+    /**
+     * @dev Verify the validity of the offer.
+     * @param offer is the offer that needs to be verified.
+     *
+     * Requirements:
+     * - The `makerAmount` in the offer must be less than or equal to `MAX_REMITTANCE_AMOUNT`.
+     */
     function _isValidOffer(Offer memory offer) internal pure {
         require(
             offer.makerAmount <= MAX_REMITTANCE_AMOUNT,
-            "invalid offer amount"
+            "Invalid offer amount: exceeds maximum remittance amount."
         );
+        // require(
+        //     offer.makerAmount > 0,
+        //     "Maker amount must be greater than zero"
+        // );
+        // require(
+        //     offer.takerAmount > 0,
+        //     "Taker amount must be greater than zero"
+        // );
+    }
+
+    function _checkMaker(address maker) internal pure returns (bool) {
+        // A maker should not be the zero address.
+        return maker != address(0);
     }
 }

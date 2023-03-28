@@ -71,7 +71,6 @@ impl<M: Middleware> OfferManagerContractWrapper<M> {
         let logs = logs
             .into_iter()
             .filter_map(|log| {
-                dbg!(&log);
                 {
                     let mut bytes = [0u8; 32];
                     log.offer_id.to_big_endian(&mut bytes);

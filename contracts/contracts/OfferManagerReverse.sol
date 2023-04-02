@@ -2,6 +2,7 @@
 pragma solidity ^0.8.9;
 
 import "./OfferManagerReverseInterface.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "hardhat/console.sol";
 
@@ -52,15 +53,33 @@ contract OfferManagerReverse is OfferManagerReverseInterface {
 
     function register(
         bytes32 takerIntmaxAddress,
+        address takerTokenAddress,
+        uint256 takerAmount,
         address maker,
         uint256 makerAssetId,
         uint256 makerAmount
     ) external payable returns (uint256 offerId) {
         require(_checkMaker(maker), "`maker` must not be zero.");
-        // require(
-        //     takerTokenAddress == address(0),
-        //     "`takerTokenAddress` only allows zero address (= ETH)"
-        // );
+
+        // Check if given `takerTokenAddress` is either ETH or ERC20.
+        if (takerTokenAddress == address(0)) {
+            require(
+                msg.value == takerAmount,
+                "takerAmount must be the same as msg.value"
+            );
+        } else {
+            require(
+                msg.value == 0,
+                "transmission method other than ETH is specified"
+            );
+            bool success = IERC20(takerTokenAddress).transferFrom(
+                msg.sender,
+                address(this),
+                takerAmount
+            );
+            require(success, "fail to transfer ERC20 token");
+        }
+
         // require(
         //     makerIntmaxAddress == bytes32(0),
         //     "`makerIntmaxAddress` must be zero"
@@ -70,7 +89,7 @@ contract OfferManagerReverse is OfferManagerReverseInterface {
             _register(
                 msg.sender, // taker
                 takerIntmaxAddress,
-                address(0), // ETH
+                takerTokenAddress,
                 msg.value, // takerAmount
                 maker,
                 bytes32(0), // anyone activates this offer
@@ -123,6 +142,15 @@ contract OfferManagerReverse is OfferManagerReverseInterface {
 
         // The maker transfers token to taker.
         payable(offer.maker).transfer(offer.takerAmount);
+        if (offer.takerTokenAddress == address(0)) {
+            payable(offer.maker).transfer(offer.takerAmount);
+        } else {
+            bool success = IERC20(offer.takerTokenAddress).transfer(
+                offer.maker,
+                offer.takerAmount
+            );
+            require(success, "fail to transfer ERC20 token");
+        }
 
         return true;
     }

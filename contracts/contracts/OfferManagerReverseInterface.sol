@@ -49,7 +49,7 @@ interface OfferManagerReverseInterface {
     function register(
         bytes32 takerIntmaxAddress,
         address takerTokenAddress,
-        address takerAmount,
+        uint256 takerAmount,
         address maker,
         uint256 makerAssetId,
         uint256 makerAmount

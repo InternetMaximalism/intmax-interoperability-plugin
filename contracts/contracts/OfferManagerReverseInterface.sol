@@ -40,6 +40,7 @@ interface OfferManagerReverseInterface {
     /**
      * @dev Locks the taker's funds and creates a new offer to exchange them for the maker's asset on intmax.
      * @param takerIntmaxAddress is the taker's Intmax address.
+     * @param takerAmount is the amount of the token that the taker needs to pay.
      * @param maker is the address of the maker who will receive the taker's funds.
      * @param makerAssetId is the ID of the maker's asset.
      * @param makerAmount is the amount of the maker's asset that the taker will receive.
@@ -47,6 +48,8 @@ interface OfferManagerReverseInterface {
      */
     function register(
         bytes32 takerIntmaxAddress,
+        address takerTokenAddress,
+        uint256 takerAmount,
         address maker,
         uint256 makerAssetId,
         uint256 makerAmount

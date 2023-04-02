@@ -2,6 +2,7 @@
 pragma solidity ^0.8.9;
 
 import "./OfferManagerInterface.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "hardhat/console.sol";
 
 contract OfferManager is OfferManagerInterface {
@@ -55,14 +56,14 @@ contract OfferManager is OfferManagerInterface {
         address takerTokenAddress,
         uint256 takerAmount
     ) external returns (uint256 offerId) {
-        require(
-            _checkTakerTokenAddress(takerTokenAddress),
-            "`takerTokenAddress` only allows zero address (= ETH)"
-        );
-        require(
-            _checkTaker(takerIntmaxAddress),
-            "`takerIntmaxAddress` must not be zero"
-        );
+        // Check if given `takerTokenAddress` is either ETH or ERC20.
+        if (takerTokenAddress != address(0)) {
+            uint256 totalSupply = IERC20(takerTokenAddress).totalSupply();
+            require(
+                totalSupply != 0,
+                "the total supply of ERC20 must not be zero"
+            );
+        }
 
         return
             _register(
@@ -127,7 +128,20 @@ contract OfferManager is OfferManagerInterface {
         );
 
         _activate(offerId);
-        payable(offer.maker).transfer(msg.value);
+        if (offer.takerTokenAddress == address(0)) {
+            payable(offer.maker).transfer(msg.value);
+        } else {
+            require(
+                msg.value == 0,
+                "transmission method other than ETH is specified"
+            );
+            bool success = IERC20(offer.takerTokenAddress).transferFrom(
+                msg.sender,
+                offer.maker,
+                offer.takerAmount
+            );
+            require(success, "fail to transfer ERC20 token");
+        }
 
         return true;
     }
@@ -281,12 +295,5 @@ contract OfferManager is OfferManagerInterface {
     function _checkTaker(bytes32 taker) internal pure returns (bool) {
         // A taker should not be the burn address.
         return taker != bytes32(0);
-    }
-
-    function _checkTakerTokenAddress(
-        address takerTokenAddress
-    ) internal pure virtual returns (bool) {
-        // TODO: should allow ERC20
-        return takerTokenAddress == address(0);
     }
 }

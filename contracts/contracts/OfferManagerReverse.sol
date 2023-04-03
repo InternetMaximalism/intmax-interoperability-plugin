@@ -118,6 +118,20 @@ contract OfferManagerReverse is OfferManagerReverseInterface {
         emit OfferMakerUpdated(offerId, newMaker);
     }
 
+    function checkWitness(
+        uint256 offerId,
+        bytes calldata witness
+    ) external view returns (bool) {
+        Offer memory offer = _offers[offerId];
+
+        bytes32 hashedMessage = ECDSA.toEthSignedMessageHash(
+            offer.takerIntmaxAddress
+        );
+        _checkWitness(hashedMessage, witness);
+
+        return true;
+    }
+
     function activate(
         uint256 offerId,
         bytes calldata witness
@@ -132,7 +146,10 @@ contract OfferManagerReverse is OfferManagerReverseInterface {
         //     );
         // }
 
-        _checkWitness(offer.takerIntmaxAddress, witness);
+        bytes32 hashedMessage = ECDSA.toEthSignedMessageHash(
+            offer.takerIntmaxAddress
+        );
+        _checkWitness(hashedMessage, witness);
 
         require(
             msg.sender == offer.maker,

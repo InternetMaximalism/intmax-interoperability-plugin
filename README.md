@@ -4,7 +4,7 @@
 
 See [Concept](./docs/concept.md)
 
-## How to test
+## How to deploy OfferManager
 
 Setup a local node.
 
@@ -16,15 +16,19 @@ npx hardhat node # port 8545
 cd ../
 ```
 
-Deploy FlagManager contract.
+Deploy OfferManager contract.
 
 ```sh
 cp -n example.env .env
 cargo install cargo-make
-cargo make deploy-contracts
+RPC_URL=http://localhost:8545 cargo make deploy-contracts
 ```
 
-Interact to the contract.
+
+## How to test on Scroll alpha
+
+Access to OfferManager contract deployed on Scroll.
+The account given in .env file must have sufficient ETH (around 0.1 ETH) on Scroll alpha to execute the transaction.
 
 ```sh
 cargo run --bin offer_manager

@@ -14,9 +14,10 @@ use intmax_interoperability_plugin::contracts::offer_manager::OfferManagerContra
 #[tokio::main]
 async fn main() {
     let _ = dotenv().ok();
-    let secret_key = std::env::var("PRIVATE_KEY").expect("PRIVATE_KEY must be set in .env file");
-    let rpc_url = "https://rpc.public.zkevm-test.net";
-    let chain_id = 1442u64;
+    let secret_key =
+        std::env::var("PRIVATE_KEY").expect("PRIVATE_KEY must be set in .env file. This address must have sufficient ETH (around 0.1 ETH) on Scroll alpha to execute the transaction.");
+    let rpc_url = "https://alpha-rpc.scroll.io/l2";
+    let chain_id = 534353u64;
 
     let provider = Provider::<Http>::try_from(rpc_url)
         .unwrap()
@@ -27,7 +28,7 @@ async fn main() {
     let client = SignerMiddleware::new(provider, wallet);
     let client = Arc::new(client);
 
-    let contract_address: Address = "0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7"
+    let contract_address: Address = "0x1E316b313de98C7eCb2393995ef27715E3E1c7a7"
         .parse()
         .unwrap();
     let contract = OfferManagerContractWrapper::new(contract_address, client);

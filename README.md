@@ -13,6 +13,7 @@ Clone this repository.
 git clone git@github.com:InternetMaximalism/intmax-interoperability-plugin.git
 # or use HTTPS
 git clone https://github.com/InternetMaximalism/intmax-interoperability-plugin.git
+cd ​​intmax-interoperability-plugin
 ```
 
 Setup a local node.
@@ -22,10 +23,10 @@ git submodule init
 git submodule update
 cd contracts
 npx hardhat node # port 8545
-cd ../
 ```
 
-Setup environment variables.
+Open another terminal and return to this repository root.
+Next, setup environment variables.
 
 ```sh
 cp -n example.env .env
@@ -38,8 +39,8 @@ If you use Hardhat node at `http://localhost:8545`,
 the private key in `example.env` may be used without modification.
 
 ```sh
-cargo install cargo-make
-RPC_URL=http://localhost:8545 cargo make deploy-contracts
+cd contracts
+npx hardhat --network localhost run ./scripts/deploy.ts
 ```
 
 ## How to test on Scroll alpha

@@ -4,7 +4,7 @@
 
 See [Concept](./docs/concept.md)
 
-## How to deploy OfferManager
+## How to deploy OfferManager on local network
 
 Setup a local node.
 
@@ -23,7 +23,6 @@ cp -n example.env .env
 cargo install cargo-make
 RPC_URL=http://localhost:8545 cargo make deploy-contracts
 ```
-
 
 ## How to test on Scroll alpha
 

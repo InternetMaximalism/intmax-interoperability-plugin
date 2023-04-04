@@ -2,7 +2,10 @@
 
 ## Concept
 
-See [Concept](./docs/concept.md)
+It is a smart contract written in Solidity to manage offers to exchange assets on intmax and other networks.
+The contract allows users to register new offers and update the taker of an existing offer. The offer can be activated by transferring the taker's asset to the maker in exchange for payment. The contract also includes events for tracking the registration, activation, and deactivation of offers. The function nextOfferId returns the ID of the next offer to be registered.
+
+See also [Concept](./docs/concept.md)
 
 ## How to deploy OfferManager on local network
 

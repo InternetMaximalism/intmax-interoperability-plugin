@@ -6,6 +6,15 @@ See [Concept](./docs/concept.md)
 
 ## How to deploy OfferManager on local network
 
+Clone this repository.
+
+```sh
+# use SSH
+git clone git@github.com:InternetMaximalism/intmax-interoperability-plugin.git
+# or use HTTPS
+git clone https://github.com/InternetMaximalism/intmax-interoperability-plugin.git
+```
+
 Setup a local node.
 
 ```sh
@@ -16,10 +25,19 @@ npx hardhat node # port 8545
 cd ../
 ```
 
-Deploy OfferManager contract.
+Setup environment variables.
 
 ```sh
 cp -n example.env .env
+```
+
+In the .env file, `PRIVATE_KEY` is required to deploy the contract.
+The code below deploys the contract to the network specified by `RPC_URL`,
+so the account must have sufficient ETH in advance.
+If you use Hardhat node at `http://localhost:8545`,
+the private key in `example.env` may be used without modification.
+
+```sh
 cargo install cargo-make
 RPC_URL=http://localhost:8545 cargo make deploy-contracts
 ```

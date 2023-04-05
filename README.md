@@ -66,7 +66,7 @@ See also [sample-auction-app](https://github.com/InternetMaximalism/intmax-rollu
 3. Tom accepts the offer and transfers the ETH to Mike.
 4. Tom can merge the assets transferred from Mike on intmax.
 
-#### [register()](./contracts/contracts/OfferManagerInterface.sol#L42-L60)
+#### [register()](./contracts/contracts/OfferManagerInterface.sol#L53-L79)
 
 ```solidity
 OfferManagerInterface offerManager;
@@ -81,7 +81,7 @@ uint256 offerId = offerManager.register(
 );
 ```
 
-#### [activate()](./contracts/contracts/OfferManagerInterface.sol#L69-L73)
+#### [activate()](./contracts/contracts/OfferManagerInterface.sol#L96-L107)
 
 ```solidity
 OfferManagerInterface offerManager;
@@ -97,7 +97,7 @@ require(success, "fail to activate offer");
 2. Mike accepts the offer and transfers the tokens on intmax to Tom.
 3. Mike can receive Tom's ETH.
 
-#### [register()](./contracts/contracts/OfferManagerReverseInterface.sol#L39-L53)
+#### [register()](./contracts/contracts/OfferManagerReverseInterface.sol#L40-L56)
 
 ```solidity
 OfferManagerReverseInterface offerManagerReverse;
@@ -109,7 +109,7 @@ uint256 offerId = offerManagerReverse.register(
 );
 ```
 
-#### [activate()](./contracts/contracts/OfferManagerReverseInterface.sol#L62-L70)
+#### [activate()](./contracts/contracts/OfferManagerReverseInterface.sol#L69-L81)
 
 ```solidity
 OfferManagerReverseInterface offerManagerReverse;

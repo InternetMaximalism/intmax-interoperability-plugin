@@ -102,7 +102,9 @@ require(success, "fail to activate offer");
 ```solidity
 OfferManagerReverseInterface offerManagerReverse;
 uint256 offerId = offerManagerReverse.register(
-    takerIntmax,
+    takerIntmaxAddress,
+    takerTokenAddress,
+    takerAmount,
     maker,
     makerAssetId,
     makerAmount

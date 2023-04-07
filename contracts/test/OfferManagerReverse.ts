@@ -14,6 +14,7 @@ describe("OfferManagerReverse", function () {
       "OfferManagerReverse"
     );
     const offerManagerReverse = await OfferManagerReverse.deploy();
+    await offerManagerReverse.initialize();
 
     return { offerManagerReverse, owner, maker, taker };
   }

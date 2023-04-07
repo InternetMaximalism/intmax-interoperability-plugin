@@ -1,9 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.9;
+pragma solidity 0.8.17;
 
 import "./OfferManager.sol";
 
 contract OfferManagerTest is OfferManager {
+    constructor() {
+        initialize();
+    }
+
     /**
      * @dev This function registers a new offer.
      */
@@ -18,7 +22,7 @@ contract OfferManagerTest is OfferManager {
     ) external returns (uint256 flagId) {
         return
             _register(
-                msg.sender,
+                _msgSender(),
                 makerIntmaxAddress,
                 makerAssetId,
                 makerAmount,

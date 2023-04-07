@@ -237,11 +237,11 @@ contract OfferManagerReverse is
         Offer memory offer,
         bytes memory witness
     ) internal view virtual {
-        bytes32 hashedMessage = ECDSA.toEthSignedMessageHash(
-            offer.takerIntmaxAddress
-        );
-        address signer = ECDSA.recover(hashedMessage, witness);
-        require(signer == owner(), "Fail to verify signature.");
+        // bytes32 hashedMessage = ECDSA.toEthSignedMessageHash(
+        //     offer.takerIntmaxAddress
+        // );
+        // address signer = ECDSA.recover(hashedMessage, witness);
+        // require(signer == owner(), "Fail to verify signature.");
     }
 
     /**

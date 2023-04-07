@@ -1,47 +1,21 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.9;
+pragma solidity 0.8.17;
 
 import "./OfferManagerInterface.sol";
+import "./OfferManagerBase.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "hardhat/console.sol";
 
-contract OfferManager is OfferManagerInterface {
-    /**
-     * @dev Struct representing an offer created by a maker and taken by a taker.
-     * @param maker is the address of the maker who creates the offer.
-     * @param makerIntmaxAddress is the intmax address of the maker.
-     * @param makerAssetId is the asset ID that the maker is selling to the taker.
-     * @param makerAmount is the amount of the asset that the maker is selling to the taker.
-     * @param taker is the address of the taker who takes the offer.
-     * @param takerIntmaxAddress is the intmax address of the taker.
-     * @param takerTokenAddress is the address of the token that the taker needs to pay.
-     * @param takerAmount is the amount of the token that the taker needs to pay.
-     * @param isActivated is a boolean flag indicating whether the offer is activated or not.
-     */
-    struct Offer {
-        address maker;
-        bytes32 makerIntmaxAddress;
-        uint256 makerAssetId;
-        uint256 makerAmount;
-        address taker;
-        bytes32 takerIntmaxAddress;
-        address takerTokenAddress;
-        uint256 takerAmount;
-        bool isActivated;
+contract OfferManager is
+    OfferManagerInterface,
+    OfferManagerBase,
+    ContextUpgradeable
+{
+    using CountersUpgradeable for CountersUpgradeable.Counter;
+
+    function initialize() public initializer {
+        __Context_init();
     }
-
-    // uint256 constant MAX_ASSET_ID = 18446744069414584320; // the maximum value of Goldilocks field
-    uint256 constant MAX_REMITTANCE_AMOUNT = 18446744069414584320; // the maximum value of Goldilocks field
-
-    /**
-     * @dev This is the ID allocated to the next offer data to be registered.
-     */
-    uint256 public nextOfferId = 0;
-
-    /**
-     * @dev This is the mapping from offer ID to offer data.
-     */
-    mapping(uint256 => Offer) _offers;
 
     /**
      * Emits a `OfferRegistered` event with the offer details.
@@ -67,7 +41,7 @@ contract OfferManager is OfferManagerInterface {
 
         return
             _register(
-                msg.sender, // maker
+                _msgSender(), // maker
                 makerIntmaxAddress,
                 makerAssetId,
                 makerAmount,
@@ -93,7 +67,7 @@ contract OfferManager is OfferManagerInterface {
 
         // Caller must have the permission to update the offer.
         require(
-            msg.sender == _offers[offerId].maker,
+            _msgSender() == _offers[offerId].maker,
             "offers can be updated by its maker"
         );
 
@@ -114,7 +88,7 @@ contract OfferManager is OfferManagerInterface {
         address taker = _offers[offerId].taker;
         if (taker != address(0)) {
             require(
-                msg.sender == taker,
+                _msgSender() == taker,
                 "offers can be activated by its taker"
             );
         }
@@ -136,7 +110,7 @@ contract OfferManager is OfferManagerInterface {
                 "transmission method other than ETH is specified"
             );
             bool success = IERC20(offer.takerTokenAddress).transferFrom(
-                msg.sender,
+                _msgSender(),
                 offer.maker,
                 offer.takerAmount
             );
@@ -151,42 +125,13 @@ contract OfferManager is OfferManagerInterface {
      */
     function deactivate(uint256 offerId) external returns (bool) {
         require(
-            msg.sender == _offers[offerId].maker,
+            _msgSender() == _offers[offerId].maker,
             "only the maker of an offer can deactivate it"
         );
 
         _deactivate(offerId);
 
         return true;
-    }
-
-    function getOffer(
-        uint256 offerId
-    )
-        public
-        view
-        returns (
-            address maker,
-            bytes32 makerIntmaxAddress,
-            uint256 makerAssetId,
-            uint256 makerAmount,
-            address taker,
-            bytes32 takerIntmaxAddress,
-            address takerTokenAddress,
-            uint256 takerAmount,
-            bool activated
-        )
-    {
-        Offer storage offer = _offers[offerId];
-        maker = offer.maker;
-        makerIntmaxAddress = offer.makerIntmaxAddress;
-        makerAssetId = offer.makerAssetId;
-        makerAmount = offer.makerAmount;
-        taker = offer.taker;
-        takerIntmaxAddress = offer.takerIntmaxAddress;
-        takerTokenAddress = offer.takerTokenAddress;
-        takerAmount = offer.takerAmount;
-        activated = offer.isActivated;
     }
 
     function isRegistered(uint256 offerId) public view returns (bool) {
@@ -208,7 +153,7 @@ contract OfferManager is OfferManagerInterface {
         uint256 takerAmount
     ) internal returns (uint256 offerId) {
         require(maker != address(0), "The maker must not be zero address.");
-        offerId = nextOfferId;
+        offerId = _nextOfferId.current();
         require(!isRegistered(offerId), "This offer ID is already registered.");
 
         Offer memory offer = Offer({
@@ -225,7 +170,7 @@ contract OfferManager is OfferManagerInterface {
 
         _isValidOffer(offer);
         _offers[offerId] = offer;
-        nextOfferId += 1;
+        _nextOfferId.increment();
         emit OfferRegistered(
             offerId,
             maker,

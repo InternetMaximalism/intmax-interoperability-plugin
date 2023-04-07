@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.9;
+pragma solidity 0.8.17;
+
+import "./OfferManagerBaseInterface.sol";
 
 interface OfferManagerInterface {
     /**
@@ -112,27 +114,4 @@ interface OfferManagerInterface {
      * @return A boolean indicating whether the deactivation was successful.
      */
     function deactivate(uint256 offerId) external returns (bool);
-
-    function nextOfferId() external view returns (uint256);
-
-    function getOffer(
-        uint256 offerId
-    )
-        external
-        view
-        returns (
-            address maker,
-            bytes32 makerIntmaxAddress,
-            uint256 makerAssetId,
-            uint256 makerAmount,
-            address taker,
-            bytes32 takerIntmaxAddress,
-            address takerTokenAddress,
-            uint256 takerAmount,
-            bool activated
-        );
-
-    function isRegistered(uint256 offerId) external view returns (bool);
-
-    function isActivated(uint256 offerId) external view returns (bool);
 }

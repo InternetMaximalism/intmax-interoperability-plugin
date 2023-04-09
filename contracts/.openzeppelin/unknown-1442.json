@@ -1,0 +1,345 @@
+{
+  "manifestVersion": "3.2",
+  "admin": {
+    "address": "0xAb5dEd310407D76419b8B42044F6dedAb96e699A",
+    "txHash": "0x37848d80b0aa686b14ddd4337fe421787fa43eb5c75b0355cb947f92f6b3703c"
+  },
+  "proxies": [
+    {
+      "address": "0x161a72Bc1b76586a36A9014Dd58d401eE2B24094",
+      "txHash": "0x70e4955dcef599471ad193bfe4f9639b2c3440400cba6dd6ecf03c3ad81146d1",
+      "kind": "transparent"
+    },
+    {
+      "address": "0x1E316b313de98C7eCb2393995ef27715E3E1c7a7",
+      "txHash": "0x65e5ec8377e563ed04ce74ea9ee85192c13723439744f83d7a0910d1eff94dd2",
+      "kind": "transparent"
+    }
+  ],
+  "impls": {
+    "4468b75e2b0fb413bbb2503e246adf87ccc0da7b082206dbb7056417a5ced27f": {
+      "address": "0x28b66287f36cf4372820CE11c18659F56E63fBBE",
+      "txHash": "0x7cc0a1a19a7588085f1429b98501aed31db4df6b6b053ce8431bd5992294bd1b",
+      "layout": {
+        "solcVersion": "0.8.17",
+        "storage": [
+          {
+            "label": "_nextOfferId",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_struct(Counter)632_storage",
+            "contract": "OfferManagerBase",
+            "src": "contracts/OfferManagerBase.sol:16"
+          },
+          {
+            "label": "_offers",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_mapping(t_uint256,t_struct(Offer)2845_storage)",
+            "contract": "OfferManagerBase",
+            "src": "contracts/OfferManagerBase.sol:21"
+          },
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "2",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:67"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(Offer)2845_storage)": {
+            "label": "mapping(uint256 => struct OfferManagerBaseInterface.Offer)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Counter)632_storage": {
+            "label": "struct CountersUpgradeable.Counter",
+            "members": [
+              {
+                "label": "_value",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(Offer)2845_storage": {
+            "label": "struct OfferManagerBaseInterface.Offer",
+            "members": [
+              {
+                "label": "maker",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "makerIntmaxAddress",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "makerAssetId",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "makerAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "taker",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "takerIntmaxAddress",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "5"
+              },
+              {
+                "label": "takerTokenAddress",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "6"
+              },
+              {
+                "label": "takerAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "7"
+              },
+              {
+                "label": "isActivated",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "8"
+              }
+            ],
+            "numberOfBytes": "288"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    },
+    "05b13da05d658d7b1ea7d9fc16a7aa15453c898e104c3758a8883dfb603d232b": {
+      "address": "0x0B6fa7a911eb3d86478DC8a99DB1Dd1B54edcAe4",
+      "txHash": "0x8d74157e23b4be4563bff53c850db860d0c130fcbba3717064276fffb0430880",
+      "layout": {
+        "solcVersion": "0.8.17",
+        "storage": [
+          {
+            "label": "_nextOfferId",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_struct(Counter)632_storage",
+            "contract": "OfferManagerBase",
+            "src": "contracts/OfferManagerBase.sol:16"
+          },
+          {
+            "label": "_offers",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_mapping(t_uint256,t_struct(Offer)2845_storage)",
+            "contract": "OfferManagerBase",
+            "src": "contracts/OfferManagerBase.sol:21"
+          },
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "2",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:67"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "53",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "54",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:94"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_uint256,t_struct(Offer)2845_storage)": {
+            "label": "mapping(uint256 => struct OfferManagerBaseInterface.Offer)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(Counter)632_storage": {
+            "label": "struct CountersUpgradeable.Counter",
+            "members": [
+              {
+                "label": "_value",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(Offer)2845_storage": {
+            "label": "struct OfferManagerBaseInterface.Offer",
+            "members": [
+              {
+                "label": "maker",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "makerIntmaxAddress",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "makerAssetId",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "makerAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "taker",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "4"
+              },
+              {
+                "label": "takerIntmaxAddress",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "5"
+              },
+              {
+                "label": "takerTokenAddress",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "6"
+              },
+              {
+                "label": "takerAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "7"
+              },
+              {
+                "label": "isActivated",
+                "type": "t_bool",
+                "offset": 0,
+                "slot": "8"
+              }
+            ],
+            "numberOfBytes": "288"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    }
+  }
+}

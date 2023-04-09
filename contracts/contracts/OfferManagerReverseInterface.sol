@@ -34,8 +34,9 @@ interface OfferManagerReverseInterface {
     /**
      * This event occurs when certain offers are activated.
      * @param offerId is the ID of the offer.
+     * @param maker is the maker's account.
      */
-    event OfferActivated(uint256 indexed offerId, address maker);
+    event OfferActivated(uint256 indexed offerId, address indexed maker);
 
     /**
      * @dev Locks the taker's funds and creates a new offer to exchange them for the maker's asset on intmax.

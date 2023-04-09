@@ -19,8 +19,10 @@ pub struct RegisterEvent {
     /// topic 1
     pub maker: H160,
 
-    pub asset_id: U256,
+    pub maker_intmax_address: H256,
+    pub maker_asset_id: U256,
     pub maker_amount: U256,
+    pub taker: H160,
     pub taker_token_address: H160,
     pub taker_amount: U256,
 }
@@ -57,13 +59,24 @@ impl<M: Middleware> OfferManagerContractWrapper<M> {
 
     pub async fn get_register_events(
         &self,
-        topic1: Vec<H256>,
+        topic_offer_id: Option<Vec<H256>>,
+        topic_maker: Option<Vec<H256>>,
     ) -> anyhow::Result<Vec<RegisterEvent>> {
         let filter: Event<M, OfferRegisteredFilter> = self
             .offer_registered_filter()
             .address(self.address.into())
-            .topic1(topic1.clone())
             .from_block(0);
+        let filter = if let Some(topic_offer_id) = topic_offer_id.clone() {
+            filter.topic1(topic_offer_id)
+        } else {
+            filter
+        };
+        let filter = if let Some(topic_maker) = topic_maker.clone() {
+            filter.topic2(topic_maker)
+        } else {
+            filter
+        };
+
         let logs: Vec<OfferRegisteredFilter> = filter
             .query()
             .await
@@ -75,16 +88,26 @@ impl<M: Middleware> OfferManagerContractWrapper<M> {
                     let mut bytes = [0u8; 32];
                     log.offer_id.to_big_endian(&mut bytes);
                     let offer_id = H256::from(bytes);
-                    if !topic1.iter().any(|topic| topic == &offer_id) {
-                        return None;
+                    if let Some(topic_offer_id) = topic_offer_id.clone() {
+                        if !topic_offer_id.iter().any(|topic| topic == &offer_id) {
+                            return None;
+                        }
+                    }
+                    let maker = H256::from(log.maker);
+                    if let Some(topic_maker) = topic_maker.clone() {
+                        if !topic_maker.iter().any(|topic| topic == &maker) {
+                            return None;
+                        }
                     }
                 }
 
                 Some(RegisterEvent {
                     offer_id: log.offer_id,
                     maker: log.maker,
-                    asset_id: log.maker_asset_id,
+                    maker_intmax_address: H256::from(log.maker_intmax_address),
+                    maker_asset_id: log.maker_asset_id,
                     maker_amount: log.maker_amount,
+                    taker: log.taker,
                     taker_token_address: log.taker_token_address,
                     taker_amount: log.taker_amount,
                 })

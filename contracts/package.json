@@ -4,7 +4,8 @@
   "scripts": {
     "compile": "npx hardhat compile",
     "test": "npx hardhat test",
-    "deploy:localhost": "npx hardhat --network localhost run ./scripts/deploy.ts"
+    "deploy:localhost": "npx hardhat --network localhost run ./scripts/deploy.ts",
+    "upgrade:localhost": "npx hardhat --network localhost run ./scripts/upgrade.ts"
   },
   "devDependencies": {
     "@ethersproject/providers": "^5.7.2",

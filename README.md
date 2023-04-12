@@ -57,7 +57,7 @@ cargo run --bin offer_manager
 
 ## How to develop Solidity
 
-See also [sample-auction-app](https://github.com/InternetMaximalism/intmax-rollup-cli-flag/tree/main/packages/sample-auction-app/ethereum).
+See also [sample-auction-app](https://github.com/InternetMaximalism/intmax-rollup-cli/tree/main/packages/sample-auction-app/ethereum).
 
 ### Offer Manager (Pattern 1)
 

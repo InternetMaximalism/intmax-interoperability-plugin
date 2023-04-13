@@ -1,0 +1,10 @@
+{
+  "scrollalpha": {
+    "offerManager": "0x007c969728eE4f068ceCF3405D65a037dB5BeEa1",
+    "reverseOfferManager": "0x4ee8cB7864df06A8c7703988C15bAaAB9ac47CAe"
+  },
+  "polygonzkevmtest": {
+    "offerManager": "0x161a72Bc1b76586a36A9014Dd58d401eE2B24094",
+    "reverseOfferManager": "0x1E316b313de98C7eCb2393995ef27715E3E1c7a7"
+  }
+}

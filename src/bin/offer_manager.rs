@@ -28,7 +28,7 @@ async fn main() {
     let client = SignerMiddleware::new(provider, wallet);
     let client = Arc::new(client);
 
-    let contract_address: Address = "0x1E316b313de98C7eCb2393995ef27715E3E1c7a7"
+    let contract_address: Address = "0x007c969728eE4f068ceCF3405D65a037dB5BeEa1"
         .parse()
         .unwrap();
     let contract = OfferManagerContractWrapper::new(contract_address, client);

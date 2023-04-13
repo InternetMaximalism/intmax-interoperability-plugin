@@ -48,12 +48,14 @@ npx hardhat --network localhost run ./scripts/deploy.ts
 
 ## How to test on Scroll alpha
 
-Access to OfferManager contract deployed on Scroll.
+By executing the following command, you can access to OfferManager contract deployed on Scroll.
 The account given in .env file must have sufficient ETH (around 0.1 ETH) on Scroll alpha to execute the transaction.
 
 ```sh
 cargo run --bin offer_manager
 ```
+
+The address of the deployed contract can be found [here](./docs/address.json).
 
 ## How to develop Solidity
 

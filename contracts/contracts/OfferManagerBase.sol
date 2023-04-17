@@ -7,7 +7,6 @@ import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 abstract contract OfferManagerBase is OfferManagerBaseInterface {
     using CountersUpgradeable for CountersUpgradeable.Counter;
 
-    // uint256 constant MAX_ASSET_ID = 18446744069414584320; // the maximum value of Goldilocks field
     uint256 constant MAX_REMITTANCE_AMOUNT = 18446744069414584320; // the maximum value of Goldilocks field
 
     /**

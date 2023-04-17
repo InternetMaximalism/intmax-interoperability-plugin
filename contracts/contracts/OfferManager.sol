@@ -84,7 +84,7 @@ contract OfferManager is
     /**
      * Emits an `OfferActivated` event with the offer ID and the taker's Intmax address.
      */
-    function activate(uint256 offerId) external payable returns (bool) {
+    function activate(uint256 offerId) external payable virtual returns (bool) {
         address taker = _offers[offerId].taker;
         if (taker != address(0)) {
             require(

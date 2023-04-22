@@ -4,20 +4,17 @@ pragma solidity 0.8.17;
 import "./utils/MerkleTree.sol";
 import "./utils/Poseidon.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "hardhat/console.sol";
 
-contract Verifier is MerkleTree {
+contract Verifier is MerkleTree, Ownable {
+    bytes32 immutable networkIndex;
+
     struct Asset {
         bytes32 recipient;
         bytes32 tokenAddress;
         bytes32 tokenId;
         uint256 amount;
-    }
-
-    struct Signature {
-        bytes32 r;
-        bytes32 s;
-        uint8 v;
     }
 
     struct BlockHeader {
@@ -29,6 +26,10 @@ contract Verifier is MerkleTree {
         bytes32 proposedWorldStateDigest;
         bytes32 approvedWorldStateDigest;
         bytes32 latestAccountDigest; // latest account tree
+    }
+
+    constructor(bytes32 networkIndex_) {
+        networkIndex = networkIndex_;
     }
 
     function _calcLeafHash(
@@ -177,14 +178,19 @@ contract Verifier is MerkleTree {
         bytes32 blockHash,
         Asset memory asset,
         address aggregator,
-        bytes32 txHash,
         bytes32 nonce,
         bytes32[] memory recipientMerkleSiblings,
         MerkleTree.MerkleProof memory diffTreeInclusionProof,
         BlockHeader memory blockHeader,
         bytes memory signature // (r, s, v)
     ) internal view returns (bool ok) {
-        _verifyAsset(txHash, asset, recipientMerkleSiblings, nonce);
+        Asset[] memory assets = new Asset[](1);
+        assets[0] = asset;
+        bytes32 txHash = _calcTransactionHash(
+            assets,
+            recipientMerkleSiblings,
+            nonce
+        );
         _verifyAssetRoot(
             blockHash,
             txHash,
@@ -199,11 +205,9 @@ contract Verifier is MerkleTree {
     function verify(
         bytes32 blockHash,
         Asset calldata asset,
-        address aggregator,
         bytes calldata witness
     ) external view returns (bool ok) {
         (
-            bytes32 txHash,
             bytes32 nonce,
             bytes32[] memory recipientMerkleSiblings,
             MerkleTree.MerkleProof memory diffTreeInclusionProof,
@@ -211,23 +215,15 @@ contract Verifier is MerkleTree {
             bytes memory signature
         ) = abi.decode(
                 witness,
-                (
-                    bytes32,
-                    bytes32,
-                    bytes32[],
-                    MerkleTree.MerkleProof,
-                    BlockHeader,
-                    bytes
-                )
+                (bytes32, bytes32[], MerkleTree.MerkleProof, BlockHeader, bytes)
             );
 
-        // bytes32 networkIndex = 0x0000000000000000000000000000000000000000000000000000000000000001;
         // require(asset.recipient == networkIndex, "invalid network index");
+        address aggregator = owner();
         ok = _verify(
             blockHash,
             asset,
             aggregator,
-            txHash,
             nonce,
             recipientMerkleSiblings,
             diffTreeInclusionProof,

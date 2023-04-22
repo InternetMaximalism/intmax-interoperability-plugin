@@ -149,62 +149,62 @@ describe("OfferManagerV2", function () {
     });
   });
 
-  // describe("Upgrade", function () {
-  //   it("Should execute without errors", async function () {
-  //     const [, maker, taker] = await ethers.getSigners();
+  describe("Upgrade", function () {
+    it("Should execute without errors", async function () {
+      const [, maker, taker] = await ethers.getSigners();
 
-  //     const OfferManager = await ethers.getContractFactory("OfferManager");
-  //     const offerManager = await upgrades.deployProxy(OfferManager);
+      const OfferManager = await ethers.getContractFactory("OfferManager");
+      const offerManager = await upgrades.deployProxy(OfferManager);
 
-  //     const offerManagerProxyAddress = offerManager.address;
+      const offerManagerProxyAddress = offerManager.address;
 
-  //     const {
-  //       makerIntmaxAddress,
-  //       makerAssetId,
-  //       makerAmount,
-  //       takerIntmaxAddress,
-  //       takerTokenAddress,
-  //       takerAmount,
-  //     } = sampleOffer;
+      const {
+        makerIntmaxAddress,
+        makerAssetId,
+        makerAmount,
+        takerIntmaxAddress,
+        takerTokenAddress,
+        takerAmount,
+      } = sampleOffer;
 
-  //     await offerManager
-  //       .connect(maker)
-  //       .register(
-  //         makerIntmaxAddress,
-  //         makerAssetId,
-  //         makerAmount,
-  //         taker.address,
-  //         takerIntmaxAddress,
-  //         takerTokenAddress,
-  //         takerAmount
-  //       );
+      await offerManager
+        .connect(maker)
+        .register(
+          makerIntmaxAddress,
+          makerAssetId,
+          makerAmount,
+          taker.address,
+          takerIntmaxAddress,
+          takerTokenAddress,
+          takerAmount
+        );
 
-  //     const offerId = 0;
+      const offerId = 0;
 
-  //     const OfferManagerV2 = await ethers.getContractFactory("OfferManagerV2");
-  //     const offerManagerV2 = await upgrades.upgradeProxy(
-  //       offerManagerProxyAddress,
-  //       OfferManagerV2
-  //     );
+      const OfferManagerV2 = await ethers.getContractFactory("OfferManagerV2");
+      const offerManagerV2 = await upgrades.upgradeProxy(
+        offerManagerProxyAddress,
+        OfferManagerV2
+      );
 
-  //     await expect(
-  //       offerManagerV2
-  //         .connect(taker)
-  //         ["activate(uint256,bytes)"](offerId, "0x", { value: takerAmount })
-  //     )
-  //       .to.emit(offerManagerV2, "OfferActivated")
-  //       .withArgs(offerId, takerIntmaxAddress);
+      await expect(
+        offerManagerV2
+          .connect(taker)
+          ["activate(uint256,bytes)"](offerId, "0x", { value: takerAmount })
+      )
+        .to.emit(offerManagerV2, "OfferActivated")
+        .withArgs(offerId, takerIntmaxAddress);
 
-  //     const offer = await offerManagerV2.getOffer(offerId);
-  //     expect(offer.maker).to.be.equal(maker.address);
-  //     expect(offer.makerIntmaxAddress).to.be.equal(makerIntmaxAddress);
-  //     expect(offer.makerAssetId).to.be.equal(makerAssetId);
-  //     expect(offer.makerAmount).to.be.equal(makerAmount.toString());
-  //     expect(offer.taker).to.be.equal(taker.address);
-  //     expect(offer.takerIntmaxAddress).to.be.equal(takerIntmaxAddress);
-  //     expect(offer.takerTokenAddress).to.be.equal(takerTokenAddress);
-  //     expect(offer.takerAmount).to.be.equal(takerAmount.toString());
-  //     expect(offer.activated).to.be.equal(true);
-  //   });
-  // });
+      const offer = await offerManagerV2.getOffer(offerId);
+      expect(offer.maker).to.be.equal(maker.address);
+      expect(offer.makerIntmaxAddress).to.be.equal(makerIntmaxAddress);
+      expect(offer.makerAssetId).to.be.equal(makerAssetId);
+      expect(offer.makerAmount).to.be.equal(makerAmount.toString());
+      expect(offer.taker).to.be.equal(taker.address);
+      expect(offer.takerIntmaxAddress).to.be.equal(takerIntmaxAddress);
+      expect(offer.takerTokenAddress).to.be.equal(takerTokenAddress);
+      expect(offer.takerAmount).to.be.equal(takerAmount.toString());
+      expect(offer.activated).to.be.equal(true);
+    });
+  });
 });

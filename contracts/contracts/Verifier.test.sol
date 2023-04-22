@@ -5,8 +5,9 @@ import "./Verifier.sol";
 import "hardhat/console.sol";
 
 contract VerifierTest is Verifier {
+    constructor(bytes32 networkIndex) Verifier(networkIndex) {}
+
     function getWitness(
-        bytes32 txHash,
         bytes32 nonce,
         bytes32[] calldata recipientMerkleSiblings,
         MerkleTree.MerkleProof calldata diffTreeInclusionProof,
@@ -14,7 +15,6 @@ contract VerifierTest is Verifier {
         bytes calldata signature // (r, s, v)
     ) external pure returns (bytes memory witness) {
         witness = abi.encode(
-            txHash,
             nonce,
             recipientMerkleSiblings,
             diffTreeInclusionProof,
@@ -27,7 +27,6 @@ contract VerifierTest is Verifier {
         bytes32 blockHash,
         Asset calldata asset,
         address aggregator,
-        bytes32 txHash,
         bytes32 nonce,
         bytes32[] calldata recipientMerkleSiblings,
         MerkleTree.MerkleProof calldata diffTreeInclusionProof,
@@ -38,7 +37,6 @@ contract VerifierTest is Verifier {
             blockHash,
             asset,
             aggregator,
-            txHash,
             nonce,
             recipientMerkleSiblings,
             diffTreeInclusionProof,

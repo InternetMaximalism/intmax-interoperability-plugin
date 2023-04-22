@@ -9,10 +9,16 @@ import "./Verifier.sol";
 // import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 // NOTICE: This contract is not upgradeable.
-contract OfferManagerV2 is OfferManager, OwnableUpgradeable, Verifier {
+contract OfferManagerV2 is OfferManager, OwnableUpgradeable {
+    Verifier verifier;
+
     function initialize() public override initializer {
         __Context_init();
         __Ownable_init();
+    }
+
+    function changeVerifier(Verifier newVerifier) external onlyOwner {
+        verifier = newVerifier;
     }
 
     /**

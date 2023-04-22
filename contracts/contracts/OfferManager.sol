@@ -29,7 +29,7 @@ contract OfferManager is
         bytes32 takerIntmaxAddress,
         address takerTokenAddress,
         uint256 takerAmount
-    ) external returns (uint256 offerId) {
+    ) external virtual returns (uint256 offerId) {
         // Check if given `takerTokenAddress` is either ETH or ERC20.
         if (takerTokenAddress != address(0)) {
             uint256 totalSupply = IERC20(takerTokenAddress).totalSupply();
@@ -84,7 +84,7 @@ contract OfferManager is
     /**
      * Emits an `OfferActivated` event with the offer ID and the taker's Intmax address.
      */
-    function activate(uint256 offerId) external payable virtual returns (bool) {
+    function activate(uint256 offerId) external payable returns (bool) {
         address taker = _offers[offerId].taker;
         if (taker != address(0)) {
             require(

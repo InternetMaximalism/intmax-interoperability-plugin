@@ -3,76 +3,78 @@ pragma solidity 0.8.17;
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "./OfferManager.sol";
-import "./Verifier.sol";
+import "./OfferManagerV2Interface.sol";
+import "./VerifierInterface.sol";
 
-// import "./utils/MerkleTree.sol";
-// import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-
-// NOTICE: This contract is not upgradeable.
-contract OfferManagerV2 is OfferManager, OwnableUpgradeable {
-    Verifier verifier;
+contract OfferManagerV2 is
+    OfferManager,
+    OfferManagerV2Interface,
+    OwnableUpgradeable
+{
+    VerifierInterface verifier;
 
     function initialize() public override initializer {
         __Context_init();
         __Ownable_init();
     }
 
-    function changeVerifier(Verifier newVerifier) external onlyOwner {
+    function changeVerifier(VerifierInterface newVerifier) external onlyOwner {
         verifier = newVerifier;
     }
 
     /**
-     * Emits an `OfferActivated` event with the offer ID and the taker's Intmax address.
+     * @notice This function is deprecated.
      */
-    function activate(
-        uint256 offerId
-    ) external payable override returns (bool) {
-        bytes memory witness = "";
-        return activate(offerId, witness);
+    function register(
+        bytes32,
+        uint256,
+        uint256,
+        address,
+        bytes32,
+        address,
+        uint256
+    )
+        external
+        pure
+        override(OfferManager, OfferManagerInterface)
+        returns (uint256)
+    {
+        revert("this function is deprecated");
     }
 
-    /**
-     * Emits an `OfferActivated` event with the offer ID and the taker's Intmax address.
-     */
-    function activate(
-        uint256 offerId,
+    function register(
+        bytes32 makerIntmaxAddress,
+        uint256 makerAssetId,
+        uint256 makerAmount,
+        address taker,
+        bytes32 takerIntmaxAddress,
+        address takerTokenAddress,
+        uint256 takerAmount,
         bytes memory witness
-    ) public payable returns (bool) {
-        address taker = _offers[offerId].taker;
-        if (taker != address(0)) {
+    ) external returns (uint256 offerId) {
+        // Check if given `takerTokenAddress` is either ETH or ERC20.
+        if (takerTokenAddress != address(0)) {
+            uint256 totalSupply = IERC20(takerTokenAddress).totalSupply();
             require(
-                _msgSender() == taker,
-                "offers can be activated by its taker"
+                totalSupply != 0,
+                "the total supply of ERC20 must not be zero"
             );
         }
 
-        Offer memory offer = _offers[offerId];
-
-        // The taker transfers his asset to maker.
-        require(
-            msg.value >= offer.takerAmount,
-            "please send enough money to activate"
+        offerId = _register(
+            _msgSender(), // maker
+            makerIntmaxAddress,
+            makerAssetId,
+            makerAmount,
+            taker,
+            takerIntmaxAddress,
+            takerTokenAddress,
+            takerAmount
         );
 
-        _checkWitness(offer, witness);
+        _checkWitness(_offers[offerId], witness);
 
-        _activate(offerId);
-        if (offer.takerTokenAddress == address(0)) {
-            payable(offer.maker).transfer(msg.value);
-        } else {
-            require(
-                msg.value == 0,
-                "transmission method other than ETH is specified"
-            );
-            bool success = IERC20(offer.takerTokenAddress).transferFrom(
-                _msgSender(),
-                offer.maker,
-                offer.takerAmount
-            );
-            require(success, "fail to transfer ERC20 token");
-        }
-
-        return true;
+        return offerId;
     }
 
     function checkWitness(
@@ -96,34 +98,18 @@ contract OfferManagerV2 is OfferManager, OwnableUpgradeable {
         Offer memory offer,
         bytes memory witness
     ) internal view virtual {
-        // (
-        //     bytes32 r,
-        //     bytes32 s,
-        //     uint8 v,
-        //     bytes32 root,
-        //     uint256 index,
-        //     bytes32 value,
-        //     bytes32[] memory siblings
-        // ) = abi.decode(
-        //         witness,
-        //         (bytes32, bytes32, uint8, bytes32, uint256, bytes32, bytes32[])
-        //     );
-        // bytes memory signature = abi.encodePacked(r, s, v);
-        // MerkleTree.MerkleProof memory merkleProof = MerkleTree.MerkleProof {
-        //     index: index,
-        //     leaf: value,
-        //     siblings: siblings,
-        // };
-        // MerkleTree.verify(siblings, root, index, value);
-        // bytes32 hashedMessage = ECDSA.toEthSignedMessageHash(root);
-        // address signer = ECDSA.recover(hashedMessage, signature);
-        // require(signer == owner(), "Fail to verify signature.");
-        // verifyTransaction(
-        //     merkleProof,
-        //     blockHeader,
-        //     blockHash,
-        //     signature,
-        //     owner()
-        // );
+        bytes32 networkIndex = verifier.networkIndex();
+        bytes32 tokenAddress = abi.decode(
+            abi.encode(offer.makerAssetId),
+            (bytes32)
+        );
+        uint256 tokenId = 0;
+        VerifierInterface.Asset memory asset = VerifierInterface.Asset(
+            networkIndex,
+            tokenAddress,
+            tokenId,
+            offer.makerAmount
+        );
+        verifier.verifyAsset(asset, witness);
     }
 }

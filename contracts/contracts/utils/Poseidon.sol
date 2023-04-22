@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.17;
 
-import "hardhat/console.sol";
-
 contract GoldilocksPoseidon {
     uint256 public constant HALF_N_FULL_ROUNDS = 4;
     uint256 constant N_FULL_ROUNDS_TOTAL = 2 * HALF_N_FULL_ROUNDS;

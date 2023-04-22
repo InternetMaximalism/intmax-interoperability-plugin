@@ -1,6 +1,10 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers, upgrades } from "hardhat";
+import { sampleWitness } from "./Verifier";
+
+const REGISTER_FUNC_V2 =
+  "register(bytes32,uint256,uint256,address,bytes32,address,uint256,bytes)";
 
 describe("OfferManagerV2", function () {
   // We define a fixture to reuse the same setup in every test.
@@ -10,19 +14,25 @@ describe("OfferManagerV2", function () {
     // Contracts are deployed using the first signer/account by default
     const [owner, maker, taker] = await ethers.getSigners();
 
-    const OfferManager = await ethers.getContractFactory("OfferManagerV2");
-    const offerManager = await OfferManager.deploy();
-    // await offerManager.initialize();
+    const networkIndex =
+      "0x00000000000000000000000000000000000000000000000010d1cb00b658931e";
 
-    return { offerManager, owner, maker, taker };
+    const Verifier = await ethers.getContractFactory("VerifierTest");
+    const verifier = await Verifier.deploy(networkIndex);
+
+    const OfferManager = await ethers.getContractFactory("OfferManagerV2Test");
+    const offerManager = await OfferManager.deploy();
+    await offerManager.changeVerifier(verifier.address);
+
+    return { verifier, offerManager, owner, maker, taker };
   }
 
   const sampleOffer = {
     makerIntmaxAddress:
-      "0x0000000000000000000000000000000000000000000000000000000000000001",
+      "0x0000000000000000000000000000000000000000000000000000000000000000",
     makerAssetId:
-      "0x0000000000000000000000000000000000000000000000000000000000000001",
-    makerAmount: 100,
+      "0x000000000000000000000000000000000000000000000000f7c23e5c2d79b6ae",
+    makerAmount: 3,
     takerIntmaxAddress:
       "0x0000000000000000000000000000000000000000000000000000000000000002",
     takerTokenAddress: "0x0000000000000000000000000000000000000000", // ETH
@@ -39,8 +49,24 @@ describe("OfferManagerV2", function () {
 
   describe("Register", function () {
     it("Should execute without errors", async function () {
-      const { offerManager, maker, taker } = await loadFixture(
+      const { verifier, offerManager, maker, taker } = await loadFixture(
         deployOfferManager
+      );
+
+      const {
+        diffTreeInclusionProof,
+        blockHeader,
+        blockHash,
+        nonce,
+        recipientMerkleSiblings,
+      } = sampleWitness;
+
+      const witness = await verifier.calcWitness(
+        blockHash,
+        nonce,
+        recipientMerkleSiblings,
+        diffTreeInclusionProof,
+        blockHeader
       );
 
       const {
@@ -56,14 +82,15 @@ describe("OfferManagerV2", function () {
       await expect(
         offerManager
           .connect(maker)
-          .register(
+          [REGISTER_FUNC_V2](
             makerIntmaxAddress,
             makerAssetId,
             makerAmount,
             taker.address,
             takerIntmaxAddress,
             takerTokenAddress,
-            takerAmount
+            takerAmount,
+            witness
           )
       )
         .to.emit(offerManager, "OfferTakerUpdated")
@@ -88,7 +115,7 @@ describe("OfferManagerV2", function () {
 
       await offerManager
         .connect(maker)
-        .register(
+        .testRegister(
           makerIntmaxAddress,
           makerAssetId,
           makerAmount,
@@ -127,7 +154,7 @@ describe("OfferManagerV2", function () {
 
       await offerManager
         .connect(maker)
-        .register(
+        .testRegister(
           makerIntmaxAddress,
           makerAssetId,
           makerAmount,
@@ -140,9 +167,7 @@ describe("OfferManagerV2", function () {
       const offerId = 0;
 
       await expect(
-        offerManager
-          .connect(taker)
-          ["activate(uint256,bytes)"](offerId, "0x", { value: takerAmount })
+        offerManager.connect(taker).activate(offerId, { value: takerAmount })
       )
         .to.emit(offerManager, "OfferActivated")
         .withArgs(offerId, takerIntmaxAddress);
@@ -188,9 +213,7 @@ describe("OfferManagerV2", function () {
       );
 
       await expect(
-        offerManagerV2
-          .connect(taker)
-          ["activate(uint256,bytes)"](offerId, "0x", { value: takerAmount })
+        offerManagerV2.connect(taker).activate(offerId, { value: takerAmount })
       )
         .to.emit(offerManagerV2, "OfferActivated")
         .withArgs(offerId, takerIntmaxAddress);

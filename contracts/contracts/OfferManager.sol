@@ -13,7 +13,7 @@ contract OfferManager is
 {
     using CountersUpgradeable for CountersUpgradeable.Counter;
 
-    function initialize() public initializer {
+    function initialize() public virtual initializer {
         __Context_init();
     }
 

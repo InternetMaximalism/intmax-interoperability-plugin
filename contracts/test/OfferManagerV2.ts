@@ -1,7 +1,7 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers, upgrades } from "hardhat";
-import { sampleWitness } from "./Verifier";
+import { sampleWitness } from "./sampleData";
 
 const REGISTER_FUNC_V2 =
   "register(bytes32,uint256,uint256,address,bytes32,address,uint256,bytes)";
@@ -14,8 +14,8 @@ describe("OfferManagerV2", function () {
     // Contracts are deployed using the first signer/account by default
     const [owner, maker, taker] = await ethers.getSigners();
 
-    const networkIndex =
-      "0x00000000000000000000000000000000000000000000000010d1cb00b658931e";
+    const { recipient } = sampleWitness;
+    const networkIndex = recipient;
 
     const Verifier = await ethers.getContractFactory("VerifierTest");
     const verifier = await Verifier.deploy(networkIndex);
@@ -30,11 +30,9 @@ describe("OfferManagerV2", function () {
   const sampleOffer = {
     makerIntmaxAddress:
       "0x0000000000000000000000000000000000000000000000000000000000000000",
-    makerAssetId:
-      "0x000000000000000000000000000000000000000000000000f7c23e5c2d79b6ae",
-    makerAmount: 3,
-    takerIntmaxAddress:
-      "0x0000000000000000000000000000000000000000000000000000000000000002",
+    makerAssetId: sampleWitness.tokenAddress,
+    makerAmount: sampleWitness.tokenAmount,
+    takerIntmaxAddress: sampleWitness.recipient,
     takerTokenAddress: "0x0000000000000000000000000000000000000000", // ETH
     takerAmount: ethers.utils.parseEther("0.0001"),
   };
@@ -47,7 +45,7 @@ describe("OfferManagerV2", function () {
     });
   });
 
-  describe("Register", function () {
+  describe("Register with ETH", function () {
     it("Should execute without errors", async function () {
       const { verifier, offerManager, maker, taker } = await loadFixture(
         deployOfferManager
@@ -137,7 +135,7 @@ describe("OfferManagerV2", function () {
     });
   });
 
-  describe("Activate", function () {
+  describe("Activate with ETH", function () {
     it("Should execute without errors", async function () {
       const { offerManager, maker, taker } = await loadFixture(
         deployOfferManager

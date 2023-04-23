@@ -102,7 +102,7 @@ contract OfferManagerReverse is
     function activate(
         uint256 offerId,
         bytes calldata witness
-    ) external returns (bool) {
+    ) external virtual returns (bool) {
         Offer memory offer = _offers[offerId];
 
         // address makerIntmaxAddress = _offers[offerId].makerIntmaxAddress;
@@ -122,7 +122,6 @@ contract OfferManagerReverse is
         _markOfferAsActivated(offerId);
 
         // The maker transfers token to taker.
-        payable(offer.maker).transfer(offer.takerAmount);
         if (offer.takerTokenAddress == address(0)) {
             payable(offer.maker).transfer(offer.takerAmount);
         } else {

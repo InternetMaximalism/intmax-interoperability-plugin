@@ -103,7 +103,7 @@ contract OfferManagerV2 is
             abi.encode(offer.makerAssetId),
             (bytes32)
         );
-        uint256 tokenId = 0;
+        uint256 tokenId = 0; // TODO
         VerifierInterface.Asset memory asset = VerifierInterface.Asset(
             networkIndex,
             tokenAddress,

@@ -1,4 +1,5 @@
 import { HardhatUserConfig } from "hardhat/config";
+import "hardhat-gas-reporter";
 import "@nomicfoundation/hardhat-toolbox";
 import "@openzeppelin/hardhat-upgrades";
 
@@ -29,6 +30,12 @@ const config: HardhatUserConfig = {
       chainId: 1442,
       accounts: PRIVATE_KEY ? [PRIVATE_KEY] : [],
     },
+  },
+  gasReporter: {
+    currency: "USD",
+    gasPrice: 50,
+    outputFile: "./reports/gas-report",
+    noColors: true,
   },
 };
 

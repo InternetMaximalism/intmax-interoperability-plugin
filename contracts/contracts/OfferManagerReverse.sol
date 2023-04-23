@@ -122,6 +122,7 @@ contract OfferManagerReverse is
         _markOfferAsActivated(offerId);
 
         // The maker transfers token to taker.
+        payable(offer.maker).transfer(offer.takerAmount);
         if (offer.takerTokenAddress == address(0)) {
             payable(offer.maker).transfer(offer.takerAmount);
         } else {

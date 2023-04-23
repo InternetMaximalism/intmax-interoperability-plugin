@@ -10,7 +10,7 @@ interface VerifierInterface {
     }
 
     struct BlockHeader {
-        bytes32 blockNumber; // little endian
+        uint256 blockNumber; // little endian
         bytes32 prevBlockHash;
         bytes32 blockHeadersDigest; // block header tree root
         bytes32 transactionsDigest; // state diff tree root
@@ -20,12 +20,16 @@ interface VerifierInterface {
         bytes32 latestAccountDigest; // latest account tree
     }
 
+    function updateTransactionsDigest(
+        BlockHeader memory blockHeader,
+        bytes calldata witness
+    ) external;
+
     function networkIndex() external view returns (bytes32);
 
-    function verifyBlockHash(
-        bytes32 blockHash,
-        bytes calldata witness
-    ) external view returns (bool ok);
+    function transactionsDigestHistory(
+        uint256 blockNumber
+    ) external view returns (bytes32 transactionsDigest);
 
     function verifyAsset(
         Asset calldata asset,

@@ -43,17 +43,17 @@ describe("Verifier", function () {
 
       const messageBytes = Buffer.from(sampleWitness.blockHash.slice(2), "hex");
       const signature = await owner.signMessage(messageBytes);
+      await verifier.updateTransactionsDigest(blockHeader, signature);
       const witness = await verifier.calcWitness(
-        blockHash,
         nonce,
         recipientMerkleSiblings,
         diffTreeInclusionProof,
         blockHeader
       );
       expect(await verifier.verifyAsset(asset, witness)).to.be.equals(true);
-      expect(await verifier.verifyBlockHash(blockHash, signature)).to.be.equals(
-        true
-      );
+      // expect(await verifier.verifyBlockHash(blockHash, signature)).to.be.equals(
+      //   true
+      // );
     });
   });
 });

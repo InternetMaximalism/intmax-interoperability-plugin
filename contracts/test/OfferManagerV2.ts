@@ -47,7 +47,7 @@ describe("OfferManagerV2", function () {
 
   describe("Register with ETH", function () {
     it("Should execute without errors", async function () {
-      const { verifier, offerManager, maker, taker } = await loadFixture(
+      const { verifier, offerManager, owner, maker, taker } = await loadFixture(
         deployOfferManager
       );
 
@@ -59,8 +59,10 @@ describe("OfferManagerV2", function () {
         recipientMerkleSiblings,
       } = sampleWitness;
 
+      const messageBytes = Buffer.from(blockHash.slice(2), "hex");
+      const signature = await owner.signMessage(messageBytes);
+      await verifier.updateTransactionsDigest(blockHeader, signature);
       const witness = await verifier.calcWitness(
-        blockHash,
         nonce,
         recipientMerkleSiblings,
         diffTreeInclusionProof,

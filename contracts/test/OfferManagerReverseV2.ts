@@ -79,9 +79,8 @@ describe("OfferManagerReverseV2", function () {
 
   describe("Activate with ETH", function () {
     it("Should activate an offer", async function () {
-      const { verifier, offerManagerReverse, maker, taker } = await loadFixture(
-        deployOfferManager
-      );
+      const { verifier, offerManagerReverse, owner, maker, taker } =
+        await loadFixture(deployOfferManager);
 
       const {
         diffTreeInclusionProof,
@@ -91,8 +90,10 @@ describe("OfferManagerReverseV2", function () {
         recipientMerkleSiblings,
       } = sampleWitness;
 
+      const messageBytes = Buffer.from(blockHash.slice(2), "hex");
+      const signature = await owner.signMessage(messageBytes);
+      await verifier.updateTransactionsDigest(blockHeader, signature);
       const witness = await verifier.calcWitness(
-        blockHash,
         nonce,
         recipientMerkleSiblings,
         diffTreeInclusionProof,
@@ -135,7 +136,7 @@ describe("OfferManagerReverseV2", function () {
 
   describe("Upgrade", function () {
     it("Should execute without errors", async function () {
-      const [, maker, taker] = await ethers.getSigners();
+      const [owner, maker, taker] = await ethers.getSigners();
 
       const OfferManagerReverse = await ethers.getContractFactory(
         "OfferManagerReverse"
@@ -192,8 +193,10 @@ describe("OfferManagerReverseV2", function () {
         recipientMerkleSiblings,
       } = sampleWitness;
 
+      const messageBytes = Buffer.from(blockHash.slice(2), "hex");
+      const signature = await owner.signMessage(messageBytes);
+      await verifier.updateTransactionsDigest(blockHeader, signature);
       const witness = await verifier.calcWitness(
-        blockHash,
         nonce,
         recipientMerkleSiblings,
         diffTreeInclusionProof,

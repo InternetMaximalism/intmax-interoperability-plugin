@@ -10,6 +10,11 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract Verifier is VerifierInterface, MerkleTree, Ownable {
     bytes32 public immutable networkIndex;
 
+    /**
+     * block number => transactions digest
+     */
+    mapping(uint256 => bytes32) public transactionsDigestHistory;
+
     constructor(bytes32 networkIndex_) {
         networkIndex = networkIndex_;
     }
@@ -92,10 +97,11 @@ contract Verifier is VerifierInterface, MerkleTree, Ownable {
             blockHeader.depositDigest
         );
 
-        bytes32 a = two_to_one(
-            blockHeader.blockNumber,
-            blockHeader.latestAccountDigest
+        bytes32 blockNumber = abi.decode(
+            abi.encode(blockHeader.blockNumber),
+            (bytes32)
         );
+        bytes32 a = two_to_one(blockNumber, blockHeader.latestAccountDigest);
         bytes32 b = two_to_one(
             blockHeader.depositDigest,
             blockHeader.transactionsDigest
@@ -111,12 +117,11 @@ contract Verifier is VerifierInterface, MerkleTree, Ownable {
     }
 
     function _verifyAsset(
-        bytes32 blockHash,
+        bytes32 transactionsDigest,
         Asset memory asset,
         bytes32 nonce,
         bytes32[] memory recipientMerkleSiblings,
-        MerkleTree.MerkleProof memory diffTreeInclusionProof,
-        BlockHeader memory blockHeader
+        MerkleTree.MerkleProof memory diffTreeInclusionProof
     ) internal view returns (bool ok) {
         Asset[] memory assets = new Asset[](1);
         assets[0] = asset;
@@ -129,28 +134,36 @@ contract Verifier is VerifierInterface, MerkleTree, Ownable {
             txHash == diffTreeInclusionProof.value,
             "Fail to verify transaction hash"
         );
-        bytes32 transactionsDigest = _computeMerkleRootRbo(
+        bytes32 expectedTransactionsDigest = _computeMerkleRootRbo(
             diffTreeInclusionProof
         );
         require(
-            transactionsDigest == blockHeader.transactionsDigest,
+            expectedTransactionsDigest == transactionsDigest,
             "Fail to verify transactions digest"
         );
-        bytes32 expectedBlockHash = _calcBlockHash(blockHeader);
-        require(expectedBlockHash == blockHash, "Fail to verify block hash.");
+        // bytes32 expectedBlockHash = _calcBlockHash(blockHeader);
+        // require(expectedBlockHash == blockHash, "Fail to verify block hash.");
 
         ok = true;
     }
 
-    function verifyBlockHash(
+    function _verifyBlockHash(
         bytes32 blockHash,
         bytes calldata witness // (r, s, v)
-    ) external view returns (bool ok) {
+    ) internal view {
         bytes32 hashedMessage = ECDSA.toEthSignedMessageHash(blockHash);
         address signer = ECDSA.recover(hashedMessage, witness);
         require(signer == owner(), "Fail to verify aggregator's signature.");
+    }
 
-        ok = true;
+    function updateTransactionsDigest(
+        BlockHeader memory blockHeader,
+        bytes calldata witness
+    ) external {
+        bytes32 blockHash = _calcBlockHash(blockHeader);
+        _verifyBlockHash(blockHash, witness);
+        transactionsDigestHistory[blockHeader.blockNumber] = blockHeader
+            .transactionsDigest;
     }
 
     function verifyAsset(
@@ -158,30 +171,31 @@ contract Verifier is VerifierInterface, MerkleTree, Ownable {
         bytes calldata witness
     ) external view returns (bool ok) {
         (
-            bytes32 blockHash,
             bytes32 nonce,
             bytes32[] memory recipientMerkleSiblings,
             MerkleTree.MerkleProof memory diffTreeInclusionProof,
             BlockHeader memory blockHeader
         ) = abi.decode(
                 witness,
-                (
-                    bytes32,
-                    bytes32,
-                    bytes32[],
-                    MerkleTree.MerkleProof,
-                    BlockHeader
-                )
+                (bytes32, bytes32[], MerkleTree.MerkleProof, BlockHeader)
             );
+
+        // TODO: verify transactions digest
+        bytes32 transactionsDigest = transactionsDigestHistory[
+            blockHeader.blockNumber
+        ];
+        require(
+            transactionsDigest != bytes32(0),
+            "Transactions digest was not registered"
+        );
 
         // require(asset.recipient == networkIndex, "invalid network index");
         ok = _verifyAsset(
-            blockHash,
+            transactionsDigest,
             asset,
             nonce,
             recipientMerkleSiblings,
-            diffTreeInclusionProof,
-            blockHeader
+            diffTreeInclusionProof
         );
     }
 }

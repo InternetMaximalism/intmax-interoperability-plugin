@@ -9,14 +9,12 @@ contract VerifierTest is Verifier {
     constructor(bytes32 networkIndex) Verifier(networkIndex) {}
 
     function calcWitness(
-        bytes32 blockHash,
         bytes32 nonce,
         bytes32[] calldata recipientMerkleSiblings,
         MerkleTree.MerkleProof calldata diffTreeInclusionProof,
         BlockHeader calldata blockHeader
     ) external pure returns (bytes memory witness) {
         witness = abi.encode(
-            blockHash,
             nonce,
             recipientMerkleSiblings,
             diffTreeInclusionProof,
@@ -24,21 +22,28 @@ contract VerifierTest is Verifier {
         );
     }
 
+    function verifyBlockHash(
+        bytes32 blockHash,
+        bytes calldata witness // (r, s, v)
+    ) external view returns (bool ok) {
+        _verifyBlockHash(blockHash, witness);
+
+        ok = true;
+    }
+
     function testVerifyAsset(
         Asset calldata asset,
-        bytes32 blockHash,
+        bytes32 transactionsDigest,
         bytes32 nonce,
         bytes32[] calldata recipientMerkleSiblings,
-        MerkleTree.MerkleProof calldata diffTreeInclusionProof,
-        BlockHeader calldata blockHeader
+        MerkleTree.MerkleProof calldata diffTreeInclusionProof
     ) external view returns (bool ok) {
         ok = _verifyAsset(
-            blockHash,
+            transactionsDigest,
             asset,
             nonce,
             recipientMerkleSiblings,
-            diffTreeInclusionProof,
-            blockHeader
+            diffTreeInclusionProof
         );
     }
 }

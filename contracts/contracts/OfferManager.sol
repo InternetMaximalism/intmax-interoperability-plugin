@@ -13,7 +13,7 @@ contract OfferManager is
 {
     using CountersUpgradeable for CountersUpgradeable.Counter;
 
-    function initialize() public initializer {
+    function initialize() public virtual initializer {
         __Context_init();
     }
 
@@ -29,7 +29,7 @@ contract OfferManager is
         bytes32 takerIntmaxAddress,
         address takerTokenAddress,
         uint256 takerAmount
-    ) external returns (uint256 offerId) {
+    ) external virtual returns (uint256 offerId) {
         // Check if given `takerTokenAddress` is either ETH or ERC20.
         if (takerTokenAddress != address(0)) {
             uint256 totalSupply = IERC20(takerTokenAddress).totalSupply();

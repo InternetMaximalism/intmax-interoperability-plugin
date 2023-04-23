@@ -102,7 +102,7 @@ contract OfferManagerReverse is
     function activate(
         uint256 offerId,
         bytes calldata witness
-    ) external returns (bool) {
+    ) external virtual returns (bool) {
         Offer memory offer = _offers[offerId];
 
         // address makerIntmaxAddress = _offers[offerId].makerIntmaxAddress;

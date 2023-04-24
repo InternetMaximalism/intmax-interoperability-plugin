@@ -70,22 +70,22 @@ contract Verifier is VerifierInterface, MerkleTree, Ownable {
             assets[0].recipient,
             innerAssetRoot
         );
-        uint256 recipientIndexRev = abi.decode(
+        uint256 recipientIndex = abi.decode(
             abi.encode(assets[0].recipient),
             (uint256)
         );
-        uint256 recipientIndex = 0;
-        for (uint256 i = 0; i < recipientMerkleSiblings.length; i++) {
-            recipientIndex <<= 1;
-            recipientIndex += recipientIndexRev & 1;
-            recipientIndexRev >>= 1;
-        }
+        // uint256 recipientIndex = 0;
+        // for (uint256 i = 0; i < recipientMerkleSiblings.length; i++) {
+        //     recipientIndex <<= 1;
+        //     recipientIndex += recipientIndexRev & 1;
+        //     recipientIndexRev >>= 1;
+        // }
         MerkleProof memory recipientMerkleProof = MerkleProof(
             recipientIndex,
             recipientLeaf,
             recipientMerkleSiblings
         );
-        bytes32 diffRoot = _computeMerkleRoot(recipientMerkleProof);
+        bytes32 diffRoot = _computePoseidonMerkleRootRbo(recipientMerkleProof);
         transactionHash = two_to_one(diffRoot, nonce);
     }
 
@@ -134,7 +134,7 @@ contract Verifier is VerifierInterface, MerkleTree, Ownable {
             txHash == diffTreeInclusionProof.value,
             "Fail to verify transaction hash"
         );
-        bytes32 expectedTransactionsDigest = _computeMerkleRootRbo(
+        bytes32 expectedTransactionsDigest = _computeKeccakMerkleRoot(
             diffTreeInclusionProof
         );
         require(

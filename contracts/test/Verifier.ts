@@ -26,7 +26,6 @@ describe("Verifier", function () {
       const {
         diffTreeInclusionProof,
         blockHeader,
-        blockHash,
         tokenAddress,
         tokenId,
         tokenAmount,

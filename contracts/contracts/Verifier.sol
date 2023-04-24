@@ -85,35 +85,43 @@ contract Verifier is VerifierInterface, MerkleTree, Ownable {
             recipientLeaf,
             recipientMerkleSiblings
         );
-        bytes32 diffRoot = _computeMerkleRoot(recipientMerkleProof);
+        bytes32 diffRoot = _computePoseidonMerkleRoot(recipientMerkleProof);
         transactionHash = two_to_one(diffRoot, nonce);
     }
 
     function _calcBlockHash(
         BlockHeader memory blockHeader
-    ) internal view returns (bytes32 blockHash) {
-        blockHash = two_to_one(
-            blockHeader.transactionsDigest,
-            blockHeader.depositDigest
+    ) internal pure returns (bytes32 blockHash) {
+        blockHash = keccak256(
+            abi.encode(
+                blockHeader.transactionsDigest,
+                blockHeader.depositDigest
+            )
         );
 
         bytes32 blockNumber = abi.decode(
             abi.encode(blockHeader.blockNumber),
             (bytes32)
         );
-        bytes32 a = two_to_one(blockNumber, blockHeader.latestAccountDigest);
-        bytes32 b = two_to_one(
-            blockHeader.depositDigest,
-            blockHeader.transactionsDigest
+        bytes32 a = keccak256(
+            abi.encode(blockNumber, blockHeader.latestAccountDigest)
         );
-        bytes32 c = two_to_one(a, b);
-        bytes32 d = two_to_one(
-            blockHeader.proposedWorldStateDigest,
-            blockHeader.approvedWorldStateDigest
+        bytes32 b = keccak256(
+            abi.encode(
+                blockHeader.depositDigest,
+                blockHeader.transactionsDigest
+            )
         );
-        bytes32 e = two_to_one(c, d);
+        bytes32 c = keccak256(abi.encode(a, b));
+        bytes32 d = keccak256(
+            abi.encode(
+                blockHeader.proposedWorldStateDigest,
+                blockHeader.approvedWorldStateDigest
+            )
+        );
+        bytes32 e = keccak256(abi.encode(c, d));
 
-        blockHash = two_to_one(blockHeader.blockHeadersDigest, e);
+        blockHash = keccak256(abi.encode(blockHeader.blockHeadersDigest, e));
     }
 
     function _verifyAsset(
@@ -134,7 +142,7 @@ contract Verifier is VerifierInterface, MerkleTree, Ownable {
             txHash == diffTreeInclusionProof.value,
             "Fail to verify transaction hash"
         );
-        bytes32 expectedTransactionsDigest = _computeMerkleRootRbo(
+        bytes32 expectedTransactionsDigest = _computeKeccakMerkleRootRbo(
             diffTreeInclusionProof
         );
         require(

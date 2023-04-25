@@ -1,0 +1,149 @@
+{
+  "_format": "hh-sol-artifact-1",
+  "contractName": "VerifierInterface",
+  "sourceName": "contracts/VerifierInterface.sol",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "networkIndex",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "blockNumber",
+          "type": "uint256"
+        }
+      ],
+      "name": "transactionsDigestHistory",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "transactionsDigest",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "blockNumber",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "prevBlockHash",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "blockHeadersDigest",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "transactionsDigest",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "depositDigest",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "proposedWorldStateDigest",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "approvedWorldStateDigest",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "latestAccountDigest",
+              "type": "bytes32"
+            }
+          ],
+          "internalType": "struct VerifierInterface.BlockHeader",
+          "name": "blockHeader",
+          "type": "tuple"
+        },
+        {
+          "internalType": "bytes",
+          "name": "witness",
+          "type": "bytes"
+        }
+      ],
+      "name": "updateTransactionsDigest",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "recipient",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "tokenAddress",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct VerifierInterface.Asset",
+          "name": "asset",
+          "type": "tuple"
+        },
+        {
+          "internalType": "bytes",
+          "name": "witness",
+          "type": "bytes"
+        }
+      ],
+      "name": "verifyAsset",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "ok",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "linkReferences": {},
+  "deployedLinkReferences": {}
+}

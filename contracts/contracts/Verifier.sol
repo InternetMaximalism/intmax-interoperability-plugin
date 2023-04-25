@@ -7,6 +7,8 @@ import "./utils/Poseidon.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+import "hardhat/console.sol";
+
 contract Verifier is VerifierInterface, MerkleTree, Ownable {
     bytes32 public immutable networkIndex;
 
@@ -74,18 +76,12 @@ contract Verifier is VerifierInterface, MerkleTree, Ownable {
             abi.encode(assets[0].recipient),
             (uint256)
         );
-        uint256 recipientIndexRbo = 0;
-        for (uint256 i = 0; i < recipientMerkleSiblings.length; i++) {
-            recipientIndexRbo <<= 1;
-            recipientIndexRbo += recipientIndex & 1;
-            recipientIndex >>= 1;
-        }
         MerkleProof memory recipientMerkleProof = MerkleProof(
-            recipientIndexRbo,
+            recipientIndex,
             recipientLeaf,
             recipientMerkleSiblings
         );
-        bytes32 diffRoot = _computeMerkleRoot(recipientMerkleProof); // TODO: use rbo version
+        bytes32 diffRoot = _computeMerkleRootRbo(recipientMerkleProof); // TODO: use rbo version
         transactionHash = two_to_one(diffRoot, nonce);
     }
 

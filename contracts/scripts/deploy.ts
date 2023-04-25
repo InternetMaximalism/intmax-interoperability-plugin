@@ -1,19 +1,26 @@
 import { ethers, upgrades } from "hardhat";
 
 async function main() {
-  const OfferManager = await ethers.getContractFactory("OfferManager");
-  const offerManager = await upgrades.deployProxy(OfferManager);
+  const networkIndex =
+    "0x0000000000000000000000000000000000000000000000000000000000000002";
+  const Verifier = await ethers.getContractFactory("VerifierTest");
+  const verifier = await Verifier.deploy(networkIndex);
 
+  console.log(`Deploy a Verifier contract: ${verifier.address}`);
+
+  const OfferManager = await ethers.getContractFactory("OfferManagerV2");
+  const offerManager = await upgrades.deployProxy(OfferManager);
   await offerManager.deployed();
+  await offerManager.changeVerifier(verifier.address);
 
   console.log(`Deploy a OfferManager contract: ${offerManager.address}`);
 
   const OfferManagerReverse = await ethers.getContractFactory(
-    "OfferManagerReverse"
+    "OfferManagerReverseV2"
   );
   const offerManagerReverse = await upgrades.deployProxy(OfferManagerReverse);
-
   await offerManagerReverse.deployed();
+  await offerManagerReverse.changeVerifier(verifier.address);
 
   console.log(
     `Deploy a OfferManagerReverse contract: ${offerManagerReverse.address}`

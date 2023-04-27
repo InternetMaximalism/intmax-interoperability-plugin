@@ -2,10 +2,12 @@
 pragma solidity 0.8.17;
 
 import "./OfferManagerReverse.sol";
+import "./utils/MerkleTree.sol";
 import "./VerifierInterface.sol";
 
 contract OfferManagerReverseV2 is OfferManagerReverse {
     VerifierInterface verifier;
+    mapping(bytes32 => bool) public usedTxHashes;
 
     function changeVerifier(VerifierInterface newVerifier) external onlyOwner {
         verifier = newVerifier;
@@ -25,7 +27,21 @@ contract OfferManagerReverseV2 is OfferManagerReverse {
         //     );
         // }
 
-        _checkWitness(offer, witness);
+        (, , MerkleTree.MerkleProof memory diffTreeInclusionProof, , ) = abi
+            .decode(
+                witness,
+                (
+                    VerifierInterface.Asset[],
+                    bytes32,
+                    MerkleTree.MerkleProof,
+                    VerifierInterface.BlockHeader,
+                    bytes
+                )
+            );
+        bytes32 txHash = diffTreeInclusionProof.value;
+        require(!usedTxHashes[txHash], "Given witness already used");
+        _checkWitness(_offers[offerId], witness);
+        usedTxHashes[txHash] = true;
 
         require(
             _msgSender() == offer.maker,
@@ -62,12 +78,19 @@ contract OfferManagerReverseV2 is OfferManagerReverse {
             (bytes32)
         );
         uint256 tokenId = 0; // TODO
-        VerifierInterface.Asset memory asset = VerifierInterface.Asset(
-            offer.takerIntmaxAddress,
+        VerifierInterface.Asset[] memory assets = new VerifierInterface.Asset[](
+            1
+        );
+        assets[0] = VerifierInterface.Asset(
             tokenAddress,
             tokenId,
             offer.makerAmount
         );
-        verifier.verifyAsset(asset, witness);
+        bool ok = verifier.verifyAssets(
+            assets,
+            offer.takerIntmaxAddress,
+            witness
+        );
+        require(ok, "Fail to verify assets");
     }
 }

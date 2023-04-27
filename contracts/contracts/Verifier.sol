@@ -7,8 +7,6 @@ import "./utils/Poseidon.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-import "hardhat/console.sol";
-
 contract Verifier is VerifierInterface, MerkleTree, Ownable {
     bytes32 public immutable networkIndex;
 
@@ -50,6 +48,7 @@ contract Verifier is VerifierInterface, MerkleTree, Ownable {
 
     function _calcTransactionHash(
         Asset[] memory assets,
+        bytes32 recipient,
         bytes32[] memory recipientMerkleSiblings,
         bytes32 nonce
     ) internal view returns (bytes32 transactionHash) {
@@ -68,14 +67,8 @@ contract Verifier is VerifierInterface, MerkleTree, Ownable {
             assets[0].tokenAddress,
             innerInnerAssetRoot
         );
-        bytes32 recipientLeaf = _calcLeafHash(
-            assets[0].recipient,
-            innerAssetRoot
-        );
-        uint256 recipientIndex = abi.decode(
-            abi.encode(assets[0].recipient),
-            (uint256)
-        );
+        bytes32 recipientLeaf = _calcLeafHash(recipient, innerAssetRoot);
+        uint256 recipientIndex = abi.decode(abi.encode(recipient), (uint256));
         MerkleProof memory recipientMerkleProof = MerkleProof(
             recipientIndex,
             recipientLeaf,
@@ -115,6 +108,7 @@ contract Verifier is VerifierInterface, MerkleTree, Ownable {
     function _verifyAsset(
         bytes32 transactionsDigest,
         Asset memory asset,
+        bytes32 recipient,
         bytes32 nonce,
         bytes32[] memory recipientMerkleSiblings,
         MerkleTree.MerkleProof memory diffTreeInclusionProof
@@ -123,6 +117,7 @@ contract Verifier is VerifierInterface, MerkleTree, Ownable {
         assets[0] = asset;
         bytes32 txHash = _calcTransactionHash(
             assets,
+            recipient,
             recipientMerkleSiblings,
             nonce
         );
@@ -162,8 +157,9 @@ contract Verifier is VerifierInterface, MerkleTree, Ownable {
             .transactionsDigest;
     }
 
-    function verifyAsset(
-        Asset calldata asset,
+    function verifyAssets(
+        Asset[] calldata assets,
+        bytes32 recipient,
         bytes calldata witness
     ) external view returns (bool ok) {
         (
@@ -184,14 +180,29 @@ contract Verifier is VerifierInterface, MerkleTree, Ownable {
             transactionsDigest != bytes32(0),
             "Transactions digest was not registered"
         );
+        require(assets.length == 1, "Only one type of asset is available");
 
-        // require(asset.recipient == networkIndex, "invalid network index");
         ok = _verifyAsset(
             transactionsDigest,
-            asset,
+            assets[0],
+            recipient,
             nonce,
             recipientMerkleSiblings,
             diffTreeInclusionProof
+        );
+    }
+
+    function calcWitness(
+        bytes32 nonce,
+        bytes32[] calldata recipientMerkleSiblings,
+        MerkleTree.MerkleProof calldata diffTreeInclusionProof,
+        BlockHeader calldata blockHeader
+    ) external pure returns (bytes memory witness) {
+        witness = abi.encode(
+            nonce,
+            recipientMerkleSiblings,
+            diffTreeInclusionProof,
+            blockHeader
         );
     }
 }

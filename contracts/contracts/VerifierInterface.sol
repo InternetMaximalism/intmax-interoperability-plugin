@@ -3,7 +3,6 @@ pragma solidity 0.8.17;
 
 interface VerifierInterface {
     struct Asset {
-        bytes32 recipient;
         bytes32 tokenAddress;
         uint256 tokenId;
         uint256 amount;
@@ -20,19 +19,11 @@ interface VerifierInterface {
         bytes32 latestAccountDigest; // latest account tree
     }
 
-    function updateTransactionsDigest(
-        BlockHeader memory blockHeader,
-        bytes calldata witness
-    ) external;
-
     function networkIndex() external view returns (bytes32);
 
-    function transactionsDigestHistory(
-        uint256 blockNumber
-    ) external view returns (bytes32 transactionsDigest);
-
-    function verifyAsset(
-        Asset calldata asset,
+    function verifyAssets(
+        Asset[] calldata assets,
+        bytes32 recipient,
         bytes calldata witness
     ) external view returns (bool ok);
 }

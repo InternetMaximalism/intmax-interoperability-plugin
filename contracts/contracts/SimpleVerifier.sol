@@ -50,6 +50,7 @@ contract SimpleVerifier is VerifierInterface, Ownable {
         // TODO: use only one time
         bytes memory message = abi.encode(
             assets,
+            recipient,
             diffTreeInclusionProof,
             blockHeader
         );

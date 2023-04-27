@@ -3,7 +3,7 @@ import { ethers, upgrades } from "hardhat";
 async function main() {
   const networkIndex =
     "0x0000000000000000000000000000000000000000000000000000000000000002";
-  const Verifier = await ethers.getContractFactory("VerifierTest");
+  const Verifier = await ethers.getContractFactory("SimpleVerifier");
   const verifier = await Verifier.deploy(networkIndex);
 
   console.log(`Deploy a Verifier contract: ${verifier.address}`);

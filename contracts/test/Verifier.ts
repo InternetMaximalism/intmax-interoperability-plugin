@@ -33,8 +33,8 @@ describe("Verifier", function () {
         recipientMerkleSiblings,
       } = sampleWitness;
 
+      const recipient = networkIndex;
       const asset = {
-        recipient: networkIndex,
         tokenAddress,
         tokenId,
         amount: tokenAmount,
@@ -49,7 +49,9 @@ describe("Verifier", function () {
         diffTreeInclusionProof,
         blockHeader
       );
-      expect(await verifier.verifyAsset(asset, witness)).to.be.equals(true);
+      expect(
+        await verifier.verifyAssets([asset], recipient, witness)
+      ).to.be.equals(true);
       // expect(await verifier.verifyBlockHash(blockHash, signature)).to.be.equals(
       //   true
       // );

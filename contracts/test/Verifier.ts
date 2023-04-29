@@ -5,7 +5,7 @@ import {
   blockHeaderStructType,
   merkleProofStructType,
   sampleWitness,
-} from "./SampleData";
+} from "./sampleData";
 
 describe("Verifier", function () {
   async function deployVerifier() {

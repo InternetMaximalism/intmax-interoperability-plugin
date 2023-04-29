@@ -6,7 +6,7 @@ import {
   blockHeaderStructType,
   merkleProofStructType,
   sampleWitness,
-} from "./SampleData";
+} from "./sampleData";
 
 const REGISTER_FUNC_V2 =
   "register(bytes32,uint256,uint256,address,bytes32,address,uint256,bytes)";
@@ -235,7 +235,13 @@ describe("OfferManagerV2", function () {
       const OfferManagerV2 = await ethers.getContractFactory("OfferManagerV2");
       const offerManagerV2 = await upgrades.upgradeProxy(
         offerManagerProxyAddress,
-        OfferManagerV2
+        OfferManagerV2,
+        {
+          call: {
+            fn: "initializeV2",
+            args: [owner.address],
+          },
+        }
       );
       console.log("start changeVerifier()");
       await offerManagerV2.connect(owner).changeVerifier(verifier.address);

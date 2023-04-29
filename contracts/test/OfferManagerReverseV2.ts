@@ -6,7 +6,7 @@ import {
   blockHeaderStructType,
   merkleProofStructType,
   sampleWitness,
-} from "./SampleData";
+} from "./sampleData";
 
 describe("OfferManagerReverseV2", function () {
   // We define a fixture to reuse the same setup in every test.

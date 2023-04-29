@@ -1,4 +1,4 @@
-import { ethers, upgrades } from "hardhat";
+import { ethers, upgrades, network } from "hardhat";
 
 async function main() {
   const OfferManager = await ethers.getContractFactory("OfferManagerV2");
@@ -26,8 +26,21 @@ async function main() {
     console.log("owner:", owner);
   }
 
-  const networkIndex =
-    "0x0000000000000000000000000000000000000000000000000000000000000002";
+  let networkIndex;
+  switch (network.name) {
+    case "scrollalpha":
+      networkIndex =
+        "0x0000000000000000000000000000000000000000000000000000000000000001";
+      break;
+    case "polygonzkevmtest":
+      networkIndex =
+        "0x0000000000000000000000000000000000000000000000000000000000000002";
+      break;
+    default:
+      networkIndex =
+        "0x0000000000000000000000000000000000000000000000000000000000000002";
+  }
+  console.log("networkIndex:", networkIndex);
   const Verifier = await ethers.getContractFactory("SimpleVerifier");
   const verifier = await upgrades.deployProxy(Verifier, [networkIndex]);
 

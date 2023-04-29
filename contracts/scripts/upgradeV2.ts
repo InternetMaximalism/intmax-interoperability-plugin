@@ -1,4 +1,4 @@
-import { ethers, upgrades } from "hardhat";
+import { ethers, upgrades, network } from "hardhat";
 
 // `OFFER_MANAGER_PROXY=<address> OFFER_MANAGER_REVERSE_PROXY=<address> npx hardhat run ./scripts/upgrade.ts --network <network-name>`
 async function main() {
@@ -45,10 +45,25 @@ async function main() {
     console.log("owner:", owner);
   }
 
-  const networkIndex =
-    "0x0000000000000000000000000000000000000000000000000000000000000002";
+  let networkIndex;
+  switch (network.name) {
+    case "scrollalpha":
+      networkIndex =
+        "0x0000000000000000000000000000000000000000000000000000000000000001";
+      break;
+    case "polygonzkevmtest":
+      networkIndex =
+        "0x0000000000000000000000000000000000000000000000000000000000000002";
+      break;
+    default:
+      networkIndex =
+        "0x0000000000000000000000000000000000000000000000000000000000000002";
+  }
+  console.log("networkIndex:", networkIndex);
   const Verifier = await ethers.getContractFactory("SimpleVerifier");
   const verifier = await upgrades.deployProxy(Verifier, [networkIndex]);
+
+  await verifier.deployed();
 
   console.log(`Deploy a Verifier contract: ${verifier.address}`);
 

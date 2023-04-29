@@ -41,7 +41,7 @@ contract OfferManagerV2 is
         override(OfferManager, OfferManagerInterface)
         returns (uint256)
     {
-        revert("this function is deprecated");
+        revert("this function is deprecated: 'witness' argument required");
     }
 
     function register(

@@ -8,16 +8,21 @@ import "./utils/MerkleTree.sol";
 import "./VerifierInterface.sol";
 
 contract OfferManagerV2 is
-    OfferManager,
     OfferManagerV2Interface,
+    OfferManager,
     OwnableUpgradeable
 {
     VerifierInterface verifier;
     mapping(bytes32 => bool) public usedTxHashes;
 
-    function initialize() public override initializer {
-        __Context_init();
-        __Ownable_init();
+    function initialize() public override {
+        OfferManager.initialize();
+        initializeV2(_msgSender());
+    }
+
+    function initializeV2(address newOwner) public reinitializer(2) {
+        // NOTICE: Using `__Ownable_init()` sets the proxyAdmin as owner.
+        _transferOwnership(newOwner);
     }
 
     function changeVerifier(VerifierInterface newVerifier) external onlyOwner {
@@ -80,7 +85,7 @@ contract OfferManagerV2 is
                 (
                     VerifierInterface.Asset[],
                     bytes32,
-                    MerkleTree.MerkleProof,
+                    MerkleTreeInterface.MerkleProof,
                     VerifierInterface.BlockHeader,
                     bytes
                 )

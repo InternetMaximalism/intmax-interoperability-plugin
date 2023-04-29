@@ -33,7 +33,7 @@ contract OfferManagerReverseV2 is OfferManagerReverse {
                 (
                     VerifierInterface.Asset[],
                     bytes32,
-                    MerkleTree.MerkleProof,
+                    MerkleTreeInterface.MerkleProof,
                     VerifierInterface.BlockHeader,
                     bytes
                 )
@@ -72,7 +72,6 @@ contract OfferManagerReverseV2 is OfferManagerReverse {
         Offer memory offer,
         bytes memory witness
     ) internal view override {
-        // bytes32 networkIndex = verifier.networkIndex();
         bytes32 tokenAddress = abi.decode(
             abi.encode(offer.makerAssetId),
             (bytes32)

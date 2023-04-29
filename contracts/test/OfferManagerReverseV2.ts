@@ -1,7 +1,12 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers, upgrades } from "hardhat";
-import { sampleWitness } from "./sampleData";
+import {
+  assetStructType,
+  blockHeaderStructType,
+  merkleProofStructType,
+  sampleWitness,
+} from "./SampleData";
 
 describe("OfferManagerReverseV2", function () {
   // We define a fixture to reuse the same setup in every test.
@@ -14,7 +19,7 @@ describe("OfferManagerReverseV2", function () {
     const networkIndex =
       "0x0000000000000000000000000000000000000000000000000000000000000002";
 
-    const Verifier = await ethers.getContractFactory("VerifierTest");
+    const Verifier = await ethers.getContractFactory("SimpleVerifierTest");
     const verifier = await Verifier.deploy(networkIndex);
 
     const OfferManagerReverse = await ethers.getContractFactory(
@@ -79,26 +84,11 @@ describe("OfferManagerReverseV2", function () {
 
   describe("Activate with ETH", function () {
     it("Should activate an offer", async function () {
-      const { verifier, offerManagerReverse, owner, maker, taker } =
-        await loadFixture(deployOfferManager);
-
-      const {
-        diffTreeInclusionProof,
-        blockHeader,
-        blockHash,
-        nonce,
-        recipientMerkleSiblings,
-      } = sampleWitness;
-
-      const messageBytes = Buffer.from(blockHash.slice(2), "hex");
-      const signature = await owner.signMessage(messageBytes);
-      await verifier.updateTransactionsDigest(blockHeader, signature);
-      const witness = await verifier.calcWitness(
-        nonce,
-        recipientMerkleSiblings,
-        diffTreeInclusionProof,
-        blockHeader
+      const { offerManagerReverse, owner, maker, taker } = await loadFixture(
+        deployOfferManager
       );
+
+      const { diffTreeInclusionProof, blockHeader, recipient } = sampleWitness;
 
       const {
         takerIntmaxAddress,
@@ -125,6 +115,36 @@ describe("OfferManagerReverseV2", function () {
       ).not.to.be.reverted;
 
       const offerId = 0;
+
+      const asset = {
+        tokenAddress: makerAssetId,
+        tokenId: 0,
+        amount: makerAmount,
+      };
+      const abiEncoder = new ethers.utils.AbiCoder();
+      const message = abiEncoder.encode(
+        [
+          `${assetStructType}[]`,
+          "bytes32",
+          merkleProofStructType,
+          blockHeaderStructType,
+        ],
+        [[asset], recipient, diffTreeInclusionProof, blockHeader]
+      );
+
+      const messageBytes = Buffer.from(message.slice(2), "hex");
+      const signature = await owner.signMessage(messageBytes);
+
+      const witness = abiEncoder.encode(
+        [
+          `${assetStructType}[]`,
+          "bytes32",
+          merkleProofStructType,
+          blockHeaderStructType,
+          "bytes",
+        ],
+        [[asset], recipient, diffTreeInclusionProof, blockHeader, signature]
+      );
 
       await expect(
         offerManagerReverse.connect(maker).activate(offerId, witness)
@@ -173,8 +193,8 @@ describe("OfferManagerReverseV2", function () {
       const networkIndex =
         "0x0000000000000000000000000000000000000000000000000000000000000002";
 
-      const Verifier = await ethers.getContractFactory("VerifierTest");
-      const verifier = await Verifier.deploy(networkIndex);
+      const Verifier = await ethers.getContractFactory("SimpleVerifier");
+      const verifier = await upgrades.deployProxy(Verifier, [networkIndex]);
 
       const OfferManagerReverseV2 = await ethers.getContractFactory(
         "OfferManagerReverseV2"
@@ -185,22 +205,36 @@ describe("OfferManagerReverseV2", function () {
       );
       await offerManagerReverseV2.changeVerifier(verifier.address);
 
-      const {
-        diffTreeInclusionProof,
-        blockHeader,
-        blockHash,
-        nonce,
-        recipientMerkleSiblings,
-      } = sampleWitness;
+      const { diffTreeInclusionProof, blockHeader, recipient } = sampleWitness;
 
-      const messageBytes = Buffer.from(blockHash.slice(2), "hex");
+      const asset = {
+        tokenAddress: makerAssetId,
+        tokenId: 0,
+        amount: makerAmount,
+      };
+      const abiEncoder = new ethers.utils.AbiCoder();
+      const message = abiEncoder.encode(
+        [
+          `${assetStructType}[]`,
+          "bytes32",
+          merkleProofStructType,
+          blockHeaderStructType,
+        ],
+        [[asset], recipient, diffTreeInclusionProof, blockHeader]
+      );
+
+      const messageBytes = Buffer.from(message.slice(2), "hex");
       const signature = await owner.signMessage(messageBytes);
-      await verifier.updateTransactionsDigest(blockHeader, signature);
-      const witness = await verifier.calcWitness(
-        nonce,
-        recipientMerkleSiblings,
-        diffTreeInclusionProof,
-        blockHeader
+
+      const witness = abiEncoder.encode(
+        [
+          `${assetStructType}[]`,
+          "bytes32",
+          merkleProofStructType,
+          blockHeaderStructType,
+          "bytes",
+        ],
+        [[asset], recipient, diffTreeInclusionProof, blockHeader, signature]
       );
 
       await expect(

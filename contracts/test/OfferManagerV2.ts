@@ -1,7 +1,12 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers, upgrades } from "hardhat";
-import { sampleWitness } from "./sampleData";
+import {
+  assetStructType,
+  blockHeaderStructType,
+  merkleProofStructType,
+  sampleWitness,
+} from "./SampleData";
 
 const REGISTER_FUNC_V2 =
   "register(bytes32,uint256,uint256,address,bytes32,address,uint256,bytes)";
@@ -17,7 +22,7 @@ describe("OfferManagerV2", function () {
     const { recipient } = sampleWitness;
     const networkIndex = recipient;
 
-    const Verifier = await ethers.getContractFactory("VerifierTest");
+    const Verifier = await ethers.getContractFactory("SimpleVerifierTest");
     const verifier = await Verifier.deploy(networkIndex);
 
     const OfferManager = await ethers.getContractFactory("OfferManagerV2Test");
@@ -47,27 +52,11 @@ describe("OfferManagerV2", function () {
 
   describe("Register with ETH", function () {
     it("Should execute without errors", async function () {
-      const { verifier, offerManager, owner, maker, taker } = await loadFixture(
+      const { offerManager, owner, maker, taker } = await loadFixture(
         deployOfferManager
       );
 
-      const {
-        diffTreeInclusionProof,
-        blockHeader,
-        blockHash,
-        nonce,
-        recipientMerkleSiblings,
-      } = sampleWitness;
-
-      const messageBytes = Buffer.from(blockHash.slice(2), "hex");
-      const signature = await owner.signMessage(messageBytes);
-      await verifier.updateTransactionsDigest(blockHeader, signature);
-      const witness = await verifier.calcWitness(
-        nonce,
-        recipientMerkleSiblings,
-        diffTreeInclusionProof,
-        blockHeader
-      );
+      const { diffTreeInclusionProof, blockHeader, recipient } = sampleWitness;
 
       const {
         makerIntmaxAddress,
@@ -77,6 +66,37 @@ describe("OfferManagerV2", function () {
         takerTokenAddress,
         takerAmount,
       } = sampleOffer;
+
+      const asset = {
+        tokenAddress: makerAssetId,
+        tokenId: 0,
+        amount: makerAmount,
+      };
+      const abiEncoder = new ethers.utils.AbiCoder();
+      const message = abiEncoder.encode(
+        [
+          `${assetStructType}[]`,
+          "bytes32",
+          merkleProofStructType,
+          blockHeaderStructType,
+        ],
+        [[asset], recipient, diffTreeInclusionProof, blockHeader]
+      );
+
+      const messageBytes = Buffer.from(message.slice(2), "hex");
+      const signature = await owner.signMessage(messageBytes);
+
+      const witness = abiEncoder.encode(
+        [
+          `${assetStructType}[]`,
+          "bytes32",
+          merkleProofStructType,
+          blockHeaderStructType,
+          "bytes",
+        ],
+        [[asset], recipient, diffTreeInclusionProof, blockHeader, signature]
+      );
+
       const offerId = 0;
 
       await expect(
@@ -176,7 +196,7 @@ describe("OfferManagerV2", function () {
 
   describe("Upgrade", function () {
     it("Should execute without errors", async function () {
-      const [, maker, taker] = await ethers.getSigners();
+      const [owner, maker, taker] = await ethers.getSigners();
 
       const OfferManager = await ethers.getContractFactory("OfferManager");
       const offerManager = await upgrades.deployProxy(OfferManager);
@@ -206,11 +226,20 @@ describe("OfferManagerV2", function () {
 
       const offerId = 0;
 
+      const { recipient } = sampleWitness;
+      const networkIndex = recipient;
+
+      const Verifier = await ethers.getContractFactory("SimpleVerifier");
+      const verifier = await upgrades.deployProxy(Verifier, [networkIndex]);
+
       const OfferManagerV2 = await ethers.getContractFactory("OfferManagerV2");
       const offerManagerV2 = await upgrades.upgradeProxy(
         offerManagerProxyAddress,
         OfferManagerV2
       );
+      console.log("start changeVerifier()");
+      await offerManagerV2.connect(owner).changeVerifier(verifier.address);
+      console.log("end changeVerifier()");
 
       await expect(
         offerManagerV2.connect(taker).activate(offerId, { value: takerAmount })

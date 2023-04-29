@@ -2,32 +2,40 @@
 pragma solidity 0.8.17;
 
 import "./VerifierInterface.sol";
-import "./utils/MerkleTree.sol";
-import "./utils/Poseidon.sol";
+import "./utils/MerkleTreeInterface.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-contract SimpleVerifier is VerifierInterface, Ownable {
-    bytes32 public immutable networkIndex;
+// import "@openzeppelin/contracts/access/Ownable.sol";
 
-    constructor(bytes32 networkIndex_) {
+contract SimpleVerifier is VerifierInterface, OwnableUpgradeable {
+    bytes32 public networkIndex;
+
+    function initialize(bytes32 networkIndex_) public virtual initializer {
         networkIndex = networkIndex_;
+        __Ownable_init();
     }
 
     function verifyAssets(
         Asset[] calldata assets,
         bytes32 recipient,
         bytes calldata witness
-    ) external view returns (bool ok) {
+    ) external view virtual returns (bool ok) {
         (
             Asset[] memory signedAssets,
             bytes32 signedRecipient,
-            MerkleTree.MerkleProof memory diffTreeInclusionProof,
+            MerkleTreeInterface.MerkleProof memory diffTreeInclusionProof,
             BlockHeader memory blockHeader,
             bytes memory signature
         ) = abi.decode(
                 witness,
-                (Asset[], bytes32, MerkleTree.MerkleProof, BlockHeader, bytes)
+                (
+                    Asset[],
+                    bytes32,
+                    MerkleTreeInterface.MerkleProof,
+                    BlockHeader,
+                    bytes
+                )
             );
 
         require(recipient == signedRecipient, "Not same recipient");
@@ -59,35 +67,5 @@ contract SimpleVerifier is VerifierInterface, Ownable {
         require(signer == owner(), "Fail to verify aggregator's signature.");
 
         ok = true;
-    }
-
-    function calcWitness(
-        Asset[] calldata assets,
-        bytes32 recipient,
-        MerkleTree.MerkleProof calldata diffTreeInclusionProof,
-        BlockHeader calldata blockHeader,
-        bytes calldata signature
-    ) external pure returns (bytes memory witness) {
-        witness = abi.encode(
-            assets,
-            recipient,
-            diffTreeInclusionProof,
-            blockHeader,
-            signature
-        );
-    }
-
-    function calcSingingMessage(
-        Asset[] calldata assets,
-        bytes32 recipient,
-        MerkleTree.MerkleProof calldata diffTreeInclusionProof,
-        BlockHeader calldata blockHeader
-    ) external pure returns (bytes memory signature) {
-        signature = abi.encode(
-            assets,
-            recipient,
-            diffTreeInclusionProof,
-            blockHeader
-        );
     }
 }

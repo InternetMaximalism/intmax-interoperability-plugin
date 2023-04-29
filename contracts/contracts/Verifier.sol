@@ -2,21 +2,19 @@
 pragma solidity 0.8.17;
 
 import "./VerifierInterface.sol";
+import "./SimpleVerifier.sol";
 import "./utils/MerkleTree.sol";
-import "./utils/Poseidon.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Verifier is VerifierInterface, MerkleTree, Ownable {
-    bytes32 public immutable networkIndex;
-
+contract Verifier is SimpleVerifier, MerkleTree {
     /**
      * block number => transactions digest
      */
     mapping(uint256 => bytes32) public transactionsDigestHistory;
 
     constructor(bytes32 networkIndex_) {
-        networkIndex = networkIndex_;
+        SimpleVerifier.initialize(networkIndex_);
     }
 
     function _calcLeafHash(
@@ -161,7 +159,7 @@ contract Verifier is VerifierInterface, MerkleTree, Ownable {
         Asset[] calldata assets,
         bytes32 recipient,
         bytes calldata witness
-    ) external view returns (bool ok) {
+    ) external view override returns (bool ok) {
         (
             bytes32 nonce,
             bytes32[] memory recipientMerkleSiblings,
@@ -169,7 +167,12 @@ contract Verifier is VerifierInterface, MerkleTree, Ownable {
             BlockHeader memory blockHeader
         ) = abi.decode(
                 witness,
-                (bytes32, bytes32[], MerkleTree.MerkleProof, BlockHeader)
+                (
+                    bytes32,
+                    bytes32[],
+                    MerkleTreeInterface.MerkleProof,
+                    BlockHeader
+                )
             );
 
         // TODO: verify transactions digest
@@ -189,20 +192,6 @@ contract Verifier is VerifierInterface, MerkleTree, Ownable {
             nonce,
             recipientMerkleSiblings,
             diffTreeInclusionProof
-        );
-    }
-
-    function calcWitness(
-        bytes32 nonce,
-        bytes32[] calldata recipientMerkleSiblings,
-        MerkleTree.MerkleProof calldata diffTreeInclusionProof,
-        BlockHeader calldata blockHeader
-    ) external pure returns (bytes memory witness) {
-        witness = abi.encode(
-            nonce,
-            recipientMerkleSiblings,
-            diffTreeInclusionProof,
-            blockHeader
         );
     }
 }

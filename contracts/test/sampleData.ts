@@ -58,3 +58,15 @@ export const sampleWitness = (() => {
     recipientMerkleSiblings,
   };
 })();
+
+// MerkleTreeInterface.MerkleProof
+export const merkleProofStructType =
+  "tuple(uint256 index, bytes32 value, bytes32[] siblings)";
+
+// VerifierInterface.Asset
+export const assetStructType =
+  "tuple(bytes32 tokenAddress, uint256 tokenId, uint256 amount)";
+
+// VerifierInterface.BlockHeader
+export const blockHeaderStructType =
+  "tuple(uint256 blockNumber, bytes32 prevBlockHash, bytes32 blockHeadersDigest, bytes32 transactionsDigest, bytes32 depositDigest, bytes32 proposedWorldStateDigest, bytes32 approvedWorldStateDigest, bytes32 latestAccountDigest)";

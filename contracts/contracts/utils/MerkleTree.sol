@@ -1,16 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity 0.8.17;
 
+import "./MerkleTreeInterface.sol";
 import "./Poseidon.sol";
 
-contract MerkleTree is GoldilocksPoseidon {
-    struct MerkleProof {
-        // bytes32 root;
-        uint256 index;
-        bytes32 value;
-        bytes32[] siblings;
-    }
-
+contract MerkleTree is MerkleTreeInterface, GoldilocksPoseidon {
     // Compure Merkle root.
     function _computeMerkleRoot(
         MerkleProof memory proof

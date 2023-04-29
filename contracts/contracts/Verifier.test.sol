@@ -34,4 +34,18 @@ contract VerifierTest is Verifier {
             diffTreeInclusionProof
         );
     }
+
+    function calcWitness(
+        bytes32 nonce,
+        bytes32[] calldata recipientMerkleSiblings,
+        MerkleTree.MerkleProof calldata diffTreeInclusionProof,
+        BlockHeader calldata blockHeader
+    ) external pure returns (bytes memory witness) {
+        witness = abi.encode(
+            nonce,
+            recipientMerkleSiblings,
+            diffTreeInclusionProof,
+            blockHeader
+        );
+    }
 }

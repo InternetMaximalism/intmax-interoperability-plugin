@@ -2,12 +2,13 @@ import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import {
+  assetStructType,
   blockHeaderStructType,
   merkleProofStructType,
   sampleWitness,
 } from "./SampleData";
 
-describe("Verifier", function () {
+describe("SimpleVerifier", function () {
   async function deployVerifier() {
     // Contracts are deployed using the first signer/account by default
     const [owner] = await ethers.getSigners();
@@ -15,13 +16,13 @@ describe("Verifier", function () {
     const { recipient } = sampleWitness;
     const networkIndex = recipient;
 
-    const Verifier = await ethers.getContractFactory("VerifierTest");
+    const Verifier = await ethers.getContractFactory("SimpleVerifierTest");
     const verifier = await Verifier.deploy(networkIndex);
 
     return { verifier, networkIndex, owner };
   }
 
-  describe("verify", function () {
+  describe("verifyAsset", function () {
     it("Should execute without errors", async function () {
       const { verifier, networkIndex, owner } = await loadFixture(
         deployVerifier
@@ -44,22 +45,31 @@ describe("Verifier", function () {
         amount: tokenAmount,
       };
 
-      const messageBytes = Buffer.from(sampleWitness.blockHash.slice(2), "hex");
-      const signature = await owner.signMessage(messageBytes);
-      await verifier.updateTransactionsDigest(blockHeader, signature);
-
-      const abiCoder = new ethers.utils.AbiCoder();
-      const witness = abiCoder.encode(
-        ["bytes32", "bytes32[]", merkleProofStructType, blockHeaderStructType],
-        [nonce, recipientMerkleSiblings, diffTreeInclusionProof, blockHeader]
+      const abiEncoder = new ethers.utils.AbiCoder();
+      const message = abiEncoder.encode(
+        [
+          `${assetStructType}[]`,
+          "bytes32",
+          merkleProofStructType,
+          blockHeaderStructType,
+        ],
+        [[asset], recipient, diffTreeInclusionProof, blockHeader]
       );
 
-      // const witness = await verifier.calcWitness(
-      //   nonce,
-      //   recipientMerkleSiblings,
-      //   diffTreeInclusionProof,
-      //   blockHeader
-      // );
+      const messageBytes = Buffer.from(message.slice(2), "hex");
+      const signature = await owner.signMessage(messageBytes);
+
+      const witness = abiEncoder.encode(
+        [
+          `${assetStructType}[]`,
+          "bytes32",
+          merkleProofStructType,
+          blockHeaderStructType,
+          "bytes",
+        ],
+        [[asset], recipient, diffTreeInclusionProof, blockHeader, signature]
+      );
+
       expect(
         await verifier.verifyAssets([asset], recipient, witness)
       ).to.be.equals(true);

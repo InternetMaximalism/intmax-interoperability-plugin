@@ -1,16 +1,10 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.17;
+pragma solidity 0.8.17;
 
+import "./MerkleTreeInterface.sol";
 import "./Poseidon.sol";
 
-contract MerkleTree is GoldilocksPoseidon {
-    struct MerkleProof {
-        // bytes32 root;
-        uint256 index;
-        bytes32 value;
-        bytes32[] siblings;
-    }
-
+contract MerkleTree is MerkleTreeInterface, GoldilocksPoseidon {
     // Compure Merkle root.
     function _computeMerkleRoot(
         MerkleProof memory proof
@@ -23,10 +17,8 @@ contract MerkleTree is GoldilocksPoseidon {
             index = index >> 1;
 
             if (branchIndex == 1) {
-                // Hash(current computed hash + current element of the proof)
                 computedHash = two_to_one(proof.siblings[i], computedHash);
             } else {
-                // Hash(current element of the proof + current computed hash)
                 computedHash = two_to_one(computedHash, proof.siblings[i]);
             }
         }
@@ -41,14 +33,14 @@ contract MerkleTree is GoldilocksPoseidon {
         bytes32 computedHash = proof.value;
         uint256 index = proof.index << (256 - proof.siblings.length);
 
-        for (uint256 i = 0; i < proof.siblings.length; i++) {
-            uint256 branchIndex = index & (1 << 255);
+        for (uint256 i = proof.siblings.length; i != 0; i--) {
+            uint256 branchIndex = (index >> 255) & 1;
             index = index << 1;
 
             if (branchIndex == 1) {
-                computedHash = two_to_one(proof.siblings[i], computedHash);
+                computedHash = two_to_one(proof.siblings[i - 1], computedHash);
             } else {
-                computedHash = two_to_one(computedHash, proof.siblings[i]);
+                computedHash = two_to_one(computedHash, proof.siblings[i - 1]);
             }
         }
 

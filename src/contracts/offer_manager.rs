@@ -9,7 +9,7 @@ use ethers::{
 
 abigen!(
     OfferManagerContract,
-    "./contracts/compiled-artifacts/contracts/OfferManager.sol/OfferManager.json"
+    "./contracts/compiled-artifacts/contracts/OfferManagerV2.sol/OfferManagerV2.json"
 );
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]

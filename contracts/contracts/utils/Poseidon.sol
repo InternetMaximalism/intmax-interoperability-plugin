@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.17;
+pragma solidity 0.8.17;
 
 contract GoldilocksPoseidon {
     uint256 public constant HALF_N_FULL_ROUNDS = 4;

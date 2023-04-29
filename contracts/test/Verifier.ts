@@ -1,7 +1,11 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { sampleWitness } from "./sampleData";
+import {
+  blockHeaderStructType,
+  merkleProofStructType,
+  sampleWitness,
+} from "./sampleData";
 
 describe("Verifier", function () {
   async function deployVerifier() {
@@ -33,8 +37,8 @@ describe("Verifier", function () {
         recipientMerkleSiblings,
       } = sampleWitness;
 
+      const recipient = networkIndex;
       const asset = {
-        recipient: networkIndex,
         tokenAddress,
         tokenId,
         amount: tokenAmount,
@@ -43,13 +47,22 @@ describe("Verifier", function () {
       const messageBytes = Buffer.from(sampleWitness.blockHash.slice(2), "hex");
       const signature = await owner.signMessage(messageBytes);
       await verifier.updateTransactionsDigest(blockHeader, signature);
-      const witness = await verifier.calcWitness(
-        nonce,
-        recipientMerkleSiblings,
-        diffTreeInclusionProof,
-        blockHeader
+
+      const abiCoder = new ethers.utils.AbiCoder();
+      const witness = abiCoder.encode(
+        ["bytes32", "bytes32[]", merkleProofStructType, blockHeaderStructType],
+        [nonce, recipientMerkleSiblings, diffTreeInclusionProof, blockHeader]
       );
-      expect(await verifier.verifyAsset(asset, witness)).to.be.equals(true);
+
+      // const witness = await verifier.calcWitness(
+      //   nonce,
+      //   recipientMerkleSiblings,
+      //   diffTreeInclusionProof,
+      //   blockHeader
+      // );
+      expect(
+        await verifier.verifyAssets([asset], recipient, witness)
+      ).to.be.equals(true);
       // expect(await verifier.verifyBlockHash(blockHash, signature)).to.be.equals(
       //   true
       // );

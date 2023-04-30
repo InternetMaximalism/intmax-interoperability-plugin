@@ -1,6 +1,6 @@
 import { ethers, upgrades, network } from "hardhat";
 
-// `OFFER_MANAGER_PROXY=<address> OFFER_MANAGER_REVERSE_PROXY=<address> npx hardhat run ./scripts/upgrade.ts --network <network-name>`
+// `OFFER_MANAGER_PROXY=<address> OFFER_MANAGER_REVERSE_PROXY=<address> npx hardhat run ./scripts/upgradeV2.ts --network <network-name>`
 async function main() {
   const offerManagerProxyAddress = process.env.OFFER_MANAGER_PROXY!;
   const [deployer] = await ethers.getSigners();

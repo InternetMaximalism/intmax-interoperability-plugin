@@ -21,6 +21,10 @@ interface OfferManagerV2Interface is OfferManagerInterface {
      * - The caller must not be a zero address.
      * - The offer ID must not be already registered.
      * - The offer must be valid.
+     * - Given witness is valid.
+     * This function emits:
+     * - An `OfferRegistered` event with the offer details.
+     * - An `OfferTakerUpdated` event with the taker's INTMAX address and offer ID.
      */
     function register(
         bytes32 makerIntmaxAddress,

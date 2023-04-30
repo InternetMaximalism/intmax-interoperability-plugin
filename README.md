@@ -5,7 +5,7 @@
 It is a smart contract written in Solidity to manage offers to exchange assets on INTMAX and other networks.
 The contract allows users to register new offers and update the taker of an existing offer. The offer can be activated by transferring the taker's asset to the maker in exchange for payment. The contract also includes events for tracking the registration, activation, and deactivation of offers. The function nextOfferId returns the ID of the next offer to be registered.
 
-See also [Concept](./docs/concept.md)
+See also [Concept](./docs/concept.md).
 
 ## How to deploy OfferManager on local network
 
@@ -59,16 +59,41 @@ The address of the deployed contract can be found [here](./docs/address.json).
 
 ## How to develop Solidity
 
-See also [sample-auction-app](https://github.com/InternetMaximalism/intmax-rollup-cli/tree/main/packages/sample-auction-app/ethereum).
+There are two characters in [Concept](./docs/concept.md) - Mike (maker) and Tom (taker).
+These names are also used in the following description.
+
+### Network Index
+
+The network index is the following:
+- Scroll Alpha: 0x0000000000000000000000000000000000000000000000000000000000000001
+- Polygon ZKEVM Test: 0x0000000000000000000000000000000000000000000000000000000000000002
+
+### Transaction Witness
+
+You can calculate the witness that you sent the transaction:
+
+```sh
+intmax account transaction-proof <tx-hash> <tom-intmax-address>
+```
 
 ### Offer Manager (Pattern 1)
 
 1. Mike sends the token A to the address `networkIndex` on INTMAX.
-2. Mike registers a new offer and declares that he will transfer his burned assets to the account that has transferred ETH to him.
-3. Tom accepts the offer and transfers the ETH to Mike.
-4. Tom can merge the assets transferred from Mike on INTMAX.
+2. Mike calculates witness that he sent the transaction.
+3. Mike registers a new offer and declares that he will transfer his burned assets to the account that has transferred ETH to him.
+4. Tom accepts the offer and transfers the ETH to Mike.
+5. Tom can merge the assets transferred from Mike on INTMAX.
 
-#### [register()](./contracts/contracts/OfferManagerInterface.sol#L53-L79)
+#### [register()](./contracts/contracts/OfferManagerInterface.sol#L75)
+
+This function registers a new offer.
+It requires:
+- `takerTokenAddress` must be a valid address.
+- `takerIntmax` must not be zero.
+- The caller must not be a zero address.
+- The offer ID must not be already registered.
+- The offer must be valid.
+- Given witness is valid.
 
 ```solidity
 OfferManagerInterface offerManager;
@@ -79,11 +104,21 @@ uint256 offerId = offerManager.register(
     taker,
     takerIntmax,
     takerTokenAddress,
-    takerAmount
+    takerAmount,
+    witness
 );
 ```
 
-#### [activate()](./contracts/contracts/OfferManagerInterface.sol#L96-L107)
+#### [activate()](./contracts/contracts/OfferManagerInterface.sol#L113)
+
+This function activates an offer by transferring the taker's asset to the maker in exchange for payment.
+`offerId` is the ID of the offer to activate.
+It Returns a boolean indicating whether the offer is successfully activated.
+This function requires:
+- The offer must exist.
+- The offer must not be already activated.
+- Only the taker can activate it.
+- The payment must be equal to or greater than the taker's asset amount.
 
 ```solidity
 OfferManagerInterface offerManager;
@@ -96,10 +131,19 @@ require(success, "fail to activate offer");
 ### Offer Manager (Pattern 2)
 
 1. Tom locks his ETH and registers the offer. This declares that he will transfer the locked assets to the account that has transferred the specified token on INTMAX to him.
-2. Mike accepts the offer and transfers the tokens on INTMAX to Tom.
-3. Mike can receive Tom's ETH.
+2. Mike transfers the tokens on INTMAX to Tom.
+3. Mike calculates witness that he sent the transaction.
+4. Mike accepts the offer.
+5. Mike can receive Tom's ETH.
 
-#### [register()](./contracts/contracts/OfferManagerReverseInterface.sol#L40-L56)
+#### [register()](./contracts/contracts/OfferManagerReverseInterface.sol#L41)
+
+Locks the taker's funds and creates a new offer to exchange them for the maker's asset on INTMAX.
+ATTENTION: This offer cannot be cancelled.
+This function requires:
+- The taker must not be the zero address.
+- The offer ID must not be already registered.
+- The maker's offer amount must be less than or equal to MAX_REMITTANCE_AMOUNT.
 
 ```solidity
 OfferManagerReverseInterface offerManagerReverse;
@@ -113,7 +157,14 @@ uint256 offerId = offerManagerReverse.register(
 );
 ```
 
-#### [activate()](./contracts/contracts/OfferManagerReverseInterface.sol#L69-L81)
+#### [activate()](./contracts/contracts/OfferManagerReverseInterface.sol#L93)
+
+This function accepts an offer and transfers the taker's asset to the maker.
+This function requires:
+- The offer must exist.
+- The offer must not be already activated.
+- Only the maker can activate the offer.
+- Given witness is valid.
 
 ```solidity
 OfferManagerReverseInterface offerManagerReverse;
@@ -123,3 +174,7 @@ bool success = offerManagerReverse.activate(
 );
 require(success, "fail to unlock offer");
 ```
+
+### Examples
+
+See [sample-auction-app](https://github.com/InternetMaximalism/intmax-rollup-cli/tree/main/packages/sample-auction-app/ethereum).

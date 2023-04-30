@@ -197,7 +197,7 @@ contract OfferManager is
      * @dev This function deactivates a offer.
      * @param offerId is the ID of the offer.
      */
-    function _deactivate(uint256 offerId) internal {
+    function _deactivate(uint256 offerId) internal virtual {
         _markOfferAsActivated(offerId);
         emit OfferDeactivated(offerId);
     }

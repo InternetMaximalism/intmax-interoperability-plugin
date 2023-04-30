@@ -83,7 +83,7 @@ interface OfferManagerInterface {
     ) external returns (uint256 offerId);
 
     /**
-     * @notice Updates the taker of an existing offer.
+     * @notice This function updates the taker of an existing offer.
      * @param offerId is the ID of the offer to be updated.
      * @param newTakerIntmaxAddress is the new taker's INTMAX address.
      * @dev This function requires:
@@ -99,13 +99,13 @@ interface OfferManagerInterface {
     ) external;
 
     /**
-     * @notice Activate an offer by transferring the taker's asset to the maker in exchange for payment.
+     * @notice This function activates an offer by transferring the taker's asset to the maker in exchange for payment.
      * @param offerId is the ID of the offer to activate.
      * @return A boolean indicating whether the offer is successfully activated.
      * @dev This function requires:
      * - The offer must exist.
      * - The offer must not be already activated.
-     * - Only the taker can activate it.
+     * - Only the taker can activate it if the taker is specified.
      * - The payment must be equal to or greater than the taker's asset amount.
      * This function emits:
      * - An `OfferActivated` event with the offer ID and the taker's INTMAX address.
@@ -113,15 +113,16 @@ interface OfferManagerInterface {
     function activate(uint256 offerId) external payable returns (bool);
 
     /**
-     * @notice Deactivates an offer, preventing it from being activated in the future.
+     * @notice This function deactivates an offer, preventing it from being activated in the future.
      * @param offerId is the ID of the offer to be deactivated.
      * @return A boolean indicating whether the deactivation was successful.
-     * @dev This function requires:
+     * @dev This function is equivalent to the `activate()` function when `takerIntmaxAddress == makerIntmaxAddress`.
+     * This function requires:
      * - The offer must exist.
      * - The offer must not be already activated.
      * - Only the maker can deactivate it.
      * This function emits:
-     * - An `OfferDeactivated` event with the offer ID.
+     * - An `OfferActivated` event with the offer ID and the maker's INTMAX address.
      */
     function deactivate(uint256 offerId) external returns (bool);
 }

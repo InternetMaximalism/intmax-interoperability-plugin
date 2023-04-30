@@ -134,4 +134,9 @@ contract OfferManagerV2 is
         bool ok = verifier.verifyAssets(assets, networkIndex, witness);
         require(ok, "Fail to verify assets");
     }
+
+    function _deactivate(uint256 offerId) internal {
+        _markOfferAsActivated(offerId);
+        emit OfferActivated(offerId, _offers[offerId].makerIntmaxAddress);
+    }
 }

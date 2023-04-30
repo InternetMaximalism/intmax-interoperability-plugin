@@ -1,10 +1,12 @@
 {
   "scrollalpha": {
     "offerManager": "0x007c969728eE4f068ceCF3405D65a037dB5BeEa1",
-    "reverseOfferManager": "0x4ee8cB7864df06A8c7703988C15bAaAB9ac47CAe"
+    "reverseOfferManager": "0x4ee8cB7864df06A8c7703988C15bAaAB9ac47CAe",
+    "verifier": "0x4c8Ca3410AE74429068F22f29cD3D0EaAF1afdE1"
   },
   "polygonzkevmtest": {
     "offerManager": "0x161a72Bc1b76586a36A9014Dd58d401eE2B24094",
-    "reverseOfferManager": "0x1E316b313de98C7eCb2393995ef27715E3E1c7a7"
+    "reverseOfferManager": "0x1E316b313de98C7eCb2393995ef27715E3E1c7a7",
+    "verifier": "0x4Ee526Eb12E534a655996e72fA275D3448CFAFf4"
   }
 }

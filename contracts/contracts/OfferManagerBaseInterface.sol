@@ -3,13 +3,13 @@ pragma solidity 0.8.17;
 
 interface OfferManagerBaseInterface {
     /**
-     * @dev Struct representing an offer created by a maker and taken by a taker.
+     * @notice This struct represents an offer created by a maker and taken by a taker.
      * @param maker is the address of the maker who creates the offer.
-     * @param makerIntmaxAddress is the intmax address of the maker.
+     * @param makerIntmaxAddress is the INTMAX address of the maker.
      * @param makerAssetId is the asset ID that the maker is selling to the taker.
      * @param makerAmount is the amount of the asset that the maker is selling to the taker.
      * @param taker is the address of the taker who takes the offer.
-     * @param takerIntmaxAddress is the intmax address of the taker.
+     * @param takerIntmaxAddress is the INTMAX address of the taker.
      * @param takerTokenAddress is the address of the token that the taker needs to pay.
      * @param takerAmount is the amount of the token that the taker needs to pay.
      * @param isActivated is a boolean flag indicating whether the offer is activated or not.

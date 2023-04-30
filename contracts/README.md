@@ -1,13 +1,15 @@
-# Sample Hardhat Project
+# Offer Manager Contracts for INTMAX Interoperability
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
+## How to Test
 
-Try running some of the following tasks:
-
-```shell
-npx hardhat help
+```sh
 npx hardhat test
-REPORT_GAS=true npx hardhat test
+REPORT_GAS=true npx hardhat test # if you need to update the gas report
+```
+
+## Deploy Locally
+
+```sh
 npx hardhat node
-npx hardhat run scripts/deploy.ts
+npx hardhat run scripts/deploy.ts --network localhost
 ```

@@ -121,8 +121,7 @@ contract OfferManagerReverse is
         );
         _markOfferAsActivated(offerId);
 
-        // The maker transfers token to taker.
-        payable(offer.maker).transfer(offer.takerAmount);
+        // This contract transfers token to maker.
         if (offer.takerTokenAddress == address(0)) {
             payable(offer.maker).transfer(offer.takerAmount);
         } else {
@@ -145,21 +144,16 @@ contract OfferManagerReverse is
     }
 
     /**
-     * @dev Accepts an offer from a maker and registers it with a new offer ID.
+     * @dev This function accepts an offer from a maker and registers it with a new offer ID.
      * @param taker is the address of the taker.
-     * @param takerIntmaxAddress is the intmax address of the taker.
+     * @param takerIntmaxAddress is the INTMAX address of the taker.
      * @param takerTokenAddress is the address of the token the taker will transfer.
      * @param takerAmount is the amount of token the taker will transfer.
      * @param maker is the address of the maker.
-     * @param makerIntmaxAddress is the intmax address of the maker.
-     * @param makerAssetId is the ID of the asset the maker will transfer on intmax.
-     * @param makerAmount is the amount of asset the maker will transfer on intmax.
+     * @param makerIntmaxAddress is the INTMAX address of the maker.
+     * @param makerAssetId is the ID of the asset the maker will transfer on INTMAX.
+     * @param makerAmount is the amount of asset the maker will transfer on INTMAX.
      * @return offerId is the ID of the newly registered offer.
-     *
-     * Requirements:
-     * - The taker must not be the zero address.
-     * - The offer ID must not be already registered.
-     * - The maker's offer amount must be less than or equal to MAX_REMITTANCE_AMOUNT.
      */
     function _register(
         address taker,
@@ -204,7 +198,7 @@ contract OfferManagerReverse is
     }
 
     /**
-     * @dev Marks the offer as activated.
+     * @dev This function marks the offer as activated.
      * @param offerId is the ID of the offer.
      */
     function _markOfferAsActivated(uint256 offerId) internal {
@@ -217,7 +211,7 @@ contract OfferManagerReverse is
     }
 
     /**
-     * This function activates a offer and emits an `Unlock` event.
+     * @dev This function activates a offer and emits an `Unlock` event.
      * @param offerId is the ID of the offer to be unlocked.
      */
     function _activate(uint256 offerId) internal {
@@ -226,17 +220,15 @@ contract OfferManagerReverse is
     }
 
     /**
-     * @dev Verify the validity of the witness signature.
+     * @dev This function checks the validity of the witness signature.
      * @param offer is the offer which you would like to verify.
      * @param witness is the data that needs to be verified.
-     *
-     * Requirements:
-     * - The recovered signer from the signature must be the same as the owner address.
      */
     function _checkWitness(
         Offer memory offer,
         bytes memory witness
     ) internal view virtual {
+        // The recovered signer from the signature must be the same as the owner address.
         // bytes32 hashedMessage = ECDSA.toEthSignedMessageHash(
         //     offer.takerIntmaxAddress
         // );
@@ -245,13 +237,11 @@ contract OfferManagerReverse is
     }
 
     /**
-     * @dev Verify the validity of the offer.
+     * @dev This function checks the validity of the offer.
      * @param offer is the offer that needs to be verified.
-     *
-     * Requirements:
-     * - The `makerAmount` in the offer must be less than or equal to `MAX_REMITTANCE_AMOUNT`.
      */
     function _isValidOffer(Offer memory offer) internal pure {
+        // The `makerAmount` in the offer must be less than or equal to `MAX_REMITTANCE_AMOUNT`.
         require(
             offer.makerAmount <= MAX_REMITTANCE_AMOUNT,
             "Invalid offer amount: exceeds maximum remittance amount."

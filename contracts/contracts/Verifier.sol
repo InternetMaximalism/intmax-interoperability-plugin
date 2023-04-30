@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Verifier is SimpleVerifier, MerkleTree {
     /**
-     * block number => transactions digest
+     * @notice This mapping stores the correspondence from block number to transactions digest.
      */
     mapping(uint256 => bytes32) public transactionsDigestHistory;
 
@@ -72,7 +72,7 @@ contract Verifier is SimpleVerifier, MerkleTree {
             recipientLeaf,
             recipientMerkleSiblings
         );
-        bytes32 diffRoot = _computeMerkleRootRbo(recipientMerkleProof); // TODO: use rbo version
+        bytes32 diffRoot = _computeMerkleRootRbo(recipientMerkleProof);
         transactionHash = two_to_one(diffRoot, nonce);
     }
 
@@ -175,7 +175,6 @@ contract Verifier is SimpleVerifier, MerkleTree {
                 )
             );
 
-        // TODO: verify transactions digest
         bytes32 transactionsDigest = transactionsDigestHistory[
             blockHeader.blockNumber
         ];

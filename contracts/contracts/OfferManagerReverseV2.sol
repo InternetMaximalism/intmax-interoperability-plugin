@@ -64,7 +64,7 @@ contract OfferManagerReverseV2 is OfferManagerReverse {
     }
 
     /**
-     * @dev Verify the validity of the witness signature.
+     * @dev This function checks the validity of the witness signature.
      * @param offer is the offer which you would like to verify.
      * @param witness is the data that needs to be verified.
      */

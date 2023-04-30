@@ -5,18 +5,17 @@ import "./OfferManagerInterface.sol";
 
 interface OfferManagerV2Interface is OfferManagerInterface {
     /**
-     * @dev Registers a new offer.
-     * @param makerIntmaxAddress is the maker's intmax address.
+     * @notice This function registers a new offer.
+     * @param makerIntmaxAddress is the maker's INTMAX address.
      * @param makerAssetId is the asset ID that the maker is selling to the taker.
      * @param makerAmount is the amount of asset that the maker is selling to the taker.
      * @param taker is the taker's address.
-     * @param takerIntmaxAddress is the taker's intmax address.
+     * @param takerIntmaxAddress is the taker's INTMAX address.
      * @param takerTokenAddress is the token address that the taker should pay to the maker.
      * @param takerAmount is the amount of token that the taker should pay to the maker.
      * @param witness is the witness that maker burned his assets.
      * @return offerId is the ID of the newly registered offer.
-     *
-     * Requirements:
+     * @dev This function requires:
      * - `takerTokenAddress` must be a valid address.
      * - `takerIntmax` must not be zero.
      * - The caller must not be a zero address.

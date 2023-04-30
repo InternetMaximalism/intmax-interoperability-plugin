@@ -2,7 +2,7 @@
 
 ## Concept
 
-It is a smart contract written in Solidity to manage offers to exchange assets on intmax and other networks.
+It is a smart contract written in Solidity to manage offers to exchange assets on INTMAX and other networks.
 The contract allows users to register new offers and update the taker of an existing offer. The offer can be activated by transferring the taker's asset to the maker in exchange for payment. The contract also includes events for tracking the registration, activation, and deactivation of offers. The function nextOfferId returns the ID of the next offer to be registered.
 
 See also [Concept](./docs/concept.md)
@@ -63,10 +63,10 @@ See also [sample-auction-app](https://github.com/InternetMaximalism/intmax-rollu
 
 ### Offer Manager (Pattern 1)
 
-1. Mike burns the intmax token A.
+1. Mike sends the token A to the address `networkIndex` on INTMAX.
 2. Mike registers a new offer and declares that he will transfer his burned assets to the account that has transferred ETH to him.
 3. Tom accepts the offer and transfers the ETH to Mike.
-4. Tom can merge the assets transferred from Mike on intmax.
+4. Tom can merge the assets transferred from Mike on INTMAX.
 
 #### [register()](./contracts/contracts/OfferManagerInterface.sol#L53-L79)
 
@@ -95,8 +95,8 @@ require(success, "fail to activate offer");
 
 ### Offer Manager (Pattern 2)
 
-1. Tom locks his ETH and registers the offer. This declares that he will transfer the locked assets to the account that has transferred the specified token on intmax to him.
-2. Mike accepts the offer and transfers the tokens on intmax to Tom.
+1. Tom locks his ETH and registers the offer. This declares that he will transfer the locked assets to the account that has transferred the specified token on INTMAX to him.
+2. Mike accepts the offer and transfers the tokens on INTMAX to Tom.
 3. Mike can receive Tom's ETH.
 
 #### [register()](./contracts/contracts/OfferManagerReverseInterface.sol#L40-L56)

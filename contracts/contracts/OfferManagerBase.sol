@@ -7,6 +7,9 @@ import "@openzeppelin/contracts-upgradeable/utils/CountersUpgradeable.sol";
 abstract contract OfferManagerBase is OfferManagerBaseInterface {
     using CountersUpgradeable for CountersUpgradeable.Counter;
 
+    /**
+     * @dev This constant represents the amount of tokens that can be transferred at one time on INTMAX.
+     */
     uint256 constant MAX_REMITTANCE_AMOUNT = 18446744069414584320; // the maximum value of Goldilocks field
 
     /**

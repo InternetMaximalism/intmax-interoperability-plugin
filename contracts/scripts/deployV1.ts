@@ -6,13 +6,9 @@ async function main() {
 
   await offerManager.deployed();
 
-  // デプロイの後、verifyをする流れになるかと思います。
-  // verifyのため、デプロイしたタイミングでlogicのアドレスも同時に取得すると色々捗ります
-	// const filter = offerManager.filters.Upgraded()
-	// const events = await offerManager.queryFilter(filter)
-	// console.log('logic was deployed to:', events[0].args!.implementation)
-  // こんな感じでロジックの方のアドレスがわかります。
-  console.log(`Deploy a OfferManager contract: ${offerManager.address}`);
+  const logic = await offerManager.implementation();
+  console.log(`Deploy a OfferManager logic contract: ${logic}`);
+  console.log(`Deploy a OfferManager proxy contract: ${offerManager.address}`);
 
   const OfferManagerReverse = await ethers.getContractFactory(
     "OfferManagerReverse"
@@ -20,7 +16,6 @@ async function main() {
   const offerManagerReverse = await upgrades.deployProxy(OfferManagerReverse);
 
   await offerManagerReverse.deployed();
-
   console.log(
     `Deploy a OfferManagerReverse contract: ${offerManagerReverse.address}`
   );

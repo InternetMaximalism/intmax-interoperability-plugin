@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// TODO hardhatのサポート最新Solidityバージョンは0.818なので、全体的に修正した方がいいかもしれない
 pragma solidity 0.8.17;
 
 import "./MerkleTreeInterface.sol";

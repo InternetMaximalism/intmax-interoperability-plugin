@@ -1,6 +1,9 @@
 import { ethers, upgrades, network } from "hardhat";
 
 async function main() {
+  // TODO この書き方だと新たにコントラクトができるだけなので、
+  // https://github.com/OpenZeppelin/openzeppelin-upgrades#usage
+  // を参考にupdateさせてください。
   const OfferManager = await ethers.getContractFactory("OfferManagerV2");
   const offerManager = await upgrades.deployProxy(OfferManager);
   await offerManager.deployed();

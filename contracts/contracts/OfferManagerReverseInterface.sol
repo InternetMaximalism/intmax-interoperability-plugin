@@ -85,7 +85,8 @@ interface OfferManagerReverseInterface {
      * @dev This function requires:
      * - The offer must exist.
      * - The offer must not be already activated.
-     * - Only the maker can activate it.
+     * - Only the maker can activate the offer.
+     * - Given witness is valid.
      * This function emits:
      * - An `OfferActivated` event with the offer ID and the maker's address.
      */

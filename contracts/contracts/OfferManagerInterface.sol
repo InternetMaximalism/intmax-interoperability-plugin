@@ -4,6 +4,8 @@ pragma solidity 0.8.17;
 import "./OfferManagerBaseInterface.sol";
 
 interface OfferManagerInterface {
+    // 各イベントのindexedは後に検索したくなる場合にのみ付与されているかどうか確認お願いします。
+    // indexedの数はガス代に影響するので、必要ないものは付与しない方がいい。
     /**
      * @notice This event occurs when certain offers are registered.
      * @param offerId is the ID of the offer.

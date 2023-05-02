@@ -22,6 +22,7 @@ abstract contract OfferManagerBase is OfferManagerBaseInterface {
      */
     mapping(uint256 => Offer) _offers;
 
+    // この関数は戻り値をstructのままにした方がシンプルになるのではと思うのですが、どうでしょうか。
     function getOffer(
         uint256 offerId
     )

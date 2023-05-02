@@ -123,7 +123,13 @@ contract OfferManagerReverse is
 
         // This contract transfers token to maker.
         if (offer.takerTokenAddress == address(0)) {
+            // 結局zkSyncでtransferは使えるようになりましたが、
+            // こう言うのは怖いですね。
+            // transferは推奨されていないので、callの方がいいかもしれません
+            // 余裕があれば
             payable(offer.maker).transfer(offer.takerAmount);
+            // このタイミングで return true しておくと
+            // elseのインデントが消えるので、シンプルかなと。
         } else {
             bool success = IERC20(offer.takerTokenAddress).transfer(
                 offer.maker,
@@ -155,6 +161,7 @@ contract OfferManagerReverse is
      * @param makerAmount is the amount of asset the maker will transfer on INTMAX.
      * @return offerId is the ID of the newly registered offer.
      */
+    // _registerはBaseに統合しないのですか？
     function _register(
         address taker,
         bytes32 takerIntmaxAddress,

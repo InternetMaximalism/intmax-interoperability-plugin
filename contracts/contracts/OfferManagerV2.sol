@@ -61,6 +61,7 @@ contract OfferManagerV2 is
     ) external returns (uint256 offerId) {
         // Check if given `takerTokenAddress` is either ETH or ERC20.
         if (takerTokenAddress != address(0)) {
+            // ホワイトリスト化を検討
             uint256 totalSupply = IERC20(takerTokenAddress).totalSupply();
             require(
                 totalSupply != 0,

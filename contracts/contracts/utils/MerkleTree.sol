@@ -13,6 +13,12 @@ contract MerkleTree is MerkleTreeInterface, GoldilocksPoseidon {
         bytes32 computedHash = proof.value;
         uint256 index = proof.index;
 
+        // おそらくauditに出したら突っ込まれる部分。
+        // siblingsの長さ次第で、計算量がとんでもない的なことを言われると思われる。
+        // ただまぁこうしないと、MerkleTreeの実装ができないので、
+        // もどかしい。
+        // lengthの最大数チェックとかが折衷案かもしれない。
+        // (*1)
         for (uint256 i = 0; i < proof.siblings.length; i++) {
             uint256 branchIndex = index & 1;
             index = index >> 1;
@@ -33,7 +39,7 @@ contract MerkleTree is MerkleTreeInterface, GoldilocksPoseidon {
     ) internal view returns (bytes32) {
         bytes32 computedHash = proof.value;
         uint256 index = proof.index << (256 - proof.siblings.length);
-
+        // (*1) と同等
         for (uint256 i = proof.siblings.length; i != 0; i--) {
             uint256 branchIndex = (index >> 255) & 1;
             index = index << 1;

@@ -28,6 +28,11 @@ contract OfferManager is
     ) external virtual returns (uint256 offerId) {
         // Check if given `takerTokenAddress` is either ETH or ERC20.
         if (takerTokenAddress != address(0)) {
+            // ERC20はsupportsInterfaceがないため、こういうチェックしかできないのが辛い
+            // totalSupply関数を偽装すれば、悪意のあるコントラクトアドレスでもスルーしてしまうので、
+            // 関数でチェックするのではなく、シンプルにコントラクトアドレスかどうかをチェックするのが良いかもしれない
+            // もしくはホワイトリスト制にした方がいいかもしれませんね。
+            // transferFromに悪意のあるロジックが組み込まれている場合に怖いので
             uint256 totalSupply = IERC20(takerTokenAddress).totalSupply();
             require(
                 totalSupply != 0,
@@ -53,6 +58,12 @@ contract OfferManager is
         bytes32 newTakerIntmaxAddress
     ) external {
         // The offer must exist.
+        // モダン(?)な書き方で言うと、エラーは
+        // https://github.com/chiru-labs/ERC721A/blob/main/contracts/ERC721A.sol#L204
+        // https://github.com/chiru-labs/ERC721A/blob/main/contracts/IERC721A.sol#L24
+        // このような記述方法になる
+        // わかってる感は出る
+        // お好みでどうぞ
         require(
             isRegistered(offerId),
             "This offer ID has not been registered."
@@ -93,7 +104,13 @@ contract OfferManager is
 
         _activate(offerId);
         if (offer.takerTokenAddress == address(0)) {
+            // 結局zkSyncでtransferは使えるようになりましたが、
+            // こう言うのは怖いですね。
+            // transferは推奨されていないので、callの方がいいかもしれません
+            // 余裕があれば
             payable(offer.maker).transfer(msg.value);
+            // このタイミングで return true しておくと
+            // elseのインデントが消えるので、シンプルかなと。
         } else {
             require(
                 msg.value == 0,

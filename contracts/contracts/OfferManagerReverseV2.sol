@@ -51,6 +51,7 @@ contract OfferManagerReverseV2 is OfferManagerReverse {
 
         // The maker transfers token to taker.
         if (offer.takerTokenAddress == address(0)) {
+            // ここも、余裕があればcallに
             payable(offer.maker).transfer(offer.takerAmount);
         } else {
             bool success = IERC20(offer.takerTokenAddress).transfer(

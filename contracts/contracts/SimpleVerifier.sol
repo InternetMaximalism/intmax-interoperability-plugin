@@ -51,6 +51,7 @@ contract SimpleVerifier is VerifierInterface, OwnableUpgradeable {
         require(recipient == signedRecipient, "Not same recipient");
 
         // Compare each asset in the `assets` with its corresponding asset in the `witness`.
+        // assetsの数によっては計算量が大きくなるので、lengthチェック入れておく？
         for (uint256 i = 0; i < assets.length; i++) {
             require(
                 assets[i].tokenAddress == signedAssets[i].tokenAddress,

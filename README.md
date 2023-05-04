@@ -1,4 +1,4 @@
-# IntMax interoperability plugin
+# INTMAX interoperability plugin
 
 ## Concept
 

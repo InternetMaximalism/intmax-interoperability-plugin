@@ -65,8 +65,9 @@ These names are also used in the following description.
 ### Network Index
 
 The network index is the following:
-- Scroll Alpha: 0x0000000000000000000000000000000000000000000000000000000000000001
-- Polygon ZKEVM Test: 0x0000000000000000000000000000000000000000000000000000000000000002
+
+- Scroll Alpha: 0x0000000000000001
+- Polygon ZKEVM Test: 0x0000000000000002
 
 ### Transaction Witness
 
@@ -79,8 +80,10 @@ intmax account transaction-proof <tx-hash> <receiver-intmax-address>
 ### Offer Manager (Pattern 1)
 
 1. Mike sends the token A to the address `networkIndex` on INTMAX.
+   `intmax tx send --amount 1 -i 0x00 --receiver-address <network-index>`
+
 2. Mike calculates witness that he sent the transaction:
-`intmax account transaction-proof <tx-hash> <network-index>`
+   `intmax account transaction-proof <tx-hash> <network-index>`
 
 3. Mike registers a new offer and declares that he will transfer his burned assets to the account that has transferred ETH to him.
 4. Tom accepts the offer and transfers the ETH to Mike.
@@ -90,6 +93,7 @@ intmax account transaction-proof <tx-hash> <receiver-intmax-address>
 
 This function registers a new offer.
 It requires:
+
 - `takerTokenAddress` must be a valid address.
 - `takerIntmax` must not be zero.
 - The caller must not be a zero address.
@@ -117,6 +121,7 @@ This function activates an offer by transferring the taker's asset to the maker 
 `offerId` is the ID of the offer to activate.
 It Returns a boolean indicating whether the offer is successfully activated.
 This function requires:
+
 - The offer must exist.
 - The offer must not be already activated.
 - Only the taker can activate it.
@@ -135,7 +140,7 @@ require(success, "fail to activate offer");
 1. Tom locks his ETH and registers the offer. This declares that he will transfer the locked assets to the account that has transferred the specified token on INTMAX to him.
 2. Mike transfers the tokens on INTMAX to Tom.
 3. Mike calculates witness that he sent the transaction:
-`intmax account transaction-proof <tx-hash> <tom-intmax-address>`
+   `intmax account transaction-proof <tx-hash> <tom-intmax-address>`
 
 4. Mike accepts the offer.
 5. Mike can receive Tom's ETH.
@@ -145,6 +150,7 @@ require(success, "fail to activate offer");
 Locks the taker's funds and creates a new offer to exchange them for the maker's asset on INTMAX.
 ATTENTION: This offer cannot be cancelled.
 This function requires:
+
 - The taker must not be the zero address.
 - The offer ID must not be already registered.
 - The maker's offer amount must be less than or equal to MAX_REMITTANCE_AMOUNT.
@@ -165,6 +171,7 @@ uint256 offerId = offerManagerReverse.register(
 
 This function accepts an offer and transfers the taker's asset to the maker.
 This function requires:
+
 - The offer must exist.
 - The offer must not be already activated.
 - Only the maker can activate the offer.

@@ -66,10 +66,8 @@ These names are also used in the following description.
 
 The network index is the following:
 
-- Scroll Alpha:
-  0x0000000000000001
-- Polygon ZKEVM Test:
-  0x0000000000000002
+- Scroll Alpha: 0x0000000000000001
+- Polygon ZKEVM Test: 0x0000000000000002
 
 ### Transaction Witness
 

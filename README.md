@@ -73,13 +73,15 @@ The network index is the following:
 You can calculate the witness that you sent the transaction:
 
 ```sh
-intmax account transaction-proof <tx-hash> <tom-intmax-address>
+intmax account transaction-proof <tx-hash> <receiver-intmax-address>
 ```
 
 ### Offer Manager (Pattern 1)
 
 1. Mike sends the token A to the address `networkIndex` on INTMAX.
-2. Mike calculates witness that he sent the transaction.
+2. Mike calculates witness that he sent the transaction:
+`intmax account transaction-proof <tx-hash> <network-index>`
+
 3. Mike registers a new offer and declares that he will transfer his burned assets to the account that has transferred ETH to him.
 4. Tom accepts the offer and transfers the ETH to Mike.
 5. Tom can merge the assets transferred from Mike on INTMAX.
@@ -132,7 +134,9 @@ require(success, "fail to activate offer");
 
 1. Tom locks his ETH and registers the offer. This declares that he will transfer the locked assets to the account that has transferred the specified token on INTMAX to him.
 2. Mike transfers the tokens on INTMAX to Tom.
-3. Mike calculates witness that he sent the transaction.
+3. Mike calculates witness that he sent the transaction:
+`intmax account transaction-proof <tx-hash> <tom-intmax-address>`
+
 4. Mike accepts the offer.
 5. Mike can receive Tom's ETH.
 

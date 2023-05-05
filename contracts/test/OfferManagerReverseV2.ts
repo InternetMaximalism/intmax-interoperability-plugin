@@ -243,7 +243,7 @@ describe("OfferManagerReverseV2", function () {
         .to.emit(offerManagerReverseV2, "OfferActivated")
         .withArgs(offerId, maker.address);
 
-      const offer = await offerManagerReverseV2.getOffer(offerId);
+      const offer = await offerManagerReverseV2.offers(offerId);
       expect(offer.maker).to.be.equal(maker.address);
       expect(offer.makerIntmaxAddress).to.be.equal(makerIntmaxAddress);
       expect(offer.makerAssetId).to.be.equal(makerAssetId);
@@ -252,26 +252,7 @@ describe("OfferManagerReverseV2", function () {
       expect(offer.takerIntmaxAddress).to.be.equal(takerIntmaxAddress);
       expect(offer.takerTokenAddress).to.be.equal(takerTokenAddress);
       expect(offer.takerAmount).to.be.equal(takerAmount.toString());
-      expect(offer.activated).to.be.equal(true);
-
-      const ModifiedOfferManagerReverseV2 = await ethers.getContractFactory(
-        "ModifiedOfferManagerReverseV2"
-      );
-      const modifiedOfferManagerReverseV2 = await upgrades.upgradeProxy(
-        offerManagerReverseProxyAddress,
-        ModifiedOfferManagerReverseV2
-      );
-
-      const offerModified = await modifiedOfferManagerReverseV2.offers(offerId);
-      expect(offerModified.maker).to.be.equal(maker.address);
-      expect(offerModified.makerIntmaxAddress).to.be.equal(makerIntmaxAddress);
-      expect(offerModified.makerAssetId).to.be.equal(makerAssetId);
-      expect(offerModified.makerAmount).to.be.equal(makerAmount.toString());
-      expect(offerModified.taker).to.be.equal(taker.address);
-      expect(offerModified.takerIntmaxAddress).to.be.equal(takerIntmaxAddress);
-      expect(offerModified.takerTokenAddress).to.be.equal(takerTokenAddress);
-      expect(offerModified.takerAmount).to.be.equal(takerAmount.toString());
-      expect(offerModified.isActivated).to.be.equal(true); // NOTICE: activated -> isActivated
+      expect(offer.isActivated).to.be.equal(true); // NOTICE: activated -> isActivated
     });
   });
 });

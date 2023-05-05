@@ -50,15 +50,18 @@ contract OfferManagerReverseV2 is OfferManagerReverse {
         _activate(offerId);
 
         // The maker transfers token to taker.
+        bool ok;
         if (offer.takerTokenAddress == address(0)) {
-            payable(offer.maker).transfer(offer.takerAmount);
-        } else {
-            bool success = IERC20(offer.takerTokenAddress).transfer(
-                offer.maker,
-                offer.takerAmount
-            );
-            require(success, "fail to transfer ERC20 token");
+            (ok, ) = payable(offer.maker).call{value: offer.takerAmount}("");
+            require(ok, "fail to transfer ETH");
+            return true;
         }
+
+        ok = IERC20(offer.takerTokenAddress).transfer(
+            offer.maker,
+            offer.takerAmount
+        );
+        require(ok, "fail to transfer ERC20 token");
 
         return true;
     }

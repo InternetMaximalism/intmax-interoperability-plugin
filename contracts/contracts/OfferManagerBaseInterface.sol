@@ -28,6 +28,11 @@ interface OfferManagerBaseInterface {
 
     function nextOfferId() external view returns (uint256);
 
+    function offers(uint256 offerId) external view returns (Offer memory);
+
+    /**
+     * DEPRECATED: Please use offers(uint256) instead.
+     */
     function getOffer(
         uint256 offerId
     )

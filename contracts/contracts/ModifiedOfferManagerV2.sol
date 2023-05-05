@@ -7,7 +7,7 @@ import "./OfferManagerV2Interface.sol";
 import "./utils/MerkleTree.sol";
 import "./VerifierInterface.sol";
 
-contract OfferManagerV2 is
+contract ModifiedOfferManagerV2 is
     OfferManagerV2Interface,
     OfferManager,
     OwnableUpgradeable
@@ -97,6 +97,105 @@ contract OfferManagerV2 is
 
         return offerId;
     }
+
+    function activate(
+        uint256 offerId
+    )
+        external
+        payable
+        override(OfferManagerInterface, OfferManager)
+        returns (bool)
+    {
+        address taker = _offers[offerId].taker;
+        if (taker != address(0)) {
+            require(
+                _msgSender() == taker,
+                "offers can be activated by its taker"
+            );
+        }
+
+        Offer memory offer = _offers[offerId];
+
+        _activate(offerId);
+
+        // The taker transfers his asset to maker.
+        // NOTICE: If ETH is transferred in excess, it is received as is, but non-ETH cannot be transferred in excess.
+        // The reason for receiving the excess remitted as it is is because it helps with
+        // the implementation of the auction. However, it is not good for the behaviour to be different,
+        // so we would like to refund the excess amount in the case of ETH as well
+        // (while retaining the possibility of implementing auctions).
+        bool ok;
+        if (offer.takerTokenAddress == address(0)) {
+            require(
+                msg.value >= offer.takerAmount,
+                "please send enough money to activate"
+            );
+            (ok, ) = payable(offer.maker).call{value: msg.value}("");
+            require(ok, "fail to transfer ETH");
+            return true;
+        }
+
+        require(
+            msg.value == 0,
+            "transmission method other than ETH is specified"
+        );
+        ok = IERC20(offer.takerTokenAddress).transferFrom(
+            _msgSender(),
+            offer.maker,
+            offer.takerAmount
+        );
+        require(ok, "fail to transfer ERC20 token");
+
+        return true;
+    }
+
+    // function activate(
+    //     uint256 offerId,
+    //     uint256 newTakerAmount
+    // ) external payable returns (bool) {
+    //     address taker = _offers[offerId].taker;
+    //     if (taker != address(0)) {
+    //         require(
+    //             _msgSender() == taker,
+    //             "offers can be activated by its taker"
+    //         );
+    //     }
+
+    //     // Check taker amount
+    //     require(
+    //         newTakerAmount >= offer.takerAmount,
+    //         "please send enough money to activate"
+    //     );
+
+    //     Offer memory offer = _offers[offerId];
+
+    //     _activate(offerId);
+
+    //     // The taker transfers his asset to maker.
+    //     bool ok;
+    //     if (offer.takerTokenAddress == address(0)) {
+    //         require(
+    //             msg.value == newTakerAmount,
+    //             "msg.value should be equal to newTakerAmount"
+    //         );
+    //         (ok, ) = payable(offer.maker).call{value: msg.value}("");
+    //         require(ok, "fail to transfer ETH");
+    //         return true;
+    //     }
+
+    //     require(
+    //         msg.value == 0,
+    //         "transmission method other than ETH is specified"
+    //     );
+    //     ok = IERC20(offer.takerTokenAddress).transferFrom(
+    //         _msgSender(),
+    //         offer.maker,
+    //         newTakerAmount
+    //     );
+    //     require(ok, "fail to transfer ERC20 token");
+
+    //     return true;
+    // }
 
     function checkWitness(
         uint256 offerId,

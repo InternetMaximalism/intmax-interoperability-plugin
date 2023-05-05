@@ -22,6 +22,10 @@ abstract contract OfferManagerBase is OfferManagerBaseInterface {
      */
     mapping(uint256 => Offer) _offers;
 
+    function offers(uint256 offerId) external view returns (Offer memory) {
+        return _offers[offerId];
+    }
+
     function getOffer(
         uint256 offerId
     )

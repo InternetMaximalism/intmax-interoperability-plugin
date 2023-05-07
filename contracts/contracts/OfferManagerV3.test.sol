@@ -1,7 +1,46 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import "./OfferManagerV2.sol";
+import "./OfferManagerV3.sol";
 import "./OfferManagerV2.test.sol";
 
-contract OfferManagerV3Test is OfferManagerV2, OfferManagerV2Test {}
+contract OfferManagerV3Test is OfferManagerV3 {
+    constructor() {
+        initialize();
+    }
+
+    /**
+     * @dev This function registers a new offer.
+     */
+    function testRegister(
+        bytes32 makerIntmaxAddress,
+        uint256 makerAssetId,
+        uint256 makerAmount,
+        address taker,
+        bytes32 takerIntmaxAddress,
+        address takerTokenAddress,
+        uint256 takerAmount
+    ) external returns (uint256 flagId) {
+        return
+            _register(
+                _msgSender(),
+                makerIntmaxAddress,
+                makerAssetId,
+                makerAmount,
+                taker,
+                takerIntmaxAddress,
+                takerTokenAddress,
+                takerAmount
+            );
+    }
+
+    /**
+     * @dev This test function can activate the flag without actually making the transfer.
+     * @param offerId is the ID of the offer.
+     */
+    function testActivate(uint256 offerId) external returns (bool) {
+        _activate(offerId);
+
+        return true;
+    }
+}

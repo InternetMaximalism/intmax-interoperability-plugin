@@ -1,15 +1,18 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./OfferManagerV2.sol";
-import "./utils/MerkleTree.sol";
-import "./VerifierInterface.sol";
+import "hardhat/console.sol";
 
 contract OfferManagerV3 is OfferManagerV2 {
-    // function initialize() public override {
-    //     OfferManagerV2.initialize();
-    // }
+    mapping(address => bool) public tokenAllowList;
+
+    /**
+     * @dev Emitted when `token` is updated to `isAllowed`.
+     * @param token is the address of token.
+     */
+    event TokenAllowListUpdated(address indexed token, bool isAllowed);
 
     function register(
         bytes32 makerIntmaxAddress,
@@ -21,10 +24,12 @@ contract OfferManagerV3 is OfferManagerV2 {
         uint256 takerAmount,
         bytes memory witness
     ) external override returns (uint256 offerId) {
-        // Check if given `takerTokenAddress` is either ETH or ERC20.
-        if (takerTokenAddress != address(0)) {
-            _checkErc20(takerTokenAddress);
-        }
+        // Check if given `takerTokenAddress` is either ETH (= zero address) or ERC20.
+        require(
+            takerTokenAddress == address(0) ||
+                tokenAllowList[takerTokenAddress],
+            "the taker's token address is neither ETH nor ERC20"
+        );
 
         offerId = _register(
             _msgSender(), // maker
@@ -56,8 +61,37 @@ contract OfferManagerV3 is OfferManagerV2 {
         return offerId;
     }
 
-    function _checkErc20(address tokenAddress) internal view {
-        uint256 totalSupply = IERC20(tokenAddress).totalSupply();
-        require(totalSupply != 0, "the total supply of ERC20 must not be zero");
+    function addTokenAddressToAllowList(
+        address[] calldata tokens
+    ) external onlyOwner {
+        for (uint256 i = 0; i < tokens.length; i++) {
+            _addTokenAddressToAllowList(tokens[i]);
+        }
+    }
+
+    function removeTokenAddressFromAllowList(
+        address[] calldata tokens
+    ) external onlyOwner {
+        for (uint256 i = 0; i < tokens.length; i++) {
+            _removeTokenAddressFromAllowList(tokens[i]);
+        }
+    }
+
+    /**
+     * @dev Adds `token` to the allow list.
+     * @param token is the address of token.
+     */
+    function _addTokenAddressToAllowList(address token) internal {
+        tokenAllowList[token] = true;
+        emit TokenAllowListUpdated(token, true);
+    }
+
+    /**
+     * @dev Removes `token` from the allow list.
+     * @param token is the address of token.
+     */
+    function _removeTokenAddressFromAllowList(address token) internal {
+        tokenAllowList[token] = false;
+        emit TokenAllowListUpdated(token, false);
     }
 }

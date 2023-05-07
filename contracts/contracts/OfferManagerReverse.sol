@@ -228,12 +228,7 @@ contract OfferManagerReverse is
         Offer memory offer,
         bytes memory witness
     ) internal view virtual {
-        // The recovered signer from the signature must be the same as the owner address.
-        // bytes32 hashedMessage = ECDSA.toEthSignedMessageHash(
-        //     offer.takerIntmaxAddress
-        // );
-        // address signer = ECDSA.recover(hashedMessage, witness);
-        // require(signer == owner(), "Fail to verify signature.");
+        // This version does not check anything.
     }
 
     /**

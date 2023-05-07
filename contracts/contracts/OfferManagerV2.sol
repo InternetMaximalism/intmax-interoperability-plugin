@@ -102,6 +102,7 @@ contract OfferManagerV2 is
     )
         external
         payable
+        virtual
         override(OfferManagerInterface, OfferManager)
         returns (bool ok)
     {

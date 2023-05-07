@@ -1,10 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "./OfferManagerReverseV2.sol";
 import "./utils/TokenAllowList.sol";
 
 contract OfferManagerReverseV3 is OfferManagerReverseV2, TokenAllowList {
+    using SafeERC20Upgradeable for IERC20Upgradeable;
+
     function register(
         bytes32 takerIntmaxAddress,
         address takerTokenAddress,
@@ -32,12 +36,11 @@ contract OfferManagerReverseV3 is OfferManagerReverseV2, TokenAllowList {
                 msg.value == 0,
                 "transmission method other than ETH is specified"
             );
-            bool success = IERC20(takerTokenAddress).transferFrom(
+            IERC20Upgradeable(takerTokenAddress).safeTransferFrom(
                 _msgSender(),
                 address(this),
                 takerAmount
             );
-            require(success, "fail to transfer ERC20 token");
         }
 
         return
@@ -56,7 +59,7 @@ contract OfferManagerReverseV3 is OfferManagerReverseV2, TokenAllowList {
     function activate(
         uint256 offerId,
         bytes calldata witness
-    ) external override returns (bool) {
+    ) external override returns (bool ok) {
         Offer memory offer = _offers[offerId];
 
         // address makerIntmaxAddress = _offers[offerId].makerIntmaxAddress;
@@ -77,18 +80,16 @@ contract OfferManagerReverseV3 is OfferManagerReverseV2, TokenAllowList {
         _activate(offerId);
 
         // The maker transfers token to taker.
-        bool ok;
         if (offer.takerTokenAddress == address(0)) {
             (ok, ) = payable(offer.maker).call{value: offer.takerAmount}("");
             require(ok, "fail to transfer ETH");
             return true;
         }
 
-        ok = IERC20(offer.takerTokenAddress).transfer(
+        IERC20Upgradeable(offer.takerTokenAddress).safeTransfer(
             offer.maker,
             offer.takerAmount
         );
-        require(ok, "fail to transfer ERC20 token");
 
         return true;
     }

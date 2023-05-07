@@ -115,10 +115,8 @@ describe("OfferManagerReverseV2", function () {
 
       const takerTokenAddress = ZERO_ADDRESS;
 
-      // Call the register function on the offer manager contract.
-      // Verify that the transaction was successful.
-      await expect(
-        offerManagerReverse
+      {
+        const tx = offerManagerReverse
           .connect(taker)
           .register(
             takerIntmaxAddress,
@@ -128,8 +126,10 @@ describe("OfferManagerReverseV2", function () {
             makerAssetId,
             makerAmount,
             { value: takerAmount }
-          )
-      ).not.to.be.reverted;
+          );
+        await expect(tx).to.emit(offerManagerReverse, "OfferRegistered");
+        await expect(tx).to.changeEtherBalance(taker, takerAmount.mul(-1));
+      }
     });
   });
 
@@ -164,11 +164,15 @@ describe("OfferManagerReverseV2", function () {
 
       const witness = await calcWitness(owner);
 
-      await expect(
-        offerManagerReverse.connect(maker).activate(offerId, witness)
-      )
-        .to.emit(offerManagerReverse, "OfferActivated")
-        .withArgs(offerId, maker.address);
+      {
+        const tx = offerManagerReverse
+          .connect(maker)
+          .activate(offerId, witness);
+        await expect(tx)
+          .to.emit(offerManagerReverse, "OfferActivated")
+          .withArgs(offerId, maker.address);
+        await expect(tx).to.changeEtherBalance(maker, takerAmount);
+      }
     });
 
     it("Should not activate an offer with already used witness", async function () {
@@ -248,8 +252,8 @@ describe("OfferManagerReverseV2", function () {
         .connect(owner)
         .addTokenAddressToAllowList([testToken.address]);
 
-      expect(
-        offerManagerReverse
+      {
+        const tx = offerManagerReverse
           .connect(taker)
           .register(
             takerIntmaxAddress,
@@ -258,8 +262,14 @@ describe("OfferManagerReverseV2", function () {
             maker.address,
             makerAssetId,
             makerAmount
-          )
-      ).to.emit(offerManagerReverse, "OfferRegistered");
+          );
+        await expect(tx).to.emit(offerManagerReverse, "OfferRegistered");
+        await expect(tx).to.changeTokenBalance(
+          testToken,
+          taker,
+          takerAmount.mul(-1)
+        );
+      }
 
       await offerManagerReverse
         .connect(owner)
@@ -316,11 +326,15 @@ describe("OfferManagerReverseV2", function () {
 
       const witness = await calcWitness(owner);
 
-      await expect(
-        offerManagerReverse.connect(maker).activate(offerId, witness)
-      )
-        .to.emit(offerManagerReverse, "OfferActivated")
-        .withArgs(offerId, maker.address);
+      {
+        const tx = offerManagerReverse
+          .connect(maker)
+          .activate(offerId, witness);
+        await expect(tx)
+          .to.emit(offerManagerReverse, "OfferActivated")
+          .withArgs(offerId, maker.address);
+        await expect(tx).to.changeTokenBalance(testToken, maker, takerAmount);
+      }
     });
   });
 

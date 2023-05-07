@@ -263,11 +263,18 @@ describe("OfferManagerV2", function () {
 
       const offerId = 0;
 
-      await expect(
-        offerManager.connect(taker).activate(offerId, { value: takerAmount })
-      )
-        .to.emit(offerManager, "OfferActivated")
-        .withArgs(offerId, takerIntmaxAddress);
+      {
+        const tx = offerManager
+          .connect(taker)
+          .activate(offerId, { value: takerAmount });
+        await expect(tx)
+          .to.emit(offerManager, "OfferActivated")
+          .withArgs(offerId, takerIntmaxAddress);
+        await expect(tx).to.changeEtherBalances(
+          [maker, taker],
+          [takerAmount, takerAmount.mul(-1)]
+        );
+      }
     });
   });
 
@@ -419,10 +426,10 @@ describe("OfferManagerV2", function () {
         await expect(tx)
           .to.emit(offerManager, "OfferActivated")
           .withArgs(offerId, takerIntmaxAddress);
-        await expect(tx).to.changeTokenBalance(
+        await expect(tx).to.changeTokenBalances(
           testToken,
-          taker,
-          takerAmount.mul(-1)
+          [maker, taker],
+          [takerAmount, takerAmount.mul(-1)]
         );
       }
     });

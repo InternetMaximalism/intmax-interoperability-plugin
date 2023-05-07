@@ -21,7 +21,6 @@ contract OfferManagerV2 is
     }
 
     function initializeV2(address newOwner) public reinitializer(2) {
-        // NOTICE: Using `__Ownable_init()` sets the proxyAdmin as owner.
         _transferOwnership(newOwner);
     }
 

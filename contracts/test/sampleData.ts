@@ -1,4 +1,4 @@
-export const sampleWitness = (() => {
+export const calcSampleWitness = () => {
   const diffTreeInclusionProof = {
     index: 0,
     value: "0x773dd5bf1bf7e274f11ea9c1b5fd7f6dadcc93cb50f8520f325c649d73686388",
@@ -57,7 +57,9 @@ export const sampleWitness = (() => {
     nonce,
     recipientMerkleSiblings,
   };
-})();
+};
+
+export const sampleWitness = calcSampleWitness();
 
 // MerkleTreeInterface.MerkleProof
 export const merkleProofStructType =

@@ -16,7 +16,7 @@ contract OfferManagerReverseV2 is OfferManagerReverse {
     function activate(
         uint256 offerId,
         bytes calldata witness
-    ) external override returns (bool) {
+    ) external virtual override returns (bool) {
         Offer memory offer = _offers[offerId];
 
         // address makerIntmaxAddress = _offers[offerId].makerIntmaxAddress;

@@ -19,7 +19,7 @@ contract OfferManagerReverseV2Test is OfferManagerReverseV2 {
         bytes32 makerIntmaxAddress,
         uint256 makerAssetId,
         uint256 makerAmount
-    ) external returns (uint256 flagId) {
+    ) external returns (uint256 offerId) {
         return
             _register(
                 _msgSender(),
@@ -34,7 +34,7 @@ contract OfferManagerReverseV2Test is OfferManagerReverseV2 {
     }
 
     /**
-     * @dev This test function can activate the flag without actually making the transfer.
+     * @dev This test function can activate the offer without actually making the transfer.
      * @param offerId is the ID of the offer.
      */
     function testActivate(uint256 offerId) external returns (bool) {

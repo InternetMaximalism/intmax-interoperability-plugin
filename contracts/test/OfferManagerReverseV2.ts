@@ -243,7 +243,7 @@ describe("OfferManagerReverseV2", function () {
         .to.emit(offerManagerReverseV2, "OfferActivated")
         .withArgs(offerId, maker.address);
 
-      const offer = await offerManagerReverseV2.getOffer(offerId);
+      const offer = await offerManagerReverseV2.offers(offerId);
       expect(offer.maker).to.be.equal(maker.address);
       expect(offer.makerIntmaxAddress).to.be.equal(makerIntmaxAddress);
       expect(offer.makerAssetId).to.be.equal(makerAssetId);
@@ -252,7 +252,7 @@ describe("OfferManagerReverseV2", function () {
       expect(offer.takerIntmaxAddress).to.be.equal(takerIntmaxAddress);
       expect(offer.takerTokenAddress).to.be.equal(takerTokenAddress);
       expect(offer.takerAmount).to.be.equal(takerAmount.toString());
-      expect(offer.activated).to.be.equal(true);
+      expect(offer.isActivated).to.be.equal(true); // NOTICE: activated -> isActivated
     });
   });
 });

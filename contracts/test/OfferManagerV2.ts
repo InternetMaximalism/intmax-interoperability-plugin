@@ -7,6 +7,7 @@ import {
   merkleProofStructType,
   sampleWitness,
 } from "./sampleData";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 const REGISTER_FUNC_V2 =
   "register(bytes32,uint256,uint256,address,bytes32,address,uint256,bytes)";
@@ -42,6 +43,44 @@ describe("OfferManagerV2", function () {
     takerAmount: ethers.utils.parseEther("0.0001"),
   };
 
+  const calcWitness = async (owner: SignerWithAddress) => {
+    const { diffTreeInclusionProof, blockHeader, recipient } = sampleWitness;
+
+    const { makerAssetId, makerAmount } = sampleOffer;
+
+    const asset = {
+      tokenAddress: makerAssetId,
+      tokenId: 0,
+      amount: makerAmount,
+    };
+    const abiEncoder = new ethers.utils.AbiCoder();
+    const message = abiEncoder.encode(
+      [
+        `${assetStructType}[]`,
+        "bytes32",
+        merkleProofStructType,
+        blockHeaderStructType,
+      ],
+      [[asset], recipient, diffTreeInclusionProof, blockHeader]
+    );
+
+    const messageBytes = Buffer.from(message.slice(2), "hex");
+    const signature = await owner.signMessage(messageBytes);
+
+    const witness = abiEncoder.encode(
+      [
+        `${assetStructType}[]`,
+        "bytes32",
+        merkleProofStructType,
+        blockHeaderStructType,
+        "bytes",
+      ],
+      [[asset], recipient, diffTreeInclusionProof, blockHeader, signature]
+    );
+
+    return witness;
+  };
+
   describe("Deployment", function () {
     it("Should return the valid next offer ID", async function () {
       const { offerManager } = await loadFixture(deployOfferManager);
@@ -56,8 +95,6 @@ describe("OfferManagerV2", function () {
         deployOfferManager
       );
 
-      const { diffTreeInclusionProof, blockHeader, recipient } = sampleWitness;
-
       const {
         makerIntmaxAddress,
         makerAssetId,
@@ -67,35 +104,7 @@ describe("OfferManagerV2", function () {
         takerAmount,
       } = sampleOffer;
 
-      const asset = {
-        tokenAddress: makerAssetId,
-        tokenId: 0,
-        amount: makerAmount,
-      };
-      const abiEncoder = new ethers.utils.AbiCoder();
-      const message = abiEncoder.encode(
-        [
-          `${assetStructType}[]`,
-          "bytes32",
-          merkleProofStructType,
-          blockHeaderStructType,
-        ],
-        [[asset], recipient, diffTreeInclusionProof, blockHeader]
-      );
-
-      const messageBytes = Buffer.from(message.slice(2), "hex");
-      const signature = await owner.signMessage(messageBytes);
-
-      const witness = abiEncoder.encode(
-        [
-          `${assetStructType}[]`,
-          "bytes32",
-          merkleProofStructType,
-          blockHeaderStructType,
-          "bytes",
-        ],
-        [[asset], recipient, diffTreeInclusionProof, blockHeader, signature]
-      );
+      const witness = calcWitness(owner);
 
       const offerId = 0;
 
@@ -224,8 +233,6 @@ describe("OfferManagerV2", function () {
           takerAmount
         );
 
-      const offerId = 0;
-
       const { recipient } = sampleWitness;
       const networkIndex = recipient;
 
@@ -243,17 +250,15 @@ describe("OfferManagerV2", function () {
           },
         }
       );
-      console.log("start changeVerifier()");
       await offerManagerV2.connect(owner).changeVerifier(verifier.address);
-      console.log("end changeVerifier()");
 
       await expect(
-        offerManagerV2.connect(taker).activate(offerId, { value: takerAmount })
+        offerManagerV2.connect(taker).activate(0, { value: takerAmount })
       )
         .to.emit(offerManagerV2, "OfferActivated")
-        .withArgs(offerId, takerIntmaxAddress);
+        .withArgs(0, takerIntmaxAddress);
 
-      const offer = await offerManagerV2.getOffer(offerId);
+      const offer = await offerManagerV2.offers(0);
       expect(offer.maker).to.be.equal(maker.address);
       expect(offer.makerIntmaxAddress).to.be.equal(makerIntmaxAddress);
       expect(offer.makerAssetId).to.be.equal(makerAssetId);
@@ -262,7 +267,7 @@ describe("OfferManagerV2", function () {
       expect(offer.takerIntmaxAddress).to.be.equal(takerIntmaxAddress);
       expect(offer.takerTokenAddress).to.be.equal(takerTokenAddress);
       expect(offer.takerAmount).to.be.equal(takerAmount.toString());
-      expect(offer.activated).to.be.equal(true);
+      expect(offer.isActivated).to.be.equal(true); // activated -> isActivated
     });
   });
 });

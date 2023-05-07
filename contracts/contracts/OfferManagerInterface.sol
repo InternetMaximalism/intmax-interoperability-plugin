@@ -3,7 +3,7 @@ pragma solidity 0.8.17;
 
 import "./OfferManagerBaseInterface.sol";
 
-interface OfferManagerInterface {
+interface OfferManagerInterface is OfferManagerBaseInterface {
     /**
      * @notice This event occurs when certain offers are registered.
      * @param offerId is the ID of the offer.

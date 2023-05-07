@@ -98,6 +98,48 @@ contract OfferManagerV2 is
         return offerId;
     }
 
+    function activate(
+        uint256 offerId
+    )
+        external
+        payable
+        override(OfferManagerInterface, OfferManager)
+        returns (bool ok)
+    {
+        Offer storage offer = _offers[offerId];
+        address taker = offer.taker;
+        require(
+            taker == address(0) || taker == _msgSender(),
+            "offers can be activated by its taker"
+        );
+
+        // This part prevents re-entrancy attack (check and effect `offer.isActivated`).
+        _activate(offerId);
+
+        // The taker transfers his asset to maker.
+        if (offer.takerTokenAddress == address(0)) {
+            require(
+                msg.value == offer.takerAmount,
+                "please send just the amount needed to activate"
+            );
+            (ok, ) = payable(offer.maker).call{value: msg.value}("");
+            require(ok, "fail to transfer ETH");
+            return true;
+        }
+
+        // NOTICE: When the taker transfers ERC20 token to the maker,
+        // the taker must approve the offer manager to transfer the token.
+        require(msg.value == 0, "transmission method is not ETH");
+        ok = IERC20(offer.takerTokenAddress).transferFrom(
+            _msgSender(),
+            offer.maker,
+            offer.takerAmount
+        );
+        require(ok, "fail to transfer ERC20 token");
+
+        return true;
+    }
+
     function checkWitness(
         uint256 offerId,
         bytes calldata witness
@@ -135,7 +177,7 @@ contract OfferManagerV2 is
         require(ok, "Fail to verify assets");
     }
 
-    function _deactivate(uint256 offerId) internal {
+    function _deactivate(uint256 offerId) internal override {
         _markOfferAsActivated(offerId);
         emit OfferActivated(offerId, _offers[offerId].makerIntmaxAddress);
     }

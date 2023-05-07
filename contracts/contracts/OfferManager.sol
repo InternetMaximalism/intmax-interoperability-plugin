@@ -74,7 +74,7 @@ contract OfferManager is
         emit OfferTakerUpdated(offerId, newTakerIntmaxAddress);
     }
 
-    function activate(uint256 offerId) external payable returns (bool) {
+    function activate(uint256 offerId) external payable virtual returns (bool) {
         address taker = _offers[offerId].taker;
         if (taker != address(0)) {
             require(
@@ -172,7 +172,7 @@ contract OfferManager is
     }
 
     /**
-     * @dev Marks the offer as activated.
+     * @dev This function marks the offer as activated.
      * @param offerId is the ID of the offer.
      */
     function _markOfferAsActivated(uint256 offerId) internal {

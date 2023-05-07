@@ -58,7 +58,7 @@ contract OfferManagerV2 is
         address takerTokenAddress,
         uint256 takerAmount,
         bytes memory witness
-    ) external returns (uint256 offerId) {
+    ) external virtual returns (uint256 offerId) {
         // Check if given `takerTokenAddress` is either ETH or ERC20.
         if (takerTokenAddress != address(0)) {
             uint256 totalSupply = IERC20(takerTokenAddress).totalSupply();

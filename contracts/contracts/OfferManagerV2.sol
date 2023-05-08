@@ -2,6 +2,8 @@
 pragma solidity 0.8.17;
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "./OfferManager.sol";
 import "./OfferManagerV2Interface.sol";
 import "./utils/MerkleTree.sol";
@@ -12,8 +14,17 @@ contract OfferManagerV2 is
     OfferManager,
     OwnableUpgradeable
 {
+    using SafeERC20Upgradeable for IERC20Upgradeable;
+
     VerifierInterface verifier;
     mapping(bytes32 => bool) public usedTxHashes;
+    mapping(address => bool) public tokenAllowList;
+
+    /**
+     * @dev Emitted when `token` is updated to `isAllowed`.
+     * @param token is the address of token.
+     */
+    event TokenAllowListUpdated(address indexed token, bool isAllowed);
 
     function initialize() public override {
         OfferManager.initialize();
@@ -57,15 +68,12 @@ contract OfferManagerV2 is
         address takerTokenAddress,
         uint256 takerAmount,
         bytes memory witness
-    ) external virtual returns (uint256 offerId) {
-        // Check if given `takerTokenAddress` is either ETH or ERC20.
-        if (takerTokenAddress != address(0)) {
-            uint256 totalSupply = IERC20(takerTokenAddress).totalSupply();
-            require(
-                totalSupply != 0,
-                "the total supply of ERC20 must not be zero"
-            );
-        }
+    ) external returns (uint256 offerId) {
+        // Check if given `takerTokenAddress` is in the token allow list.
+        require(
+            tokenAllowList[takerTokenAddress],
+            "the taker's token address is not in the token allow list"
+        );
 
         offerId = _register(
             _msgSender(), // maker
@@ -78,23 +86,7 @@ contract OfferManagerV2 is
             takerAmount
         );
 
-        (, , MerkleTree.MerkleProof memory diffTreeInclusionProof, , ) = abi
-            .decode(
-                witness,
-                (
-                    VerifierInterface.Asset[],
-                    bytes32,
-                    MerkleTreeInterface.MerkleProof,
-                    VerifierInterface.BlockHeader,
-                    bytes
-                )
-            );
-        bytes32 txHash = diffTreeInclusionProof.value;
-        require(!usedTxHashes[txHash], "Given witness already used");
-        _checkWitness(_offers[offerId], witness);
-        usedTxHashes[txHash] = true;
-
-        return offerId;
+        _checkAndNullifyWitness(_offers[offerId], witness);
     }
 
     function activate(
@@ -102,8 +94,7 @@ contract OfferManagerV2 is
     )
         external
         payable
-        virtual
-        override(OfferManagerInterface, OfferManager)
+        override(OfferManager, OfferManagerInterface)
         returns (bool ok)
     {
         Offer storage offer = _offers[offerId];
@@ -130,14 +121,29 @@ contract OfferManagerV2 is
         // NOTICE: When the taker transfers ERC20 token to the maker,
         // the taker must approve the offer manager to transfer the token.
         require(msg.value == 0, "transmission method is not ETH");
-        ok = IERC20(offer.takerTokenAddress).transferFrom(
+        IERC20Upgradeable(offer.takerTokenAddress).safeTransferFrom(
             _msgSender(),
             offer.maker,
             offer.takerAmount
         );
-        require(ok, "fail to transfer ERC20 token");
 
         return true;
+    }
+
+    function addTokenAddressToAllowList(
+        address[] calldata tokens
+    ) external onlyOwner {
+        for (uint256 i = 0; i < tokens.length; i++) {
+            _addTokenAddressToAllowList(tokens[i]);
+        }
+    }
+
+    function removeTokenAddressFromAllowList(
+        address[] calldata tokens
+    ) external onlyOwner {
+        for (uint256 i = 0; i < tokens.length; i++) {
+            _removeTokenAddressFromAllowList(tokens[i]);
+        }
     }
 
     function checkWitness(
@@ -147,6 +153,27 @@ contract OfferManagerV2 is
         _checkWitness(_offers[offerId], witness);
 
         return true;
+    }
+
+    function _checkAndNullifyWitness(
+        Offer storage offer,
+        bytes memory witness
+    ) internal {
+        (, , MerkleTree.MerkleProof memory diffTreeInclusionProof, , ) = abi
+            .decode(
+                witness,
+                (
+                    VerifierInterface.Asset[],
+                    bytes32,
+                    MerkleTreeInterface.MerkleProof,
+                    VerifierInterface.BlockHeader,
+                    bytes
+                )
+            );
+        bytes32 txHash = diffTreeInclusionProof.value;
+        require(!usedTxHashes[txHash], "Given witness already used");
+        _checkWitness(offer, witness);
+        usedTxHashes[txHash] = true;
     }
 
     /**
@@ -180,5 +207,23 @@ contract OfferManagerV2 is
     function _deactivate(uint256 offerId) internal override {
         _markOfferAsActivated(offerId);
         emit OfferActivated(offerId, _offers[offerId].makerIntmaxAddress);
+    }
+
+    /**
+     * @dev Adds `token` to the allow list.
+     * @param token is the address of token.
+     */
+    function _addTokenAddressToAllowList(address token) internal {
+        tokenAllowList[token] = true;
+        emit TokenAllowListUpdated(token, true);
+    }
+
+    /**
+     * @dev Removes `token` from the allow list.
+     * @param token is the address of token.
+     */
+    function _removeTokenAddressFromAllowList(address token) internal {
+        tokenAllowList[token] = false;
+        emit TokenAllowListUpdated(token, false);
     }
 }

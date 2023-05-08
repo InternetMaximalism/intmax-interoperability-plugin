@@ -112,6 +112,72 @@
       ],
       "stateMutability": "view",
       "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "offerId",
+          "type": "uint256"
+        }
+      ],
+      "name": "offers",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "address",
+              "name": "maker",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "makerIntmaxAddress",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "makerAssetId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "makerAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "taker",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "takerIntmaxAddress",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "address",
+              "name": "takerTokenAddress",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "takerAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool",
+              "name": "isActivated",
+              "type": "bool"
+            }
+          ],
+          "internalType": "struct OfferManagerBaseInterface.Offer",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
     }
   ],
   "bytecode": "0x",

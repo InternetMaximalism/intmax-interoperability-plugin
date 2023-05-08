@@ -29,9 +29,7 @@ describe("OfferManagerV2", function () {
     const Verifier = await ethers.getContractFactory("SimpleVerifierTest");
     const verifier = await Verifier.deploy(networkIndex);
 
-    const OfferManager = await ethers.getContractFactory(
-      "ModifiedOfferManagerV2"
-    );
+    const OfferManager = await ethers.getContractFactory("OfferManagerV2");
     const offerManager = await OfferManager.deploy();
     await offerManager.initialize();
     await offerManager.changeVerifier(verifier.address);
@@ -503,58 +501,6 @@ describe("OfferManagerV2", function () {
         expect(offer.takerTokenAddress).to.be.equal(ZERO_ADDRESS);
         expect(offer.takerAmount).to.be.equal(takerAmount.toString());
         expect(offer.isActivated).to.be.equal(true); // activated -> isActivated
-      }
-
-      {
-        const witness = calcWitness(owner);
-        await expect(
-          offerManagerV2
-            .connect(maker)
-            [REGISTER_FUNC_V2](
-              makerIntmaxAddress,
-              makerAssetId,
-              makerAmount,
-              taker.address,
-              takerIntmaxAddress,
-              ZERO_ADDRESS,
-              takerAmount,
-              witness
-            )
-        )
-          .to.emit(offerManagerV2, "OfferTakerUpdated")
-          .withArgs(1, takerIntmaxAddress);
-      }
-
-      const OfferManagerV3 = await ethers.getContractFactory(
-        "ModifiedOfferManagerV2"
-      );
-      const offerManagerV3 = await upgrades.upgradeProxy(
-        offerManagerProxyAddress,
-        OfferManagerV3
-      );
-
-      // NOTICE: The offer registered by the V2 contract can be activated by the V3 contract
-      // even if the token is not in the allow list.
-      // await offerManagerReverseV3.addTokenAddressToAllowList([ZERO_ADDRESS]);
-
-      await expect(
-        offerManagerV3.connect(taker).activate(1, { value: takerAmount })
-      )
-        .to.emit(offerManagerV3, "OfferActivated")
-        .withArgs(1, takerIntmaxAddress);
-
-      {
-        const offer = await offerManagerV3.offers(1);
-        expect(offer.maker).to.be.equal(maker.address);
-        expect(offer.makerIntmaxAddress).to.be.equal(makerIntmaxAddress);
-        expect(offer.makerAssetId).to.be.equal(makerAssetId);
-
-        expect(offer.makerAmount).to.be.equal(makerAmount.toString());
-        expect(offer.taker).to.be.equal(taker.address);
-        expect(offer.takerIntmaxAddress).to.be.equal(takerIntmaxAddress);
-        expect(offer.takerTokenAddress).to.be.equal(ZERO_ADDRESS);
-        expect(offer.takerAmount).to.be.equal(takerAmount.toString());
-        expect(offer.isActivated).to.be.equal(true);
       }
     });
   });

@@ -36,4 +36,10 @@ interface OfferManagerV2Interface is OfferManagerInterface {
         uint256 takerAmount,
         bytes memory witness
     ) external returns (uint256 offerId);
+
+    function addTokenAddressToAllowList(address[] calldata tokens) external;
+
+    function removeTokenAddressFromAllowList(
+        address[] calldata tokens
+    ) external;
 }

@@ -29,8 +29,11 @@ describe("OfferManagerV2", function () {
     const Verifier = await ethers.getContractFactory("SimpleVerifierTest");
     const verifier = await Verifier.deploy(networkIndex);
 
-    const OfferManager = await ethers.getContractFactory("OfferManagerV3Test");
+    const OfferManager = await ethers.getContractFactory(
+      "ModifiedOfferManagerV2"
+    );
     const offerManager = await OfferManager.deploy();
+    await offerManager.initialize();
     await offerManager.changeVerifier(verifier.address);
     await offerManager.addTokenAddressToAllowList([ZERO_ADDRESS]); // Allow ETH
 
@@ -522,7 +525,9 @@ describe("OfferManagerV2", function () {
           .withArgs(1, takerIntmaxAddress);
       }
 
-      const OfferManagerV3 = await ethers.getContractFactory("OfferManagerV3");
+      const OfferManagerV3 = await ethers.getContractFactory(
+        "ModifiedOfferManagerV2"
+      );
       const offerManagerV3 = await upgrades.upgradeProxy(
         offerManagerProxyAddress,
         OfferManagerV3

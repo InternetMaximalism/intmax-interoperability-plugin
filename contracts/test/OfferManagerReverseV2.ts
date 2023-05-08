@@ -28,9 +28,10 @@ describe("OfferManagerReverseV2", function () {
     const verifier = await Verifier.deploy(networkIndex);
 
     const OfferManagerReverse = await ethers.getContractFactory(
-      "OfferManagerReverseV3Test"
+      "ModifiedOfferManagerReverseV2"
     );
     const offerManagerReverse = await OfferManagerReverse.deploy();
+    await offerManagerReverse.initialize();
     await offerManagerReverse.changeVerifier(verifier.address);
     await offerManagerReverse.addTokenAddressToAllowList([ZERO_ADDRESS]);
 
@@ -419,7 +420,7 @@ describe("OfferManagerReverseV2", function () {
         );
 
       const OfferManagerReverseV3 = await ethers.getContractFactory(
-        "OfferManagerReverseV3"
+        "ModifiedOfferManagerReverseV2"
       );
       const offerManagerReverseV3 = await upgrades.upgradeProxy(
         offerManagerReverseProxyAddress,

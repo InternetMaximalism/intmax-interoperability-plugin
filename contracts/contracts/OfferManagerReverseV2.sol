@@ -1,22 +1,95 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.17;
 
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "./OfferManagerReverse.sol";
+import "./OfferManagerReverseV2Interface.sol";
 import "./utils/MerkleTree.sol";
 import "./VerifierInterface.sol";
 
-contract OfferManagerReverseV2 is OfferManagerReverse {
+contract OfferManagerReverseV2 is
+    OfferManagerReverseV2Interface,
+    OfferManagerReverse
+{
+    using SafeERC20Upgradeable for IERC20Upgradeable;
+    using AddressUpgradeable for address payable;
+
     VerifierInterface verifier;
     mapping(bytes32 => bool) public usedTxHashes;
+    mapping(address => bool) public tokenAllowList;
+
+    /**
+     * @dev Emitted when `token` is updated to `isAllowed`.
+     * @param token is the address of token.
+     */
+    event TokenAllowListUpdated(address indexed token, bool isAllowed);
 
     function changeVerifier(VerifierInterface newVerifier) external onlyOwner {
         verifier = newVerifier;
     }
 
+    function register(
+        bytes32 takerIntmaxAddress,
+        address takerTokenAddress,
+        uint256 takerAmount,
+        address maker,
+        uint256 makerAssetId,
+        uint256 makerAmount
+    )
+        external
+        payable
+        override(OfferManagerReverse, OfferManagerReverseInterface)
+        returns (uint256 offerId)
+    {
+        require(_checkMaker(maker), "`maker` must not be zero.");
+
+        // Check if given `takerTokenAddress` is in the token allow list.
+        require(
+            tokenAllowList[takerTokenAddress],
+            "the taker's token address is not in the token allow list"
+        );
+
+        if (takerTokenAddress == address(0)) {
+            require(
+                msg.value == takerAmount,
+                "takerAmount must be the same as msg.value"
+            );
+        } else {
+            // If it is not ETH, it is deemed to be ERC20.
+            require(
+                msg.value == 0,
+                "transmission method other than ETH is specified"
+            );
+            IERC20Upgradeable(takerTokenAddress).safeTransferFrom(
+                _msgSender(),
+                address(this),
+                takerAmount
+            );
+        }
+
+        return
+            _register(
+                _msgSender(), // taker
+                takerIntmaxAddress,
+                takerTokenAddress,
+                takerAmount, // takerAmount
+                maker,
+                bytes32(0), // anyone activates this offer
+                makerAssetId,
+                makerAmount
+            );
+    }
+
     function activate(
         uint256 offerId,
         bytes calldata witness
-    ) external override returns (bool) {
+    )
+        external
+        override(OfferManagerReverse, OfferManagerReverseInterface)
+        returns (bool ok)
+    {
         Offer memory offer = _offers[offerId];
 
         // address makerIntmaxAddress = _offers[offerId].makerIntmaxAddress;
@@ -27,6 +100,49 @@ contract OfferManagerReverseV2 is OfferManagerReverse {
         //     );
         // }
 
+        require(
+            offer.maker == _msgSender(),
+            "Only the maker can unlock this offer."
+        );
+
+        _checkAndNullifyWitness(_offers[offerId], witness);
+
+        _activate(offerId);
+
+        // The maker transfers token to taker.
+        if (offer.takerTokenAddress == address(0)) {
+            payable(offer.maker).sendValue(offer.takerAmount);
+            return true;
+        }
+
+        IERC20Upgradeable(offer.takerTokenAddress).safeTransfer(
+            offer.maker,
+            offer.takerAmount
+        );
+
+        return true;
+    }
+
+    function addTokenAddressToAllowList(
+        address[] calldata tokens
+    ) external onlyOwner {
+        for (uint256 i = 0; i < tokens.length; i++) {
+            _addTokenAddressToAllowList(tokens[i]);
+        }
+    }
+
+    function removeTokenAddressFromAllowList(
+        address[] calldata tokens
+    ) external onlyOwner {
+        for (uint256 i = 0; i < tokens.length; i++) {
+            _removeTokenAddressFromAllowList(tokens[i]);
+        }
+    }
+
+    function _checkAndNullifyWitness(
+        Offer storage offer,
+        bytes memory witness
+    ) internal {
         (, , MerkleTree.MerkleProof memory diffTreeInclusionProof, , ) = abi
             .decode(
                 witness,
@@ -40,30 +156,26 @@ contract OfferManagerReverseV2 is OfferManagerReverse {
             );
         bytes32 txHash = diffTreeInclusionProof.value;
         require(!usedTxHashes[txHash], "Given witness already used");
-        _checkWitness(_offers[offerId], witness);
+        _checkWitness(offer, witness);
         usedTxHashes[txHash] = true;
+    }
 
-        require(
-            _msgSender() == offer.maker,
-            "Only the maker can unlock this offer."
-        );
-        _activate(offerId);
+    /**
+     * @dev Adds `token` to the allow list.
+     * @param token is the address of token.
+     */
+    function _addTokenAddressToAllowList(address token) internal {
+        tokenAllowList[token] = true;
+        emit TokenAllowListUpdated(token, true);
+    }
 
-        // The maker transfers token to taker.
-        bool ok;
-        if (offer.takerTokenAddress == address(0)) {
-            (ok, ) = payable(offer.maker).call{value: offer.takerAmount}("");
-            require(ok, "fail to transfer ETH");
-            return true;
-        }
-
-        ok = IERC20(offer.takerTokenAddress).transfer(
-            offer.maker,
-            offer.takerAmount
-        );
-        require(ok, "fail to transfer ERC20 token");
-
-        return true;
+    /**
+     * @dev Removes `token` from the allow list.
+     * @param token is the address of token.
+     */
+    function _removeTokenAddressFromAllowList(address token) internal {
+        tokenAllowList[token] = false;
+        emit TokenAllowListUpdated(token, false);
     }
 
     /**

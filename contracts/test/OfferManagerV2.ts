@@ -6,11 +6,14 @@ import {
   blockHeaderStructType,
   merkleProofStructType,
   sampleWitness,
+  calcSampleWitness,
 } from "./sampleData";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 const REGISTER_FUNC_V2 =
   "register(bytes32,uint256,uint256,address,bytes32,address,uint256,bytes)";
+
+const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 describe("OfferManagerV2", function () {
   // We define a fixture to reuse the same setup in every test.
@@ -26,11 +29,16 @@ describe("OfferManagerV2", function () {
     const Verifier = await ethers.getContractFactory("SimpleVerifierTest");
     const verifier = await Verifier.deploy(networkIndex);
 
-    const OfferManager = await ethers.getContractFactory("OfferManagerV2Test");
+    const OfferManager = await ethers.getContractFactory("OfferManagerV2");
     const offerManager = await OfferManager.deploy();
+    await offerManager.initialize();
     await offerManager.changeVerifier(verifier.address);
+    await offerManager.addTokenAddressToAllowList([ZERO_ADDRESS]); // Allow ETH
 
-    return { verifier, offerManager, owner, maker, taker };
+    const Erc20 = await ethers.getContractFactory("ERC20Test");
+    const testToken = await Erc20.deploy();
+
+    return { verifier, offerManager, testToken, owner, maker, taker };
   }
 
   const sampleOffer = {
@@ -39,12 +47,18 @@ describe("OfferManagerV2", function () {
     makerAssetId: sampleWitness.tokenAddress,
     makerAmount: sampleWitness.tokenAmount,
     takerIntmaxAddress: sampleWitness.recipient,
-    takerTokenAddress: "0x0000000000000000000000000000000000000000", // ETH
     takerAmount: ethers.utils.parseEther("0.0001"),
   };
 
-  const calcWitness = async (owner: SignerWithAddress) => {
-    const { diffTreeInclusionProof, blockHeader, recipient } = sampleWitness;
+  // NOTICE: If `txHash` is set, the witness is still valid for SimpleVerifier.
+  // However, it's not valid for Verifier.
+  const calcWitness = async (owner: SignerWithAddress, txHash?: string) => {
+    const { diffTreeInclusionProof, blockHeader, recipient } =
+      calcSampleWitness();
+    if (txHash) {
+      // Set random 32 bytes hex string with 0x-prefix.
+      diffTreeInclusionProof.value = txHash;
+    }
 
     const { makerAssetId, makerAmount } = sampleOffer;
 
@@ -100,9 +114,10 @@ describe("OfferManagerV2", function () {
         makerAssetId,
         makerAmount,
         takerIntmaxAddress,
-        takerTokenAddress,
         takerAmount,
       } = sampleOffer;
+
+      const takerTokenAddress = ZERO_ADDRESS; // ETH
 
       const witness = calcWitness(owner);
 
@@ -125,11 +140,9 @@ describe("OfferManagerV2", function () {
         .to.emit(offerManager, "OfferTakerUpdated")
         .withArgs(offerId, takerIntmaxAddress);
     });
-  });
 
-  describe("Update taker", function () {
-    it("Should execute without errors", async function () {
-      const { offerManager, maker, taker } = await loadFixture(
+    it("Should not register an offer with already used witness", async function () {
+      const { offerManager, owner, maker, taker } = await loadFixture(
         deployOfferManager
       );
 
@@ -138,20 +151,72 @@ describe("OfferManagerV2", function () {
         makerAssetId,
         makerAmount,
         takerIntmaxAddress,
-        takerTokenAddress,
         takerAmount,
       } = sampleOffer;
 
+      const takerTokenAddress = ZERO_ADDRESS; // ETH
+
+      const witness = calcWitness(owner);
+
       await offerManager
         .connect(maker)
-        .testRegister(
+        [REGISTER_FUNC_V2](
           makerIntmaxAddress,
           makerAssetId,
           makerAmount,
           taker.address,
           takerIntmaxAddress,
           takerTokenAddress,
-          takerAmount
+          takerAmount,
+          witness
+        );
+
+      expect(
+        offerManager
+          .connect(maker)
+          [REGISTER_FUNC_V2](
+            makerIntmaxAddress,
+            makerAssetId,
+            makerAmount,
+            taker.address,
+            takerIntmaxAddress,
+            takerTokenAddress,
+            takerAmount,
+            witness
+          )
+      ).to.be.revertedWith("Given witness already used");
+    });
+  });
+
+  describe("Update taker", function () {
+    it("Should execute without errors", async function () {
+      const { offerManager, owner, maker, taker } = await loadFixture(
+        deployOfferManager
+      );
+
+      const {
+        makerIntmaxAddress,
+        makerAssetId,
+        makerAmount,
+        takerIntmaxAddress,
+        takerAmount,
+      } = sampleOffer;
+
+      const takerTokenAddress = ZERO_ADDRESS; // ETH
+
+      const witness = calcWitness(owner);
+
+      await offerManager
+        .connect(maker)
+        [REGISTER_FUNC_V2](
+          makerIntmaxAddress,
+          makerAssetId,
+          makerAmount,
+          taker.address,
+          takerIntmaxAddress,
+          takerTokenAddress,
+          takerAmount,
+          witness
         );
 
       const offerId = 0;
@@ -168,7 +233,7 @@ describe("OfferManagerV2", function () {
 
   describe("Activate with ETH", function () {
     it("Should execute without errors", async function () {
-      const { offerManager, maker, taker } = await loadFixture(
+      const { offerManager, owner, maker, taker } = await loadFixture(
         deployOfferManager
       );
 
@@ -177,29 +242,197 @@ describe("OfferManagerV2", function () {
         makerAssetId,
         makerAmount,
         takerIntmaxAddress,
-        takerTokenAddress,
         takerAmount,
       } = sampleOffer;
 
+      const takerTokenAddress = ZERO_ADDRESS; // ETH
+
+      const witness = calcWitness(owner);
+
       await offerManager
         .connect(maker)
-        .testRegister(
+        [REGISTER_FUNC_V2](
           makerIntmaxAddress,
           makerAssetId,
           makerAmount,
           taker.address,
           takerIntmaxAddress,
           takerTokenAddress,
-          takerAmount
+          takerAmount,
+          witness
         );
 
       const offerId = 0;
 
+      {
+        const tx = offerManager
+          .connect(taker)
+          .activate(offerId, { value: takerAmount });
+        await expect(tx)
+          .to.emit(offerManager, "OfferActivated")
+          .withArgs(offerId, takerIntmaxAddress);
+        await expect(tx).to.changeEtherBalances(
+          [maker, taker],
+          [takerAmount, takerAmount.mul(-1)]
+        );
+      }
+    });
+  });
+
+  describe("Register with ERC20", function () {
+    it("Should fail with errors", async function () {
+      const { offerManager, testToken, owner, maker, taker } =
+        await loadFixture(deployOfferManager);
+
+      const {
+        makerIntmaxAddress,
+        makerAssetId,
+        makerAmount,
+        takerIntmaxAddress,
+        takerAmount,
+      } = sampleOffer;
+
+      const takerTokenAddress = testToken.address;
+
+      const witness = calcWitness(owner);
+
+      expect(await offerManager.tokenAllowList(takerTokenAddress)).to.be.equal(
+        false
+      );
+
       await expect(
-        offerManager.connect(taker).activate(offerId, { value: takerAmount })
+        offerManager
+          .connect(maker)
+          [REGISTER_FUNC_V2](
+            makerIntmaxAddress,
+            makerAssetId,
+            makerAmount,
+            taker.address,
+            takerIntmaxAddress,
+            takerTokenAddress,
+            takerAmount,
+            witness
+          )
+      ).to.be.revertedWith(
+        "the taker's token address is not in the token allow list"
+      );
+
+      const offerId = 0;
+
+      // Add token address to allow list.
+      await expect(
+        offerManager
+          .connect(owner)
+          .addTokenAddressToAllowList([takerTokenAddress])
       )
-        .to.emit(offerManager, "OfferActivated")
+        .to.emit(offerManager, "TokenAllowListUpdated")
+        .withArgs(takerTokenAddress, true);
+
+      // Check that the token address is in the allow list.
+      expect(await offerManager.tokenAllowList(takerTokenAddress)).to.be.equal(
+        true
+      );
+
+      await expect(
+        offerManager
+          .connect(maker)
+          [REGISTER_FUNC_V2](
+            makerIntmaxAddress,
+            makerAssetId,
+            makerAmount,
+            taker.address,
+            takerIntmaxAddress,
+            takerTokenAddress,
+            takerAmount,
+            witness
+          )
+      )
+        .to.emit(offerManager, "OfferTakerUpdated")
         .withArgs(offerId, takerIntmaxAddress);
+
+      // Remove token address from allow list.
+      await expect(
+        offerManager
+          .connect(owner)
+          .removeTokenAddressFromAllowList([takerTokenAddress])
+      )
+        .to.emit(offerManager, "TokenAllowListUpdated")
+        .withArgs(takerTokenAddress, false);
+
+      // Check that the token address is not in the allow list.
+      expect(await offerManager.tokenAllowList(takerTokenAddress)).to.be.equal(
+        false
+      );
+
+      await expect(
+        offerManager
+          .connect(maker)
+          [REGISTER_FUNC_V2](
+            makerIntmaxAddress,
+            makerAssetId,
+            makerAmount,
+            taker.address,
+            takerIntmaxAddress,
+            takerTokenAddress,
+            takerAmount,
+            witness
+          )
+      ).to.be.revertedWith(
+        "the taker's token address is not in the token allow list"
+      );
+    });
+  });
+
+  describe("Activate with ERC20", function () {
+    it("Should execute without errors", async function () {
+      const { offerManager, testToken, owner, maker, taker } =
+        await loadFixture(deployOfferManager);
+
+      const {
+        makerIntmaxAddress,
+        makerAssetId,
+        makerAmount,
+        takerIntmaxAddress,
+        takerAmount,
+      } = sampleOffer;
+
+      const takerTokenAddress = testToken.address;
+
+      // Add token address to allow list.
+      await offerManager
+        .connect(owner)
+        .addTokenAddressToAllowList([takerTokenAddress]);
+
+      const witness = calcWitness(owner);
+
+      await offerManager
+        .connect(maker)
+        [REGISTER_FUNC_V2](
+          makerIntmaxAddress,
+          makerAssetId,
+          makerAmount,
+          taker.address,
+          takerIntmaxAddress,
+          takerTokenAddress,
+          takerAmount,
+          witness
+        );
+
+      const offerId = 0;
+
+      await testToken.connect(owner).transfer(taker.address, takerAmount);
+      await testToken.connect(taker).approve(offerManager.address, takerAmount);
+      {
+        const tx = offerManager.connect(taker).activate(offerId);
+        await expect(tx)
+          .to.emit(offerManager, "OfferActivated")
+          .withArgs(offerId, takerIntmaxAddress);
+        await expect(tx).to.changeTokenBalances(
+          testToken,
+          [maker, taker],
+          [takerAmount, takerAmount.mul(-1)]
+        );
+      }
     });
   });
 
@@ -217,7 +450,6 @@ describe("OfferManagerV2", function () {
         makerAssetId,
         makerAmount,
         takerIntmaxAddress,
-        takerTokenAddress,
         takerAmount,
       } = sampleOffer;
 
@@ -229,7 +461,7 @@ describe("OfferManagerV2", function () {
           makerAmount,
           taker.address,
           takerIntmaxAddress,
-          takerTokenAddress,
+          ZERO_ADDRESS,
           takerAmount
         );
 
@@ -258,16 +490,63 @@ describe("OfferManagerV2", function () {
         .to.emit(offerManagerV2, "OfferActivated")
         .withArgs(0, takerIntmaxAddress);
 
-      const offer = await offerManagerV2.offers(0);
-      expect(offer.maker).to.be.equal(maker.address);
-      expect(offer.makerIntmaxAddress).to.be.equal(makerIntmaxAddress);
-      expect(offer.makerAssetId).to.be.equal(makerAssetId);
-      expect(offer.makerAmount).to.be.equal(makerAmount.toString());
-      expect(offer.taker).to.be.equal(taker.address);
-      expect(offer.takerIntmaxAddress).to.be.equal(takerIntmaxAddress);
-      expect(offer.takerTokenAddress).to.be.equal(takerTokenAddress);
-      expect(offer.takerAmount).to.be.equal(takerAmount.toString());
-      expect(offer.isActivated).to.be.equal(true); // activated -> isActivated
+      {
+        const offer = await offerManagerV2.offers(0);
+        expect(offer.maker).to.be.equal(maker.address);
+        expect(offer.makerIntmaxAddress).to.be.equal(makerIntmaxAddress);
+        expect(offer.makerAssetId).to.be.equal(makerAssetId);
+        expect(offer.makerAmount).to.be.equal(makerAmount.toString());
+        expect(offer.taker).to.be.equal(taker.address);
+        expect(offer.takerIntmaxAddress).to.be.equal(takerIntmaxAddress);
+        expect(offer.takerTokenAddress).to.be.equal(ZERO_ADDRESS);
+        expect(offer.takerAmount).to.be.equal(takerAmount.toString());
+        expect(offer.isActivated).to.be.equal(true); // activated -> isActivated
+      }
+
+      await offerManagerV2
+        .connect(owner)
+        .addTokenAddressToAllowList([ZERO_ADDRESS]);
+
+      const witness = calcWitness(owner);
+      await offerManagerV2
+        .connect(maker)
+        [REGISTER_FUNC_V2](
+          makerIntmaxAddress,
+          makerAssetId,
+          makerAmount,
+          taker.address,
+          takerIntmaxAddress,
+          ZERO_ADDRESS,
+          takerAmount,
+          witness
+        );
+
+      // const OfferManagerV3 = await ethers.getContractFactory(
+      //   "OfferManagerV3"
+      // );
+      // const offerManagerV3 = await upgrades.upgradeProxy(
+      //   offerManagerProxyAddress,
+      //   OfferManagerV3
+      // );
+
+      // await expect(
+      //   offerManagerV3.connect(taker).activate(1, { value: takerAmount })
+      // )
+      //   .to.emit(offerManagerV3, "OfferActivated")
+      //   .withArgs(1, takerIntmaxAddress);
+
+      // {
+      //   const offer = await offerManagerV3.offers(1);
+      //   expect(offer.maker).to.be.equal(maker.address);
+      //   expect(offer.makerIntmaxAddress).to.be.equal(makerIntmaxAddress);
+      //   expect(offer.makerAssetId).to.be.equal(makerAssetId);
+      //   expect(offer.makerAmount).to.be.equal(makerAmount.toString());
+      //   expect(offer.taker).to.be.equal(taker.address);
+      //   expect(offer.takerIntmaxAddress).to.be.equal(takerIntmaxAddress);
+      //   expect(offer.takerTokenAddress).to.be.equal(ZERO_ADDRESS);
+      //   expect(offer.takerAmount).to.be.equal(takerAmount.toString());
+      //   expect(offer.isActivated).to.be.equal(true); // activated -> isActivated
+      // }
     });
   });
 });

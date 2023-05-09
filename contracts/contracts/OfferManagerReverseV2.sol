@@ -3,16 +3,18 @@ pragma solidity 0.8.17;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "./OfferManagerReverse.sol";
 import "./OfferManagerReverseV2Interface.sol";
 import "./utils/MerkleTree.sol";
 import "./VerifierInterface.sol";
 
-contract OfferManagerReverseV2 is
+contract ModifiedOfferManagerReverseV2 is
     OfferManagerReverseV2Interface,
     OfferManagerReverse
 {
     using SafeERC20Upgradeable for IERC20Upgradeable;
+    using AddressUpgradeable for address payable;
 
     VerifierInterface verifier;
     mapping(bytes32 => bool) public usedTxHashes;
@@ -109,8 +111,7 @@ contract OfferManagerReverseV2 is
 
         // The maker transfers token to taker.
         if (offer.takerTokenAddress == address(0)) {
-            (ok, ) = payable(offer.maker).call{value: offer.takerAmount}("");
-            require(ok, "fail to transfer ETH");
+            payable(offer.maker).sendValue(offer.takerAmount);
             return true;
         }
 

@@ -406,6 +406,52 @@ describe("OfferManagerReverseV2", function () {
         expect(offer.takerAmount).to.be.equal(takerAmount.toString());
         expect(offer.isActivated).to.be.equal(true); // NOTICE: activated -> isActivated
       }
+
+      // await offerManagerReverseV2
+      //   .connect(owner)
+      //   .addTokenAddressToAllowList([ZERO_ADDRESS]);
+
+      // await offerManagerReverseV2
+      //   .connect(taker)
+      //   .register(
+      //     takerIntmaxAddress,
+      //     ZERO_ADDRESS,
+      //     takerAmount,
+      //     maker.address,
+      //     makerAssetId,
+      //     makerAmount,
+      //     { value: takerAmount }
+      //   );
+
+      // const OfferManagerReverseV3 = await ethers.getContractFactory(
+      //   "ModifiedOfferManagerReverseV2"
+      // );
+      // const offerManagerReverseV3 = await upgrades.upgradeProxy(
+      //   offerManagerReverseProxyAddress,
+      //   OfferManagerReverseV3
+      // );
+
+      // {
+      //   const anotherTxHash =
+      //     "0x05ada85b5877f42956ac2793e1ae10fb79ec60718130a13a2968c9bbc6b7d59f";
+      //   const witness = await calcWitness(owner, anotherTxHash);
+      //   await expect(offerManagerReverseV3.connect(maker).activate(1, witness))
+      //     .to.emit(offerManagerReverseV3, "OfferActivated")
+      //     .withArgs(1, maker.address);
+      // }
+
+      // {
+      //   const offer = await offerManagerReverseV3.offers(1);
+      //   expect(offer.maker).to.be.equal(maker.address);
+      //   expect(offer.makerIntmaxAddress).to.be.equal(makerIntmaxAddress);
+      //   expect(offer.makerAssetId).to.be.equal(makerAssetId);
+      //   expect(offer.makerAmount).to.be.equal(makerAmount.toString());
+      //   expect(offer.taker).to.be.equal(taker.address);
+      //   expect(offer.takerIntmaxAddress).to.be.equal(takerIntmaxAddress);
+      //   expect(offer.takerTokenAddress).to.be.equal(ZERO_ADDRESS);
+      //   expect(offer.takerAmount).to.be.equal(takerAmount.toString());
+      //   expect(offer.isActivated).to.be.equal(true); // NOTICE: activated -> isActivated
+      // }
     });
   });
 });

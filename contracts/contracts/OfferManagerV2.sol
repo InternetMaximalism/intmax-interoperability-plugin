@@ -4,17 +4,19 @@ pragma solidity 0.8.17;
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol";
 import "./OfferManager.sol";
 import "./OfferManagerV2Interface.sol";
 import "./utils/MerkleTree.sol";
 import "./VerifierInterface.sol";
 
-contract OfferManagerV2 is
+contract ModifiedOfferManagerV2 is
     OfferManagerV2Interface,
     OfferManager,
     OwnableUpgradeable
 {
     using SafeERC20Upgradeable for IERC20Upgradeable;
+    using AddressUpgradeable for address payable;
 
     VerifierInterface verifier;
     mapping(bytes32 => bool) public usedTxHashes;
@@ -113,8 +115,7 @@ contract OfferManagerV2 is
                 msg.value == offer.takerAmount,
                 "please send just the amount needed to activate"
             );
-            (ok, ) = payable(offer.maker).call{value: msg.value}("");
-            require(ok, "fail to transfer ETH");
+            payable(offer.maker).sendValue(msg.value);
             return true;
         }
 

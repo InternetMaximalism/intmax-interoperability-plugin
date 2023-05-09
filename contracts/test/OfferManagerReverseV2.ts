@@ -407,24 +407,24 @@ describe("OfferManagerReverseV2", function () {
         expect(offer.isActivated).to.be.equal(true); // NOTICE: activated -> isActivated
       }
 
-      // await offerManagerReverseV2
-      //   .connect(owner)
-      //   .addTokenAddressToAllowList([ZERO_ADDRESS]);
+      await offerManagerReverseV2
+        .connect(owner)
+        .addTokenAddressToAllowList([ZERO_ADDRESS]);
 
-      // await offerManagerReverseV2
-      //   .connect(taker)
-      //   .register(
-      //     takerIntmaxAddress,
-      //     ZERO_ADDRESS,
-      //     takerAmount,
-      //     maker.address,
-      //     makerAssetId,
-      //     makerAmount,
-      //     { value: takerAmount }
-      //   );
+      await offerManagerReverseV2
+        .connect(taker)
+        .register(
+          takerIntmaxAddress,
+          ZERO_ADDRESS,
+          takerAmount,
+          maker.address,
+          makerAssetId,
+          makerAmount,
+          { value: takerAmount }
+        );
 
       // const OfferManagerReverseV3 = await ethers.getContractFactory(
-      //   "ModifiedOfferManagerReverseV2"
+      //   "OfferManagerReverseV3"
       // );
       // const offerManagerReverseV3 = await upgrades.upgradeProxy(
       //   offerManagerReverseProxyAddress,

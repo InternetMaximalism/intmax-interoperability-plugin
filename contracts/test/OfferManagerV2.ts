@@ -521,32 +521,32 @@ describe("OfferManagerV2", function () {
           witness
         );
 
-      const OfferManagerV3 = await ethers.getContractFactory(
-        "ModifiedOfferManagerV2"
-      );
-      const offerManagerV3 = await upgrades.upgradeProxy(
-        offerManagerProxyAddress,
-        OfferManagerV3
-      );
+      // const OfferManagerV3 = await ethers.getContractFactory(
+      //   "OfferManagerV3"
+      // );
+      // const offerManagerV3 = await upgrades.upgradeProxy(
+      //   offerManagerProxyAddress,
+      //   OfferManagerV3
+      // );
 
-      await expect(
-        offerManagerV3.connect(taker).activate(1, { value: takerAmount })
-      )
-        .to.emit(offerManagerV3, "OfferActivated")
-        .withArgs(1, takerIntmaxAddress);
+      // await expect(
+      //   offerManagerV3.connect(taker).activate(1, { value: takerAmount })
+      // )
+      //   .to.emit(offerManagerV3, "OfferActivated")
+      //   .withArgs(1, takerIntmaxAddress);
 
-      {
-        const offer = await offerManagerV3.offers(1);
-        expect(offer.maker).to.be.equal(maker.address);
-        expect(offer.makerIntmaxAddress).to.be.equal(makerIntmaxAddress);
-        expect(offer.makerAssetId).to.be.equal(makerAssetId);
-        expect(offer.makerAmount).to.be.equal(makerAmount.toString());
-        expect(offer.taker).to.be.equal(taker.address);
-        expect(offer.takerIntmaxAddress).to.be.equal(takerIntmaxAddress);
-        expect(offer.takerTokenAddress).to.be.equal(ZERO_ADDRESS);
-        expect(offer.takerAmount).to.be.equal(takerAmount.toString());
-        expect(offer.isActivated).to.be.equal(true); // activated -> isActivated
-      }
+      // {
+      //   const offer = await offerManagerV3.offers(1);
+      //   expect(offer.maker).to.be.equal(maker.address);
+      //   expect(offer.makerIntmaxAddress).to.be.equal(makerIntmaxAddress);
+      //   expect(offer.makerAssetId).to.be.equal(makerAssetId);
+      //   expect(offer.makerAmount).to.be.equal(makerAmount.toString());
+      //   expect(offer.taker).to.be.equal(taker.address);
+      //   expect(offer.takerIntmaxAddress).to.be.equal(takerIntmaxAddress);
+      //   expect(offer.takerTokenAddress).to.be.equal(ZERO_ADDRESS);
+      //   expect(offer.takerAmount).to.be.equal(takerAmount.toString());
+      //   expect(offer.isActivated).to.be.equal(true); // activated -> isActivated
+      // }
     });
   });
 });

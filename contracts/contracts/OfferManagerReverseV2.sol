@@ -9,7 +9,7 @@ import "./OfferManagerReverseV2Interface.sol";
 import "./utils/MerkleTree.sol";
 import "./VerifierInterface.sol";
 
-contract ModifiedOfferManagerReverseV2 is
+contract OfferManagerReverseV2 is
     OfferManagerReverseV2Interface,
     OfferManagerReverse
 {

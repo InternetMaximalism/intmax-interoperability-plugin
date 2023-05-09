@@ -10,7 +10,7 @@ import "./OfferManagerV2Interface.sol";
 import "./utils/MerkleTree.sol";
 import "./VerifierInterface.sol";
 
-contract ModifiedOfferManagerV2 is
+contract OfferManagerV2 is
     OfferManagerV2Interface,
     OfferManager,
     OwnableUpgradeable

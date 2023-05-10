@@ -1,5 +1,7 @@
 import { ethers, upgrades, network } from "hardhat";
 
+const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+
 async function main() {
   const OfferManager = await ethers.getContractFactory("OfferManagerV2");
   const offerManager = await upgrades.deployProxy(OfferManager);
@@ -48,6 +50,8 @@ async function main() {
 
   await offerManager.changeVerifier(verifier.address);
   await offerManagerReverse.changeVerifier(verifier.address);
+  await offerManager.addTokenAddressToAllowList([ZERO_ADDRESS]);
+  await offerManagerReverse.addTokenAddressToAllowList([ZERO_ADDRESS]);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

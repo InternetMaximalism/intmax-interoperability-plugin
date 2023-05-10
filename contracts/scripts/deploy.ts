@@ -1,5 +1,7 @@
 import { ethers } from "hardhat";
 
+const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+
 // Deploy contracts for testing.
 async function main() {
   const OfferManager = await ethers.getContractFactory("OfferManagerV2Test");
@@ -18,6 +20,15 @@ async function main() {
     `Deploy a OfferManagerReverse contract: ${offerManagerReverse.address}`
   );
 
+  {
+    const owner = await offerManager.owner();
+    console.log("owner:", owner);
+  }
+  {
+    const owner = await offerManagerReverse.owner();
+    console.log("owner:", owner);
+  }
+
   const networkIndex =
     "0x0000000000000000000000000000000000000000000000000000000000000002";
   const Verifier = await ethers.getContractFactory("SimpleVerifierTest");
@@ -27,9 +38,8 @@ async function main() {
 
   await offerManager.changeVerifier(verifier.address);
   await offerManagerReverse.changeVerifier(verifier.address);
-
-  const owner = await offerManagerReverse.owner();
-  console.log("owner:", owner);
+  await offerManager.addTokenAddressToAllowList([ZERO_ADDRESS]);
+  await offerManagerReverse.addTokenAddressToAllowList([ZERO_ADDRESS]);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

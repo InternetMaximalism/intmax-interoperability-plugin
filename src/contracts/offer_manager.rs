@@ -36,6 +36,7 @@ pub struct ActivateEvent {
     pub taker: H256,
 }
 
+#[derive(Clone, Debug)]
 pub struct OfferManagerContractWrapper<M> {
     pub contract: OfferManagerContract<M>,
     pub address: Address,

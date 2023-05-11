@@ -36,6 +36,7 @@ pub struct UnlockEvent {
     pub maker: H160,
 }
 
+#[derive(Clone, Debug)]
 pub struct OfferManagerReverseContractWrapper<M> {
     pub contract: OfferManagerReverseContract<M>,
     pub address: Address,

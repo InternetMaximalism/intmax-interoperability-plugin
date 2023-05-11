@@ -2,8 +2,12 @@
 pragma solidity 0.8.17;
 
 import "./OfferManagerInterface.sol";
+import "./utils/TokenAllowListInterface.sol";
 
-interface OfferManagerV2Interface is OfferManagerInterface {
+interface OfferManagerV2Interface is
+    OfferManagerInterface,
+    TokenAllowListInterface
+{
     /**
      * @notice This function registers a new offer.
      * @param makerIntmaxAddress is the maker's INTMAX address.
@@ -36,10 +40,4 @@ interface OfferManagerV2Interface is OfferManagerInterface {
         uint256 takerAmount,
         bytes memory witness
     ) external returns (uint256 offerId);
-
-    function addTokenAddressToAllowList(address[] calldata tokens) external;
-
-    function removeTokenAddressFromAllowList(
-        address[] calldata tokens
-    ) external;
 }

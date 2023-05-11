@@ -2,11 +2,9 @@
 pragma solidity 0.8.17;
 
 import "./OfferManagerReverseInterface.sol";
+import "./utils/TokenAllowListInterface.sol";
 
-interface OfferManagerReverseV2Interface is OfferManagerReverseInterface {
-    function addTokenAddressToAllowList(address[] calldata tokens) external;
-
-    function removeTokenAddressFromAllowList(
-        address[] calldata tokens
-    ) external;
-}
+interface OfferManagerReverseV2Interface is
+    OfferManagerReverseInterface,
+    TokenAllowListInterface
+{}

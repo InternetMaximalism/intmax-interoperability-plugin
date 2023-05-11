@@ -20,12 +20,6 @@ contract OfferManagerReverseV2 is
     mapping(bytes32 => bool) public usedTxHashes;
     mapping(address => bool) public tokenAllowList;
 
-    /**
-     * @dev Emitted when `token` is updated to `isAllowed`.
-     * @param token is the address of token.
-     */
-    event TokenAllowListUpdated(address indexed token, bool isAllowed);
-
     function changeVerifier(VerifierInterface newVerifier) external onlyOwner {
         verifier = newVerifier;
     }
@@ -165,8 +159,7 @@ contract OfferManagerReverseV2 is
      * @param token is the address of token.
      */
     function _addTokenAddressToAllowList(address token) internal {
-        tokenAllowList[token] = true;
-        emit TokenAllowListUpdated(token, true);
+        _updateTokenAddressFromAllowList(token, true);
     }
 
     /**
@@ -174,8 +167,17 @@ contract OfferManagerReverseV2 is
      * @param token is the address of token.
      */
     function _removeTokenAddressFromAllowList(address token) internal {
-        tokenAllowList[token] = false;
-        emit TokenAllowListUpdated(token, false);
+        _updateTokenAddressFromAllowList(token, false);
+    }
+
+    function _updateTokenAddressFromAllowList(
+        address token,
+        bool isAllowed
+    ) internal {
+        if (tokenAllowList[token] != isAllowed) {
+            tokenAllowList[token] = isAllowed;
+            emit TokenAllowListUpdated(token, isAllowed);
+        }
     }
 
     /**

@@ -4,6 +4,7 @@ pragma solidity 0.8.17;
 interface OfferManagerBaseInterface {
     /**
      * @notice This struct represents an offer created by a maker and taken by a taker.
+     * @dev TODO: Placing the isActivated field at the top of the Offer structure can save storage by one slot.
      * @param maker is the address of the maker who creates the offer.
      * @param makerIntmaxAddress is the INTMAX address of the maker.
      * @param makerAssetId is the asset ID that the maker is selling to the taker.

@@ -36,7 +36,7 @@ contract OfferManagerV2 is
     }
 
     /**
-     * @notice This function is deprecated.
+     * @custom:deprecated This function is deprecated.
      */
     function register(
         bytes32,
@@ -141,6 +141,9 @@ contract OfferManagerV2 is
         }
     }
 
+    /**
+     * @custom:deprecated This function is deprecated.
+     */
     function checkWitness(
         uint256 offerId,
         bytes calldata witness
@@ -181,11 +184,9 @@ contract OfferManagerV2 is
         bytes memory witness
     ) internal view virtual {
         bytes32 networkIndex = verifier.networkIndex();
-        bytes32 tokenAddress = abi.decode(
-            abi.encode(offer.makerAssetId),
-            (bytes32)
+        (bytes32 tokenAddress, uint256 tokenId) = _decodeAssetId(
+            offer.makerAssetId
         );
-        uint256 tokenId = 0; // TODO
         VerifierInterface.Asset[] memory assets = new VerifierInterface.Asset[](
             1
         );
@@ -197,6 +198,18 @@ contract OfferManagerV2 is
 
         bool ok = verifier.verifyAssets(assets, networkIndex, witness);
         require(ok, "Fail to verify assets");
+    }
+
+    function _decodeAssetId(
+        uint256 assetId
+    ) internal pure returns (bytes32 tokenAddress, uint256 tokenId) {
+        // (uint64 tokenId, uint192 rawTokenAddress) = abi.decodePacked(
+        //     abi.encode(assetId),
+        //     (uint64, uint192)
+        // );
+        tokenId = (assetId & (type(uint256).max - type(uint192).max)) >> 192;
+        uint256 rawTokenAddress = assetId & type(uint192).max;
+        tokenAddress = abi.decode(abi.encode(rawTokenAddress), (bytes32));
     }
 
     function _deactivate(uint256 offerId) internal override {

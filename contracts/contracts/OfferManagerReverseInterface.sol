@@ -48,7 +48,7 @@ interface OfferManagerReverseInterface {
      * @param makerAmount is the amount of the maker's asset that the taker will receive.
      * @return offerId is the ID of the newly created offer.
      * @dev This function requires:
-     * - The taker must not be the zero address.
+     * - The caller must not be the zero address.
      * - The offer ID must not be already registered.
      * - The maker's offer amount must be less than or equal to MAX_REMITTANCE_AMOUNT.
      * This function emits:

@@ -46,63 +46,48 @@ cd contracts
 npx hardhat --network localhost run ./scripts/deploy.ts
 ```
 
-## How to test on Scroll alpha
-
-By executing the following command, you can access to OfferManager contract deployed on Scroll.
-The account given in .env file must have sufficient ETH (around 0.1 ETH) on Scroll alpha to execute the transaction.
-
-```sh
-cargo run --bin offer_manager
-```
+## How to develop Solidity
 
 The address of the deployed contract can be found [here](./docs/address.json).
 
-## How to develop Solidity
-
-There are two characters in [Concept](./docs/concept.md) - Mike (maker) and Tom (taker).
-These names are also used in the following description.
-
-### Network Index
-
-The network index is the following:
-
-- Scroll Alpha: 0x0000000000000001
-- Polygon ZKEVM Test: 0x0000000000000002
-
-### Transaction Witness
-
-You can calculate the witness that you sent the transaction:
-
-```sh
-intmax account transaction-proof <tx-hash> <receiver-intmax-address>
-```
-
 ### Offer Manager (Pattern 1)
 
-1. Mike sends the token A to the address `networkIndex` on INTMAX.
-   `intmax tx send --amount 1 -i 0x00 --receiver-address <network-index>`
+Two characters appear below - Mike and Tom.
+Mike wants to receive tokens on Scroll from Tom instead of sending tokens on INTMAX to Tom.
 
-2. Mike calculates witness that he sent the transaction:
-   `intmax account transaction-proof <tx-hash> <network-index>`
+#### 1. Mike sends the token to the address `networkIndex` on INTMAX
 
-3. Mike registers a new offer and declares that he will transfer his burned assets to the account that has transferred ETH to him.
-4. Tom accepts the offer and transfers the ETH to Mike.
-5. Tom can merge the assets transferred from Mike on INTMAX.
+```sh
+intmax tx send -a <token-intmax-address> --amount 1 -i 0x00 --receiver-address <network-name>
+```
 
-#### [register()](./contracts/contracts/OfferManagerInterface.sol#L75)
+For example, if you want to make an offer on Scroll Alpha Testnet:
 
-This function registers a new offer.
-It requires:
+```sh
+intmax tx send -a 0x98c1fd6f55e2ccee --amount 1 -i 0x00 --receiver-address scroll
+```
 
-- `takerTokenAddress` must be a valid address.
-- `takerIntmax` must not be zero.
-- The caller must not be a zero address.
-- The offer ID must not be already registered.
-- The offer must be valid.
-- Given witness is valid.
+Currently supported networks are "scroll" (Scroll Alpha Testnet) and "polygon" (Polygon ZKEVM Testnet).
+
+You must have a sufficient balance yourself to run the above command. You can check your balance with the following command.
+
+```sh
+intmax account assets
+```
+
+#### 2. Mike calculates witness that he sent the transaction
+
+```sh
+intmax account transaction-proof <tx-hash> <network-name>
+```
+
+#### 3. Mike registers a new offer.
+
+Call the `register()` function of `OfferManager` contract using the witness obtained earlier.
+This declares that he will transfer his burned assets to the account that has transferred ETH to him.
 
 ```solidity
-OfferManagerInterface offerManager;
+OfferManagerV2Interface offerManager;
 uint256 offerId = offerManager.register(
     makerIntmax,
     makerAssetId,
@@ -115,48 +100,52 @@ uint256 offerId = offerManager.register(
 );
 ```
 
-#### [activate()](./contracts/contracts/OfferManagerInterface.sol#L113)
+It requires:
 
-This function activates an offer by transferring the taker's asset to the maker in exchange for payment.
-`offerId` is the ID of the offer to activate.
-It Returns a boolean indicating whether the offer is successfully activated.
-This function requires:
+- `makerAmount` must be less than or equal to `MAX_REMITTANCE_AMOUNT` (about 64 bits).
+- `takerTokenAddress` must be a valid address.
+- `takerIntmax` must not be zero.
+- The offer ID must not be already registered.
+- The offer must be valid.
+- Given witness is valid.
 
-- The offer must exist.
-- The offer must not be already activated.
-- Only the taker can activate it.
-- The payment must be equal to or greater than the taker's asset amount.
+#### 4. Tom accepts the offer and transfers the ETH to Mike.
+
+Call the `activate()` function of `OfferManager` contract.
 
 ```solidity
-OfferManagerInterface offerManager;
+OfferManagerV2Interface offerManager;
 bool success = offerManager.activate{
     value: takerAmount
 }(offerId);
 require(success, "fail to activate offer");
 ```
 
+It requires:
+
+- The offer must exist.
+- The offer must not be already activated.
+- Only the taker can activate it.
+- The payment must be equal to or greater than the taker's asset amount.
+
+#### 5. Tom can merge the assets transferred from Mike on INTMAX.
+
+```sh
+intmax tx merge
+```
+
 ### Offer Manager (Pattern 2)
 
-1. Tom locks his ETH and registers the offer. This declares that he will transfer the locked assets to the account that has transferred the specified token on INTMAX to him.
-2. Mike transfers the tokens on INTMAX to Tom.
-3. Mike calculates witness that he sent the transaction:
-   `intmax account transaction-proof <tx-hash> <tom-intmax-address>`
+This time we will make an offer from Tom.
+Tom wants to receive a token on INTMAX from Mike instead of sending a token on Scroll to Mike.
 
-4. Mike accepts the offer.
-5. Mike can receive Tom's ETH.
+#### 1. Tom locks his ETH and registers the offer.
 
-#### [register()](./contracts/contracts/OfferManagerReverseInterface.sol#L41)
-
-Locks the taker's funds and creates a new offer to exchange them for the maker's asset on INTMAX.
-ATTENTION: This offer cannot be cancelled.
-This function requires:
-
-- The taker must not be the zero address.
-- The offer ID must not be already registered.
-- The maker's offer amount must be less than or equal to MAX_REMITTANCE_AMOUNT.
+Call the `register()` function of `OfferManagerReverse` contract.
+This declares that he will transfer the locked assets to the account that has transferred the specified token on INTMAX to him.
 
 ```solidity
-OfferManagerReverseInterface offerManagerReverse;
+OfferManagerReverseV2Interface offerManagerReverse;
 uint256 offerId = offerManagerReverse.register(
     takerIntmaxAddress,
     takerTokenAddress,
@@ -167,24 +156,47 @@ uint256 offerId = offerManagerReverse.register(
 );
 ```
 
-#### [activate()](./contracts/contracts/OfferManagerReverseInterface.sol#L93)
+It requires:
 
-This function accepts an offer and transfers the taker's asset to the maker.
-This function requires:
+- The offer ID must not be already registered.
+- `makerAmount` must be less than or equal to `MAX_REMITTANCE_AMOUNT` (about 64 bits).
 
-- The offer must exist.
-- The offer must not be already activated.
-- Only the maker can activate the offer.
-- Given witness is valid.
+ATTENTION: This offer cannot be cancelled.
+
+#### 2. Mike transfers the tokens on INTMAX to Tom
+
+```sh
+intmax tx send --amount 1 -i 0x00 --receiver-address <tom-intmax-address>
+```
+
+#### 3. Mike calculates witness that he sent the transaction
+
+```sh
+intmax account transaction-proof <tx-hash> <tom-intmax-address>
+```
+
+The output of this command is "witness".
+
+#### 4. Mike activates the offer
+
+Call the `activate()` function of `OfferManagerReverse` contract using the witness obtained earlier.
+After that, Mike received Tom's ETH.
 
 ```solidity
-OfferManagerReverseInterface offerManagerReverse;
+OfferManagerReverseV2Interface offerManagerReverse;
 bool success = offerManagerReverse.activate(
     offerId,
     witness
 );
 require(success, "fail to unlock offer");
 ```
+
+It requires:
+
+- The offer must exist.
+- The offer must not be already activated.
+- Only the maker can activate the offer.
+- Given witness is valid.
 
 ### Examples
 

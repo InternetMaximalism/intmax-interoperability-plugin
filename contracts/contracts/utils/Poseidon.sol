@@ -1881,7 +1881,6 @@ contract GoldilocksPoseidon {
 
     // `state[i]` allows 200 bits number.
     // `newState[i]` is 64 bits number.
-    // 26743 gas (Can be improved to 469 gas if all are expanded to inline.)
     function _constantLayer(
         uint256[WIDTH] memory state,
         uint256 roundCtr
@@ -1908,7 +1907,6 @@ contract GoldilocksPoseidon {
 
     // `x` allows 64 bits number.
     // `x7` is 192 bits number.
-    // 64 gas
     function _sboxMonomial(uint256 x) internal pure returns (uint256 x7) {
         unchecked {
             uint256 x3 = x * x * x; // 192 bits

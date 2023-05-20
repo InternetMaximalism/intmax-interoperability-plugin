@@ -2029,17 +2029,17 @@ contract GoldilocksPoseidon {
 
     function permute(
         uint256[WIDTH] memory state
-    ) external pure returns (uint256[WIDTH] memory new_state) {
+    ) external pure returns (uint256[WIDTH] memory newState) {
         state = _permute(state);
         for (uint256 i = 0; i < WIDTH; i++) {
-            new_state[i] = mod(state[i]);
+            newState[i] = mod(state[i]);
         }
     }
 
     // Require each input[i] is less than 2^256 - 2^64.
-    function _hash_n_to_m_no_pad(
+    function _hashNToMNoPad(
         uint256[] memory input,
-        uint256 num_outputs
+        uint256 numOutputs
     ) internal pure returns (uint256[] memory output) {
         uint256 num_full_round = input.length / SPONGE_RATE;
         uint256 last_round = input.length % SPONGE_RATE;
@@ -2064,20 +2064,20 @@ contract GoldilocksPoseidon {
         }
         state = _permute(state);
 
-        output = new uint256[](num_outputs);
-        for (uint256 j = 0; j < num_outputs; j++) {
+        output = new uint256[](numOutputs);
+        for (uint256 j = 0; j < numOutputs; j++) {
             output[j] = mod(state[j]);
         }
     }
 
-    function hash_n_to_m_no_pad(
+    function hashNToMNoPad(
         uint256[] memory input,
-        uint256 num_outputs
+        uint256 numOutputs
     ) external pure returns (uint256[] memory output) {
         for (uint256 i = 0; i < input.length; i++) {
             input[i] = mod(input[i]);
         }
-        output = _hash_n_to_m_no_pad(input, num_outputs);
+        output = _hashNToMNoPad(input, numOutputs);
     }
 
     function decodeHashOut(
@@ -2107,10 +2107,10 @@ contract GoldilocksPoseidon {
         );
     }
 
-    function two_to_one(
+    function twoToOne(
         bytes32 left,
         bytes32 right
-    ) public pure returns (bytes32 hash_out) {
+    ) public pure returns (bytes32 output) {
         uint256[4] memory a_hash_out = decodeHashOut(left);
         uint256[4] memory b_hash_out = decodeHashOut(right);
         uint256[12] memory state;
@@ -2123,11 +2123,11 @@ contract GoldilocksPoseidon {
         state[6] = b_hash_out[2];
         state[7] = b_hash_out[3];
         state = _permute(state);
-        uint256[4] memory output;
-        output[0] = mod(state[0]);
-        output[1] = mod(state[1]);
-        output[2] = mod(state[2]);
-        output[3] = mod(state[3]);
-        hash_out = encodeHashOut(output);
+        uint256[4] memory hashOut;
+        hashOut[0] = mod(state[0]);
+        hashOut[1] = mod(state[1]);
+        hashOut[2] = mod(state[2]);
+        hashOut[3] = mod(state[3]);
+        output = encodeHashOut(hashOut);
     }
 }

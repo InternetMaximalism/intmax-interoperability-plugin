@@ -23,12 +23,12 @@ contract MerkleTree is MerkleTreeInterface {
             index = index >> 1;
 
             if (branchIndex == 1) {
-                computedHash = poseidonHasher.two_to_one(
+                computedHash = poseidonHasher.twoToOne(
                     proof.siblings[i],
                     computedHash
                 );
             } else {
-                computedHash = poseidonHasher.two_to_one(
+                computedHash = poseidonHasher.twoToOne(
                     computedHash,
                     proof.siblings[i]
                 );
@@ -50,12 +50,12 @@ contract MerkleTree is MerkleTreeInterface {
             index = index << 1;
 
             if (branchIndex == 1) {
-                computedHash = poseidonHasher.two_to_one(
+                computedHash = poseidonHasher.twoToOne(
                     proof.siblings[i - 1],
                     computedHash
                 );
             } else {
-                computedHash = poseidonHasher.two_to_one(
+                computedHash = poseidonHasher.twoToOne(
                     computedHash,
                     proof.siblings[i - 1]
                 );

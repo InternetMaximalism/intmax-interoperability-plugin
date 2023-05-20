@@ -136,7 +136,7 @@ contract OfferManagerReverseV2 is
     function _checkAndNullifyWitness(
         Offer storage offer,
         bytes memory witness
-    ) internal {
+    ) internal virtual {
         (, , MerkleTree.MerkleProof memory diffTreeInclusionProof, , ) = abi
             .decode(
                 witness,

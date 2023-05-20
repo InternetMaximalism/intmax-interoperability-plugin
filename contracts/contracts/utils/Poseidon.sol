@@ -2,7 +2,7 @@
 pragma solidity 0.8.17;
 
 contract GoldilocksPoseidon {
-    uint256 public constant HALF_N_FULL_ROUNDS = 4;
+    uint256 constant HALF_N_FULL_ROUNDS = 4;
     uint256 constant N_FULL_ROUNDS_TOTAL = 2 * HALF_N_FULL_ROUNDS;
     uint256 constant N_PARTIAL_ROUNDS = 22;
     uint256 constant N_ROUNDS = N_FULL_ROUNDS_TOTAL + N_PARTIAL_ROUNDS;
@@ -10,20 +10,6 @@ contract GoldilocksPoseidon {
     uint256 constant WIDTH = 12;
     uint256 constant SPONGE_RATE = 8;
     uint256 constant ORDER = 18446744069414584321;
-    uint256[12] MDS_MATRIX_CIRC = [
-        17,
-        15,
-        41,
-        16,
-        2,
-        28,
-        13,
-        13,
-        39,
-        18,
-        34,
-        20
-    ];
     uint256 constant MDS_MATRIX_CIRC_0 = 17;
     uint256 constant MDS_MATRIX_CIRC_1 = 15;
     uint256 constant MDS_MATRIX_CIRC_2 = 41;
@@ -36,380 +22,25 @@ contract GoldilocksPoseidon {
     uint256 constant MDS_MATRIX_CIRC_9 = 18;
     uint256 constant MDS_MATRIX_CIRC_10 = 34;
     uint256 constant MDS_MATRIX_CIRC_11 = 20;
-    uint256[12] MDS_MATRIX_DIAG = [8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-    uint256[360] ALL_ROUND_CONSTANTS = [
-        0xb585f766f2144405,
-        0x7746a55f43921ad7,
-        0xb2fb0d31cee799b4,
-        0x0f6760a4803427d7,
-        0xe10d666650f4e012,
-        0x8cae14cb07d09bf1,
-        0xd438539c95f63e9f,
-        0xef781c7ce35b4c3d,
-        0xcdc4a239b0c44426,
-        0x277fa208bf337bff,
-        0xe17653a29da578a1,
-        0xc54302f225db2c76,
-        0x86287821f722c881,
-        0x59cd1a8a41c18e55,
-        0xc3b919ad495dc574,
-        0xa484c4c5ef6a0781,
-        0x308bbd23dc5416cc,
-        0x6e4a40c18f30c09c,
-        0x9a2eedb70d8f8cfa,
-        0xe360c6e0ae486f38,
-        0xd5c7718fbfc647fb,
-        0xc35eae071903ff0b,
-        0x849c2656969c4be7,
-        0xc0572c8c08cbbbad,
-        0xe9fa634a21de0082,
-        0xf56f6d48959a600d,
-        0xf7d713e806391165,
-        0x8297132b32825daf,
-        0xad6805e0e30b2c8a,
-        0xac51d9f5fcf8535e,
-        0x502ad7dc18c2ad87,
-        0x57a1550c110b3041,
-        0x66bbd30e6ce0e583,
-        0x0da2abef589d644e,
-        0xf061274fdb150d61,
-        0x28b8ec3ae9c29633,
-        0x92a756e67e2b9413,
-        0x70e741ebfee96586,
-        0x019d5ee2af82ec1c,
-        0x6f6f2ed772466352,
-        0x7cf416cfe7e14ca1,
-        0x61df517b86a46439,
-        0x85dc499b11d77b75,
-        0x4b959b48b9c10733,
-        0xe8be3e5da8043e57,
-        0xf5c0bc1de6da8699,
-        0x40b12cbf09ef74bf,
-        0xa637093ecb2ad631,
-        0x3cc3f892184df408,
-        0x2e479dc157bf31bb,
-        0x6f49de07a6234346,
-        0x213ce7bede378d7b,
-        0x5b0431345d4dea83,
-        0xa2de45780344d6a1,
-        0x7103aaf94a7bf308,
-        0x5326fc0d97279301,
-        0xa9ceb74fec024747,
-        0x27f8ec88bb21b1a3,
-        0xfceb4fda1ded0893,
-        0xfac6ff1346a41675,
-        0x7131aa45268d7d8c,
-        0x9351036095630f9f,
-        0xad535b24afc26bfb,
-        0x4627f5c6993e44be,
-        0x645cf794b8f1cc58,
-        0x241c70ed0af61617,
-        0xacb8e076647905f1,
-        0x3737e9db4c4f474d,
-        0xe7ea5e33e75fffb6,
-        0x90dee49fc9bfc23a,
-        0xd1b1edf76bc09c92,
-        0x0b65481ba645c602,
-        0x99ad1aab0814283b,
-        0x438a7c91d416ca4d,
-        0xb60de3bcc5ea751c,
-        0xc99cab6aef6f58bc,
-        0x69a5ed92a72ee4ff,
-        0x5e7b329c1ed4ad71,
-        0x5fc0ac0800144885,
-        0x32db829239774eca,
-        0x0ade699c5830f310,
-        0x7cc5583b10415f21,
-        0x85df9ed2e166d64f,
-        0x6604df4fee32bcb1,
-        0xeb84f608da56ef48,
-        0xda608834c40e603d,
-        0x8f97fe408061f183,
-        0xa93f485c96f37b89,
-        0x6704e8ee8f18d563,
-        0xcee3e9ac1e072119,
-        0x510d0e65e2b470c1,
-        0xf6323f486b9038f0,
-        0x0b508cdeffa5ceef,
-        0xf2417089e4fb3cbd,
-        0x60e75c2890d15730,
-        0xa6217d8bf660f29c,
-        0x7159cd30c3ac118e,
-        0x839b4e8fafead540,
-        0x0d3f3e5e82920adc,
-        0x8f7d83bddee7bba8,
-        0x780f2243ea071d06,
-        0xeb915845f3de1634,
-        0xd19e120d26b6f386,
-        0x016ee53a7e5fecc6,
-        0xcb5fd54e7933e477,
-        0xacb8417879fd449f,
-        0x9c22190be7f74732,
-        0x5d693c1ba3ba3621,
-        0xdcef0797c2b69ec7,
-        0x3d639263da827b13,
-        0xe273fd971bc8d0e7,
-        0x418f02702d227ed5,
-        0x8c25fda3b503038c,
-        0x2cbaed4daec8c07c,
-        0x5f58e6afcdd6ddc2,
-        0x284650ac5e1b0eba,
-        0x635b337ee819dab5,
-        0x9f9a036ed4f2d49f,
-        0xb93e260cae5c170e,
-        0xb0a7eae879ddb76d,
-        0xd0762cbc8ca6570c,
-        0x34c6efb812b04bf5,
-        0x40bf0ab5fa14c112,
-        0xb6b570fc7c5740d3,
-        0x5a27b9002de33454,
-        0xb1a5b165b6d2b2d2,
-        0x8722e0ace9d1be22,
-        0x788ee3b37e5680fb,
-        0x14a726661551e284,
-        0x98b7672f9ef3b419,
-        0xbb93ae776bb30e3a,
-        0x28fd3b046380f850,
-        0x30a4680593258387,
-        0x337dc00c61bd9ce1,
-        0xd5eca244c7a4ff1d,
-        0x7762638264d279bd,
-        0xc1e434bedeefd767,
-        0x0299351a53b8ec22,
-        0xb2d456e4ad251b80,
-        0x3e9ed1fda49cea0b,
-        0x2972a92ba450bed8,
-        0x20216dd77be493de,
-        0xadffe8cf28449ec6,
-        0x1c4dbb1c4c27d243,
-        0x15a16a8a8322d458,
-        0x388a128b7fd9a609,
-        0x2300e5d6baedf0fb,
-        0x2f63aa8647e15104,
-        0xf1c36ce86ecec269,
-        0x27181125183970c9,
-        0xe584029370dca96d,
-        0x4d9bbc3e02f1cfb2,
-        0xea35bc29692af6f8,
-        0x18e21b4beabb4137,
-        0x1e3b9fc625b554f4,
-        0x25d64362697828fd,
-        0x5a3f1bb1c53a9645,
-        0xdb7f023869fb8d38,
-        0xb462065911d4e1fc,
-        0x49c24ae4437d8030,
-        0xd793862c112b0566,
-        0xaadd1106730d8feb,
-        0xc43b6e0e97b0d568,
-        0xe29024c18ee6fca2,
-        0x5e50c27535b88c66,
-        0x10383f20a4ff9a87,
-        0x38e8ee9d71a45af8,
-        0xdd5118375bf1a9b9,
-        0x775005982d74d7f7,
-        0x86ab99b4dde6c8b0,
-        0xb1204f603f51c080,
-        0xef61ac8470250ecf,
-        0x1bbcd90f132c603f,
-        0x0cd1dabd964db557,
-        0x11a3ae5beb9d1ec9,
-        0xf755bfeea585d11d,
-        0xa3b83250268ea4d7,
-        0x516306f4927c93af,
-        0xddb4ac49c9efa1da,
-        0x64bb6dec369d4418,
-        0xf9cc95c22b4c1fcc,
-        0x08d37f755f4ae9f6,
-        0xeec49b613478675b,
-        0xf143933aed25e0b0,
-        0xe4c5dd8255dfc622,
-        0xe7ad7756f193198e,
-        0x92c2318b87fff9cb,
-        0x739c25f8fd73596d,
-        0x5636cac9f16dfed0,
-        0xdd8f909a938e0172,
-        0xc6401fe115063f5b,
-        0x8ad97b33f1ac1455,
-        0x0c49366bb25e8513,
-        0x0784d3d2f1698309,
-        0x530fb67ea1809a81,
-        0x410492299bb01f49,
-        0x139542347424b9ac,
-        0x9cb0bd5ea1a1115e,
-        0x02e3f615c38f49a1,
-        0x985d4f4a9c5291ef,
-        0x775b9feafdcd26e7,
-        0x304265a6384f0f2d,
-        0x593664c39773012c,
-        0x4f0a2e5fb028f2ce,
-        0xdd611f1000c17442,
-        0xd8185f9adfea4fd0,
-        0xef87139ca9a3ab1e,
-        0x3ba71336c34ee133,
-        0x7d3a455d56b70238,
-        0x660d32e130182684,
-        0x297a863f48cd1f43,
-        0x90e0a736a751ebb7,
-        0x549f80ce550c4fd3,
-        0x0f73b2922f38bd64,
-        0x16bf1f73fb7a9c3f,
-        0x6d1f5a59005bec17,
-        0x02ff876fa5ef97c4,
-        0xc5cb72a2a51159b0,
-        0x8470f39d2d5c900e,
-        0x25abb3f1d39fcb76,
-        0x23eb8cc9b372442f,
-        0xd687ba55c64f6364,
-        0xda8d9e90fd8ff158,
-        0xe3cbdc7d2fe45ea7,
-        0xb9a8c9b3aee52297,
-        0xc0d28a5c10960bd3,
-        0x45d7ac9b68f71a34,
-        0xeeb76e397069e804,
-        0x3d06c8bd1514e2d9,
-        0x9c9c98207cb10767,
-        0x65700b51aedfb5ef,
-        0x911f451539869408,
-        0x7ae6849fbc3a0ec6,
-        0x3bb340eba06afe7e,
-        0xb46e9d8b682ea65e,
-        0x8dcf22f9a3b34356,
-        0x77bdaeda586257a7,
-        0xf19e400a5104d20d,
-        0xc368a348e46d950f,
-        0x9ef1cd60e679f284,
-        0xe89cd854d5d01d33,
-        0x5cd377dc8bb882a2,
-        0xa7b0fb7883eee860,
-        0x7684403ec392950d,
-        0x5fa3f06f4fed3b52,
-        0x8df57ac11bc04831,
-        0x2db01efa1e1e1897,
-        0x54846de4aadb9ca2,
-        0xba6745385893c784,
-        0x541d496344d2c75b,
-        0xe909678474e687fe,
-        0xdfe89923f6c9c2ff,
-        0xece5a71e0cfedc75,
-        0x5ff98fd5d51fe610,
-        0x83e8941918964615,
-        0x5922040b47f150c1,
-        0xf97d750e3dd94521,
-        0x5080d4c2b86f56d7,
-        0xa7de115b56c78d70,
-        0x6a9242ac87538194,
-        0xf7856ef7f9173e44,
-        0x2265fc92feb0dc09,
-        0x17dfc8e4f7ba8a57,
-        0x9001a64209f21db8,
-        0x90004c1371b893c5,
-        0xb932b7cf752e5545,
-        0xa0b1df81b6fe59fc,
-        0x8ef1dd26770af2c2,
-        0x0541a4f9cfbeed35,
-        0x9e61106178bfc530,
-        0xb3767e80935d8af2,
-        0x0098d5782065af06,
-        0x31d191cd5c1466c7,
-        0x410fefafa319ac9d,
-        0xbdf8f242e316c4ab,
-        0x9e8cd55b57637ed0,
-        0xde122bebe9a39368,
-        0x4d001fd58f002526,
-        0xca6637000eb4a9f8,
-        0x2f2339d624f91f78,
-        0x6d1a7918c80df518,
-        0xdf9a4939342308e9,
-        0xebc2151ee6c8398c,
-        0x03cc2ba8a1116515,
-        0xd341d037e840cf83,
-        0x387cb5d25af4afcc,
-        0xbba2515f22909e87,
-        0x7248fe7705f38e47,
-        0x4d61e56a525d225a,
-        0x262e963c8da05d3d,
-        0x59e89b094d220ec2,
-        0x055d5b52b78b9c5e,
-        0x82b27eb33514ef99,
-        0xd30094ca96b7ce7b,
-        0xcf5cb381cd0a1535,
-        0xfeed4db6919e5a7c,
-        0x41703f53753be59f,
-        0x5eeea940fcde8b6f,
-        0x4cd1f1b175100206,
-        0x4a20358574454ec0,
-        0x1478d361dbbf9fac,
-        0x6f02dc07d141875c,
-        0x296a202ed8e556a2,
-        0x2afd67999bf32ee5,
-        0x7acfd96efa95491d,
-        0x6798ba0c0abb2c6d,
-        0x34c6f57b26c92122,
-        0x5736e1bad206b5de,
-        0x20057d2a0056521b,
-        0x3dea5bd5d0578bd7,
-        0x16e50d897d4634ac,
-        0x29bff3ecb9b7a6e3,
-        0x475cd3205a3bdcde,
-        0x18a42105c31b7e88,
-        0x023e7414af663068,
-        0x15147108121967d7,
-        0xe4a3dff1d7d6fef9,
-        0x01a8d1a588085737,
-        0x11b4c74eda62beef,
-        0xe587cc0d69a73346,
-        0x1ff7327017aa2a6e,
-        0x594e29c42473d06b,
-        0xf6f31db1899b12d5,
-        0xc02ac5e47312d3ca,
-        0xe70201e960cb78b8,
-        0x6f90ff3b6a65f108,
-        0x42747a7245e7fa84,
-        0xd1f507e43ab749b2,
-        0x1c86d265f15750cd,
-        0x3996ce73dd832c1c,
-        0x8e7fba02983224bd,
-        0xba0dec7103255dd4,
-        0x9e9cbd781628fc5b,
-        0xdae8645996edd6a5,
-        0xdebe0853b1a1d378,
-        0xa49229d24d014343,
-        0x7be5b9ffda905e1c,
-        0xa3c95eaec244aa30,
-        0x0230bca8f4df0544,
-        0x4135c2bebfe148c6,
-        0x166fc0cc438a3c72,
-        0x3762b59a8ae83efa,
-        0xe8928a4c89114750,
-        0x2a440b51a4945ee5,
-        0x80cefd2b7d99ff83,
-        0xbb9879c6e61fd62a,
-        0x6e7c8f1a84265034,
-        0x164bb2de1bbeddc8,
-        0xf3c12fe54d5c653b,
-        0x40b9e922ed9771e2,
-        0x551f5b0fbe7b1840,
-        0x25032aa7c4cb1811,
-        0xaaed34074b164346,
-        0x8ffd96bbf9c9c81d,
-        0x70fc91eb5937085c,
-        0x7f795e2a5f915440,
-        0x4543d9df5476d3cb,
-        0xf172d73e004fc90d,
-        0xdfd1c4febcc81238,
-        0xbc8dfb627fe558fc
-    ];
+    uint256 constant MDS_MATRIX_DIAG_0 = 8;
+
+    uint256 constant FAST_PARTIAL_FIRST_ROUND_CONSTANT_0 = 0x3cc3f892184df408;
+    uint256 constant FAST_PARTIAL_FIRST_ROUND_CONSTANT_1 = 0xe993fd841e7e97f1;
+    uint256 constant FAST_PARTIAL_FIRST_ROUND_CONSTANT_2 = 0xf2831d3575f0f3af;
+    uint256 constant FAST_PARTIAL_FIRST_ROUND_CONSTANT_3 = 0xd2500e0a350994ca;
+    uint256 constant FAST_PARTIAL_FIRST_ROUND_CONSTANT_4 = 0xc5571f35d7288633;
+    uint256 constant FAST_PARTIAL_FIRST_ROUND_CONSTANT_5 = 0x91d89c5184109a02;
+    uint256 constant FAST_PARTIAL_FIRST_ROUND_CONSTANT_6 = 0xf37f925d04e5667b;
+    uint256 constant FAST_PARTIAL_FIRST_ROUND_CONSTANT_7 = 0x2d6e448371955a69;
+    uint256 constant FAST_PARTIAL_FIRST_ROUND_CONSTANT_8 = 0x740ef19ce01398a1;
+    uint256 constant FAST_PARTIAL_FIRST_ROUND_CONSTANT_9 = 0x694d24c0752fdf45;
+    uint256 constant FAST_PARTIAL_FIRST_ROUND_CONSTANT_10 = 0x60936af96ee2f148;
+    uint256 constant FAST_PARTIAL_FIRST_ROUND_CONSTANT_11 = 0xc33448feadc78f0c;
 
     function mod(uint256 a) internal pure returns (uint256 res) {
         assembly {
             res := mod(a, ORDER)
-        }
-    }
-
-    function mul(uint256 a, uint256 b) internal pure returns (uint256 res) {
-        assembly {
-            res := mulmod(a, b, ORDER)
         }
     }
 
@@ -419,57 +50,1833 @@ contract GoldilocksPoseidon {
         }
     }
 
-    // `v[r]` allows 192 bits number.
+    // `state[r]` allows 192 bits number.
     // `res` is 200 bits number.
-    // 1118 ~ 1180 gas
-    function _mds_row_shf(
-        uint256 r,
-        uint256[WIDTH] memory v
+    function _mds_row_shf_0(
+        uint256[WIDTH] memory state
     ) internal pure returns (uint256 res) {
-        // uint256 res = 0;
-        // for (uint256 i = 0; i < 12; i++) {
-        //     res += v[(i + r) % WIDTH] * MDS_MATRIX_CIRC[i]; // (192 + 8) bits
-        // }
         unchecked {
-            res += v[r] * MDS_MATRIX_CIRC_0;
-            res += v[(r + 1) % WIDTH] * MDS_MATRIX_CIRC_1;
-            res += v[(r + 2) % WIDTH] * MDS_MATRIX_CIRC_2;
-            res += v[(r + 3) % WIDTH] * MDS_MATRIX_CIRC_3;
-            res += v[(r + 4) % WIDTH] * MDS_MATRIX_CIRC_4;
-            res += v[(r + 5) % WIDTH] * MDS_MATRIX_CIRC_5;
-            res += v[(r + 6) % WIDTH] * MDS_MATRIX_CIRC_6;
-            res += v[(r + 7) % WIDTH] * MDS_MATRIX_CIRC_7;
-            res += v[(r + 8) % WIDTH] * MDS_MATRIX_CIRC_8;
-            res += v[(r + 9) % WIDTH] * MDS_MATRIX_CIRC_9;
-            res += v[(r + 10) % WIDTH] * MDS_MATRIX_CIRC_10;
-            res += v[(r + 11) % WIDTH] * MDS_MATRIX_CIRC_11;
+            // for (uint256 i = 0; i < 12; i++) {
+            //     res += state[(i + r) % WIDTH] * MDS_MATRIX_CIRC[i]; // (192 + 8) bits
+            // }
+            // res = add(res, state[r] * MDS_MATRIX_DIAG[r]); // 200 bits
+            res =
+                state[1] *
+                MDS_MATRIX_CIRC_1 +
+                state[2] *
+                MDS_MATRIX_CIRC_2 +
+                (state[3] << 4) + // state[3] * MDS_MATRIX_CIRC_3
+                state[4] *
+                MDS_MATRIX_CIRC_4 +
+                state[5] *
+                MDS_MATRIX_CIRC_5 +
+                state[6] *
+                MDS_MATRIX_CIRC_6 +
+                state[7] *
+                MDS_MATRIX_CIRC_7 +
+                state[8] *
+                MDS_MATRIX_CIRC_8 +
+                state[9] *
+                MDS_MATRIX_CIRC_9 +
+                state[10] *
+                MDS_MATRIX_CIRC_10 +
+                state[11] *
+                MDS_MATRIX_CIRC_11 +
+                state[0] *
+                (MDS_MATRIX_CIRC_0 + MDS_MATRIX_DIAG_0);
+        }
+    }
 
-            // res = add(res, v[r] * MDS_MATRIX_DIAG[r]);
+    // `state[r]` allows 192 bits number.
+    // `res` is 200 bits number.
+    function _mds_row_shf_1(
+        uint256[WIDTH] memory state
+    ) internal pure returns (uint256 res) {
+        unchecked {
+            // for (uint256 i = 0; i < 12; i++) {
+            //     res += state[(i + r) % WIDTH] * MDS_MATRIX_CIRC[i]; // (192 + 8) bits
+            // }
+            res =
+                state[1] *
+                MDS_MATRIX_CIRC_0 +
+                state[2] *
+                MDS_MATRIX_CIRC_1 +
+                state[3] *
+                MDS_MATRIX_CIRC_2 +
+                (state[4] << 4) + // state[4] * MDS_MATRIX_CIRC_3
+                state[5] *
+                MDS_MATRIX_CIRC_4 +
+                state[6] *
+                MDS_MATRIX_CIRC_5 +
+                state[7] *
+                MDS_MATRIX_CIRC_6 +
+                state[8] *
+                MDS_MATRIX_CIRC_7 +
+                state[9] *
+                MDS_MATRIX_CIRC_8 +
+                state[10] *
+                MDS_MATRIX_CIRC_9 +
+                state[11] *
+                MDS_MATRIX_CIRC_10 +
+                state[0] *
+                MDS_MATRIX_CIRC_11;
+        }
+    }
+
+    // `state[r]` allows 192 bits number.
+    // `res` is 200 bits number.
+    function _mds_row_shf_2(
+        uint256[WIDTH] memory state
+    ) internal pure returns (uint256 res) {
+        unchecked {
+            // for (uint256 i = 0; i < 12; i++) {
+            //     res += state[(i + r) % WIDTH] * MDS_MATRIX_CIRC[i]; // (192 + 8) bits
+            // }
+            res =
+                state[2] *
+                MDS_MATRIX_CIRC_0 +
+                state[3] *
+                MDS_MATRIX_CIRC_1 +
+                state[4] *
+                MDS_MATRIX_CIRC_2 +
+                (state[5] << 4) + // state[5] * MDS_MATRIX_CIRC_3
+                state[6] *
+                MDS_MATRIX_CIRC_4 +
+                state[7] *
+                MDS_MATRIX_CIRC_5 +
+                state[8] *
+                MDS_MATRIX_CIRC_6 +
+                state[9] *
+                MDS_MATRIX_CIRC_7 +
+                state[10] *
+                MDS_MATRIX_CIRC_8 +
+                state[11] *
+                MDS_MATRIX_CIRC_9 +
+                state[0] *
+                MDS_MATRIX_CIRC_10 +
+                state[1] *
+                MDS_MATRIX_CIRC_11;
+        }
+    }
+
+    // `state[r]` allows 192 bits number.
+    // `res` is 200 bits number.
+    function _mds_row_shf_3(
+        uint256[WIDTH] memory state
+    ) internal pure returns (uint256 res) {
+        unchecked {
+            // for (uint256 i = 0; i < 12; i++) {
+            //     res += state[(i + r) % WIDTH] * MDS_MATRIX_CIRC[i]; // (192 + 8) bits
+            // }
+            res =
+                state[3] *
+                MDS_MATRIX_CIRC_0 +
+                state[4] *
+                MDS_MATRIX_CIRC_1 +
+                state[5] *
+                MDS_MATRIX_CIRC_2 +
+                (state[6] << 4) + // state[6] * MDS_MATRIX_CIRC_3
+                state[7] *
+                MDS_MATRIX_CIRC_4 +
+                state[8] *
+                MDS_MATRIX_CIRC_5 +
+                state[9] *
+                MDS_MATRIX_CIRC_6 +
+                state[10] *
+                MDS_MATRIX_CIRC_7 +
+                state[11] *
+                MDS_MATRIX_CIRC_8 +
+                state[0] *
+                MDS_MATRIX_CIRC_9 +
+                state[1] *
+                MDS_MATRIX_CIRC_10 +
+                state[2] *
+                MDS_MATRIX_CIRC_11;
+        }
+    }
+
+    // `state[r]` allows 192 bits number.
+    // `res` is 200 bits number.
+    function _mds_row_shf_4(
+        uint256[WIDTH] memory state
+    ) internal pure returns (uint256 res) {
+        unchecked {
+            // for (uint256 i = 0; i < 12; i++) {
+            //     res += state[(i + r) % WIDTH] * MDS_MATRIX_CIRC[i]; // (192 + 8) bits
+            // }
+            res =
+                state[4] *
+                MDS_MATRIX_CIRC_0 +
+                state[5] *
+                MDS_MATRIX_CIRC_1 +
+                state[6] *
+                MDS_MATRIX_CIRC_2 +
+                (state[7] << 4) + // state[7] * MDS_MATRIX_CIRC_3
+                state[8] *
+                MDS_MATRIX_CIRC_4 +
+                state[9] *
+                MDS_MATRIX_CIRC_5 +
+                state[10] *
+                MDS_MATRIX_CIRC_6 +
+                state[11] *
+                MDS_MATRIX_CIRC_7 +
+                state[0] *
+                MDS_MATRIX_CIRC_8 +
+                state[1] *
+                MDS_MATRIX_CIRC_9 +
+                state[2] *
+                MDS_MATRIX_CIRC_10 +
+                state[3] *
+                MDS_MATRIX_CIRC_11;
+        }
+    }
+
+    // `state[r]` allows 192 bits number.
+    // `res` is 200 bits number.
+    function _mds_row_shf_5(
+        uint256[WIDTH] memory state
+    ) internal pure returns (uint256 res) {
+        unchecked {
+            // for (uint256 i = 0; i < 12; i++) {
+            //     res += state[(i + r) % WIDTH] * MDS_MATRIX_CIRC[i]; // (192 + 8) bits
+            // }
+            res =
+                state[5] *
+                MDS_MATRIX_CIRC_0 +
+                state[6] *
+                MDS_MATRIX_CIRC_1 +
+                state[7] *
+                MDS_MATRIX_CIRC_2 +
+                (state[8] << 4) + // state[8] * MDS_MATRIX_CIRC_3
+                state[9] *
+                MDS_MATRIX_CIRC_4 +
+                state[10] *
+                MDS_MATRIX_CIRC_5 +
+                state[11] *
+                MDS_MATRIX_CIRC_6 +
+                state[0] *
+                MDS_MATRIX_CIRC_7 +
+                state[1] *
+                MDS_MATRIX_CIRC_8 +
+                state[2] *
+                MDS_MATRIX_CIRC_9 +
+                state[3] *
+                MDS_MATRIX_CIRC_10 +
+                state[4] *
+                MDS_MATRIX_CIRC_11;
+        }
+    }
+
+    // `state[r]` allows 192 bits number.
+    // `res` is 200 bits number.
+    function _mds_row_shf_6(
+        uint256[WIDTH] memory state
+    ) internal pure returns (uint256 res) {
+        unchecked {
+            // for (uint256 i = 0; i < 12; i++) {
+            //     res += state[(i + r) % WIDTH] * MDS_MATRIX_CIRC[i]; // (192 + 8) bits
+            // }
+            res =
+                state[6] *
+                MDS_MATRIX_CIRC_0 +
+                state[7] *
+                MDS_MATRIX_CIRC_1 +
+                state[8] *
+                MDS_MATRIX_CIRC_2 +
+                (state[9] << 4) + // state[9] * MDS_MATRIX_CIRC_3
+                state[10] *
+                MDS_MATRIX_CIRC_4 +
+                state[11] *
+                MDS_MATRIX_CIRC_5 +
+                state[0] *
+                MDS_MATRIX_CIRC_6 +
+                state[1] *
+                MDS_MATRIX_CIRC_7 +
+                state[2] *
+                MDS_MATRIX_CIRC_8 +
+                state[3] *
+                MDS_MATRIX_CIRC_9 +
+                state[4] *
+                MDS_MATRIX_CIRC_10 +
+                state[5] *
+                MDS_MATRIX_CIRC_11;
+        }
+    }
+
+    // `state[r]` allows 192 bits number.
+    // `res` is 200 bits number.
+    function _mds_row_shf_7(
+        uint256[WIDTH] memory state
+    ) internal pure returns (uint256 res) {
+        unchecked {
+            // for (uint256 i = 0; i < 12; i++) {
+            //     res += state[(i + r) % WIDTH] * MDS_MATRIX_CIRC[i]; // (192 + 8) bits
+            // }
+            res =
+                state[7] *
+                MDS_MATRIX_CIRC_0 +
+                state[8] *
+                MDS_MATRIX_CIRC_1 +
+                state[9] *
+                MDS_MATRIX_CIRC_2 +
+                (state[10] << 4) + // state[10] * MDS_MATRIX_CIRC_3
+                state[11] *
+                MDS_MATRIX_CIRC_4 +
+                state[0] *
+                MDS_MATRIX_CIRC_5 +
+                state[1] *
+                MDS_MATRIX_CIRC_6 +
+                state[2] *
+                MDS_MATRIX_CIRC_7 +
+                state[3] *
+                MDS_MATRIX_CIRC_8 +
+                state[4] *
+                MDS_MATRIX_CIRC_9 +
+                state[5] *
+                MDS_MATRIX_CIRC_10 +
+                state[6] *
+                MDS_MATRIX_CIRC_11;
+        }
+    }
+
+    // `state[r]` allows 192 bits number.
+    // `res` is 200 bits number.
+    function _mds_row_shf_8(
+        uint256[WIDTH] memory state
+    ) internal pure returns (uint256 res) {
+        unchecked {
+            // for (uint256 i = 0; i < 12; i++) {
+            //     res += state[(i + r) % WIDTH] * MDS_MATRIX_CIRC[i]; // (192 + 8) bits
+            // }
+            res =
+                state[8] *
+                MDS_MATRIX_CIRC_0 +
+                state[9] *
+                MDS_MATRIX_CIRC_1 +
+                state[10] *
+                MDS_MATRIX_CIRC_2 +
+                (state[11] << 4) + // state[11] * MDS_MATRIX_CIRC_3
+                state[0] *
+                MDS_MATRIX_CIRC_4 +
+                state[1] *
+                MDS_MATRIX_CIRC_5 +
+                state[2] *
+                MDS_MATRIX_CIRC_6 +
+                state[3] *
+                MDS_MATRIX_CIRC_7 +
+                state[4] *
+                MDS_MATRIX_CIRC_8 +
+                state[5] *
+                MDS_MATRIX_CIRC_9 +
+                state[6] *
+                MDS_MATRIX_CIRC_10 +
+                state[7] *
+                MDS_MATRIX_CIRC_11;
+        }
+    }
+
+    // `state[r]` allows 192 bits number.
+    // `res` is 200 bits number.
+    function _mds_row_shf_9(
+        uint256[WIDTH] memory state
+    ) internal pure returns (uint256 res) {
+        unchecked {
+            // for (uint256 i = 0; i < 12; i++) {
+            //     res += state[(i + r) % WIDTH] * MDS_MATRIX_CIRC[i]; // (192 + 8) bits
+            // }
+            res =
+                state[9] *
+                MDS_MATRIX_CIRC_0 +
+                state[10] *
+                MDS_MATRIX_CIRC_1 +
+                state[11] *
+                MDS_MATRIX_CIRC_2 +
+                (state[0] << 4) + // state[0] * MDS_MATRIX_CIRC_3
+                state[1] *
+                MDS_MATRIX_CIRC_4 +
+                state[2] *
+                MDS_MATRIX_CIRC_5 +
+                state[3] *
+                MDS_MATRIX_CIRC_6 +
+                state[4] *
+                MDS_MATRIX_CIRC_7 +
+                state[5] *
+                MDS_MATRIX_CIRC_8 +
+                state[6] *
+                MDS_MATRIX_CIRC_9 +
+                state[7] *
+                MDS_MATRIX_CIRC_10 +
+                state[8] *
+                MDS_MATRIX_CIRC_11;
+        }
+    }
+
+    // `state[r]` allows 192 bits number.
+    // `res` is 200 bits number.
+    function _mds_row_shf_10(
+        uint256[WIDTH] memory state
+    ) internal pure returns (uint256 res) {
+        unchecked {
+            // for (uint256 i = 0; i < 12; i++) {
+            //     res += state[(i + r) % WIDTH] * MDS_MATRIX_CIRC[i]; // (192 + 8) bits
+            // }
+            res =
+                state[10] *
+                MDS_MATRIX_CIRC_0 +
+                state[11] *
+                MDS_MATRIX_CIRC_1 +
+                state[0] *
+                MDS_MATRIX_CIRC_2 +
+                (state[1] << 4) + // state[1] * MDS_MATRIX_CIRC_3
+                state[2] *
+                MDS_MATRIX_CIRC_4 +
+                state[3] *
+                MDS_MATRIX_CIRC_5 +
+                state[4] *
+                MDS_MATRIX_CIRC_6 +
+                state[5] *
+                MDS_MATRIX_CIRC_7 +
+                state[6] *
+                MDS_MATRIX_CIRC_8 +
+                state[7] *
+                MDS_MATRIX_CIRC_9 +
+                state[8] *
+                MDS_MATRIX_CIRC_10 +
+                state[9] *
+                MDS_MATRIX_CIRC_11;
+        }
+    }
+
+    // `state[r]` allows 192 bits number.
+    // `res` is 200 bits number.
+    function _mds_row_shf_11(
+        uint256[WIDTH] memory state
+    ) internal pure returns (uint256 res) {
+        unchecked {
+            // for (uint256 i = 0; i < 12; i++) {
+            //     res += state[(i + r) % WIDTH] * MDS_MATRIX_CIRC[i]; // (192 + 8) bits
+            // }
+            res =
+                state[11] *
+                MDS_MATRIX_CIRC_0 +
+                state[0] *
+                MDS_MATRIX_CIRC_1 +
+                state[1] *
+                MDS_MATRIX_CIRC_2 +
+                (state[2] << 4) + // state[2] * MDS_MATRIX_CIRC_3
+                state[3] *
+                MDS_MATRIX_CIRC_4 +
+                state[4] *
+                MDS_MATRIX_CIRC_5 +
+                state[5] *
+                MDS_MATRIX_CIRC_6 +
+                state[6] *
+                MDS_MATRIX_CIRC_7 +
+                state[7] *
+                MDS_MATRIX_CIRC_8 +
+                state[8] *
+                MDS_MATRIX_CIRC_9 +
+                state[9] *
+                MDS_MATRIX_CIRC_10 +
+                state[10] *
+                MDS_MATRIX_CIRC_11;
+        }
+    }
+
+    function _mds_partial_layer_init_1(
+        uint256[WIDTH] memory state
+    ) private pure returns (uint256 res) {
+        unchecked {
+            res =
+                state[1] *
+                0x80772dc2645b280b +
+                state[2] *
+                0xe796d293a47a64cb +
+                state[3] *
+                0xdcedab70f40718ba +
+                state[4] *
+                0xf4a437f2888ae909 +
+                state[5] *
+                0xf97abba0dffb6c50 +
+                state[6] *
+                0x7f8e41e0b0a6cdff +
+                state[7] *
+                0x726af914971c1374 +
+                state[8] *
+                0x64dd936da878404d +
+                state[9] *
+                0x85418a9fef8a9890 +
+                state[10] *
+                0x156048ee7a738154 +
+                state[11] *
+                0xd841e8ef9dde8ba0;
+        }
+    }
+
+    function _mds_partial_layer_init_2(
+        uint256[WIDTH] memory state
+    ) private pure returns (uint256 res) {
+        unchecked {
+            res =
+                state[1] *
+                0xdc927721da922cf8 +
+                state[2] *
+                0xb124c33152a2421a +
+                state[3] *
+                0x14a4a64da0b2668f +
+                state[4] *
+                0xc537d44dc2875403 +
+                state[5] *
+                0x5e40f0c9bb82aab5 +
+                state[6] *
+                0x4b1ba8d40afca97d +
+                state[7] *
+                0x1d7f8a2cce1a9d00 +
+                state[8] *
+                0x4db9a2ead2bd7262 +
+                state[9] *
+                0xd8a2eb7ef5e707ad +
+                state[10] *
+                0x91f7562377e81df5 +
+                state[11] *
+                0x156048ee7a738154;
+        }
+    }
+
+    function _mds_partial_layer_init_3(
+        uint256[WIDTH] memory state
+    ) private pure returns (uint256 res) {
+        unchecked {
+            res =
+                state[1] *
+                0xc1978156516879ad +
+                state[2] *
+                0x0ee5dc0ce131268a +
+                state[3] *
+                0x4715b8e5ab34653b +
+                state[4] *
+                0x7f68007619fd8ba9 +
+                state[5] *
+                0x5996a80497e24a6b +
+                state[6] *
+                0x623708f28fca70e8 +
+                state[7] *
+                0x18737784700c75cd +
+                state[8] *
+                0xbe2e19f6d07f1a83 +
+                state[9] *
+                0xbfe85ababed2d882 +
+                state[10] *
+                0xd8a2eb7ef5e707ad +
+                state[11] *
+                0x85418a9fef8a9890;
+        }
+    }
+
+    function _mds_partial_layer_init_4(
+        uint256[WIDTH] memory state
+    ) private pure returns (uint256 res) {
+        unchecked {
+            res =
+                state[1] *
+                0x90e80c591f48b603 +
+                state[2] *
+                0xa9032a52f930fae6 +
+                state[3] *
+                0x1e8916a99c93a88e +
+                state[4] *
+                0xa4911db6a32612da +
+                state[5] *
+                0x07084430a7307c9a +
+                state[6] *
+                0xbf150dc4914d380f +
+                state[7] *
+                0x7fb45d605dd82838 +
+                state[8] *
+                0x02290fe23c20351a +
+                state[9] *
+                0xbe2e19f6d07f1a83 +
+                state[10] *
+                0x4db9a2ead2bd7262 +
+                state[11] *
+                0x64dd936da878404d;
+        }
+    }
+
+    function _mds_partial_layer_init_5(
+        uint256[WIDTH] memory state
+    ) private pure returns (uint256 res) {
+        unchecked {
+            res =
+                state[1] *
+                0x3a2432625475e3ae +
+                state[2] *
+                0x7e33ca8c814280de +
+                state[3] *
+                0xbba4b5d86b9a3b2c +
+                state[4] *
+                0x2f7e9aade3fdaec1 +
+                state[5] *
+                0xad2f570a5b8545aa +
+                state[6] *
+                0xc26a083554767106 +
+                state[7] *
+                0x862361aeab0f9b6e +
+                state[8] *
+                0x7fb45d605dd82838 +
+                state[9] *
+                0x18737784700c75cd +
+                state[10] *
+                0x1d7f8a2cce1a9d00 +
+                state[11] *
+                0x726af914971c1374;
+        }
+    }
+
+    function _mds_partial_layer_init_6(
+        uint256[WIDTH] memory state
+    ) private pure returns (uint256 res) {
+        unchecked {
+            res =
+                state[1] *
+                0x00a2d4321cca94fe +
+                state[2] *
+                0xad11180f69a8c29e +
+                state[3] *
+                0xe76649f9bd5d5c2e +
+                state[4] *
+                0xe7ffd578da4ea43d +
+                state[5] *
+                0xab7f81fef4274770 +
+                state[6] *
+                0x753b8b1126665c22 +
+                state[7] *
+                0xc26a083554767106 +
+                state[8] *
+                0xbf150dc4914d380f +
+                state[9] *
+                0x623708f28fca70e8 +
+                state[10] *
+                0x4b1ba8d40afca97d +
+                state[11] *
+                0x7f8e41e0b0a6cdff;
+        }
+    }
+
+    function _mds_partial_layer_init_7(
+        uint256[WIDTH] memory state
+    ) private pure returns (uint256 res) {
+        unchecked {
+            res =
+                state[1] *
+                0x77736f524010c932 +
+                state[2] *
+                0xc75ac6d5b5a10ff3 +
+                state[3] *
+                0xaf8e2518a1ece54d +
+                state[4] *
+                0x43a608e7afa6b5c2 +
+                state[5] *
+                0xcb81f535cf98c9e9 +
+                state[6] *
+                0xab7f81fef4274770 +
+                state[7] *
+                0xad2f570a5b8545aa +
+                state[8] *
+                0x07084430a7307c9a +
+                state[9] *
+                0x5996a80497e24a6b +
+                state[10] *
+                0x5e40f0c9bb82aab5 +
+                state[11] *
+                0xf97abba0dffb6c50;
+        }
+    }
+
+    function _mds_partial_layer_init_8(
+        uint256[WIDTH] memory state
+    ) private pure returns (uint256 res) {
+        unchecked {
+            res =
+                state[1] *
+                0x904d3f2804a36c54 +
+                state[2] *
+                0xf0674a8dc5a387ec +
+                state[3] *
+                0xdcda1344cdca873f +
+                state[4] *
+                0xca46546aa99e1575 +
+                state[5] *
+                0x43a608e7afa6b5c2 +
+                state[6] *
+                0xe7ffd578da4ea43d +
+                state[7] *
+                0x2f7e9aade3fdaec1 +
+                state[8] *
+                0xa4911db6a32612da +
+                state[9] *
+                0x7f68007619fd8ba9 +
+                state[10] *
+                0xc537d44dc2875403 +
+                state[11] *
+                0xf4a437f2888ae909;
+        }
+    }
+
+    function _mds_partial_layer_init_9(
+        uint256[WIDTH] memory state
+    ) private pure returns (uint256 res) {
+        unchecked {
+            res =
+                state[1] *
+                0xbf9b39e28a16f354 +
+                state[2] *
+                0xb36d43120eaa5e2b +
+                state[3] *
+                0xcd080204256088e5 +
+                state[4] *
+                0xdcda1344cdca873f +
+                state[5] *
+                0xaf8e2518a1ece54d +
+                state[6] *
+                0xe76649f9bd5d5c2e +
+                state[7] *
+                0xbba4b5d86b9a3b2c +
+                state[8] *
+                0x1e8916a99c93a88e +
+                state[9] *
+                0x4715b8e5ab34653b +
+                state[10] *
+                0x14a4a64da0b2668f +
+                state[11] *
+                0xdcedab70f40718ba;
+        }
+    }
+
+    function _mds_partial_layer_init_10(
+        uint256[WIDTH] memory state
+    ) private pure returns (uint256 res) {
+        unchecked {
+            res =
+                state[1] *
+                0x3a1ded54a6cd058b +
+                state[2] *
+                0x6f232aab4b533a25 +
+                state[3] *
+                0xb36d43120eaa5e2b +
+                state[4] *
+                0xf0674a8dc5a387ec +
+                state[5] *
+                0xc75ac6d5b5a10ff3 +
+                state[6] *
+                0xad11180f69a8c29e +
+                state[7] *
+                0x7e33ca8c814280de +
+                state[8] *
+                0xa9032a52f930fae6 +
+                state[9] *
+                0x0ee5dc0ce131268a +
+                state[10] *
+                0xb124c33152a2421a +
+                state[11] *
+                0xe796d293a47a64cb;
+        }
+    }
+
+    function _mds_partial_layer_init_11(
+        uint256[WIDTH] memory state
+    ) private pure returns (uint256 res) {
+        unchecked {
+            res =
+                state[1] *
+                0x42392870da5737cf +
+                state[2] *
+                0x3a1ded54a6cd058b +
+                state[3] *
+                0xbf9b39e28a16f354 +
+                state[4] *
+                0x904d3f2804a36c54 +
+                state[5] *
+                0x77736f524010c932 +
+                state[6] *
+                0x00a2d4321cca94fe +
+                state[7] *
+                0x3a2432625475e3ae +
+                state[8] *
+                0x90e80c591f48b603 +
+                state[9] *
+                0xc1978156516879ad +
+                state[10] *
+                0xdc927721da922cf8 +
+                state[11] *
+                0x80772dc2645b280b;
+        }
+    }
+
+    // `state[i]` allows 193 bits number.
+    // `new_state[i]` is 64 bits number.
+    function _mds_partial_layer_fast(
+        uint256[WIDTH] memory state,
+        uint256 r
+    ) internal pure returns (uint256[WIDTH] memory new_state) {
+        unchecked {
+            uint256 d_sum = state[0] * (MDS_MATRIX_CIRC_0 + MDS_MATRIX_DIAG_0);
+
+            // for (uint256 i = 1; i < 12; i++) {
+            //     d_sum += state[i] * FAST_PARTIAL_ROUND_W_HATS[r][i - 1];
+            // }
             if (r == 0) {
-                res += v[0] * 8; // 200 bits
+                d_sum +=
+                    state[1] *
+                    0x3d999c961b7c63b0 +
+                    state[2] *
+                    0x814e82efcd172529 +
+                    state[3] *
+                    0x2421e5d236704588 +
+                    state[4] *
+                    0x887af7d4dd482328 +
+                    state[5] *
+                    0xa5e9c291f6119b27 +
+                    state[6] *
+                    0xbdc52b2676a4b4aa +
+                    state[7] *
+                    0x64832009d29bcf57 +
+                    state[8] *
+                    0x09c4155174a552cc +
+                    state[9] *
+                    0x463f9ee03d290810 +
+                    state[10] *
+                    0xc810936e64982542 +
+                    state[11] *
+                    0x043b1c289f7bc3ac;
+                // TODO: Rewrite to reduce gas.
+                // new_state[0] = mod(d_sum);
+                // new_state[1] = mod(state[1] + state[0] * 0x94877900674181c3);
+                // new_state[2] = mod(state[2] + state[0] * 0xc6c67cc37a2a2bbd);
+                // new_state[3] = mod(state[3] + state[0] * 0xd667c2055387940f);
+                // new_state[4] = mod(state[4] + state[0] * 0x0ba63a63e94b5ff0);
+                // new_state[5] = mod(state[5] + state[0] * 0x99460cc41b8f079f);
+                // new_state[6] = mod(state[6] + state[0] * 0x7ff02375ed524bb3);
+                // new_state[7] = mod(state[7] + state[0] * 0xea0870b47a8caf0e);
+                // new_state[8] = mod(state[8] + state[0] * 0xabcad82633b7bc9d);
+                // new_state[9] = mod(state[9] + state[0] * 0x3b8d135261052241);
+                // new_state[10] = mod(state[10] + state[0] * 0xfb4515f5e5b0d539);
+                // new_state[11] = mod(state[11] + state[0] * 0x3ee8011c2b37f77c);
+                // return new_state;
+            } else if (r == 1) {
+                d_sum +=
+                    state[1] *
+                    0x673655aae8be5a8b +
+                    state[2] *
+                    0xd510fe714f39fa10 +
+                    state[3] *
+                    0x2c68a099b51c9e73 +
+                    state[4] *
+                    0xa667bfa9aa96999d +
+                    state[5] *
+                    0x4d67e72f063e2108 +
+                    state[6] *
+                    0xf84dde3e6acda179 +
+                    state[7] *
+                    0x40f9cc8c08f80981 +
+                    state[8] *
+                    0x5ead032050097142 +
+                    state[9] *
+                    0x6591b02092d671bb +
+                    state[10] *
+                    0x00e18c71963dd1b7 +
+                    state[11] *
+                    0x8a21bcd24a14218a;
+            } else if (r == 2) {
+                d_sum +=
+                    state[1] *
+                    0x202800f4addbdc87 +
+                    state[2] *
+                    0xe4b5bdb1cc3504ff +
+                    state[3] *
+                    0xbe32b32a825596e7 +
+                    state[4] *
+                    0x8e0f68c5dc223b9a +
+                    state[5] *
+                    0x58022d9e1c256ce3 +
+                    state[6] *
+                    0x584d29227aa073ac +
+                    state[7] *
+                    0x8b9352ad04bef9e7 +
+                    state[8] *
+                    0xaead42a3f445ecbf +
+                    state[9] *
+                    0x3c667a1d833a3cca +
+                    state[10] *
+                    0xda6f61838efa1ffe +
+                    state[11] *
+                    0xe8f749470bd7c446;
+            } else if (r == 3) {
+                d_sum +=
+                    state[1] *
+                    0xc5b85bab9e5b3869 +
+                    state[2] *
+                    0x45245258aec51cf7 +
+                    state[3] *
+                    0x16e6b8e68b931830 +
+                    state[4] *
+                    0xe2ae0f051418112c +
+                    state[5] *
+                    0x0470e26a0093a65b +
+                    state[6] *
+                    0x6bef71973a8146ed +
+                    state[7] *
+                    0x119265be51812daf +
+                    state[8] *
+                    0xb0be7356254bea2e +
+                    state[9] *
+                    0x8584defff7589bd7 +
+                    state[10] *
+                    0x3c5fe4aeb1fb52ba +
+                    state[11] *
+                    0x9e7cd88acf543a5e;
+            } else if (r == 4) {
+                d_sum +=
+                    state[1] *
+                    0x179be4bba87f0a8c +
+                    state[2] *
+                    0xacf63d95d8887355 +
+                    state[3] *
+                    0x6696670196b0074f +
+                    state[4] *
+                    0xd99ddf1fe75085f9 +
+                    state[5] *
+                    0xc2597881fef0283b +
+                    state[6] *
+                    0xcf48395ee6c54f14 +
+                    state[7] *
+                    0x15226a8e4cd8d3b6 +
+                    state[8] *
+                    0xc053297389af5d3b +
+                    state[9] *
+                    0x2c08893f0d1580e2 +
+                    state[10] *
+                    0x0ed3cbcff6fcc5ba +
+                    state[11] *
+                    0xc82f510ecf81f6d0;
+            } else if (r == 5) {
+                d_sum +=
+                    state[1] *
+                    0x94b06183acb715cc +
+                    state[2] *
+                    0x500392ed0d431137 +
+                    state[3] *
+                    0x861cc95ad5c86323 +
+                    state[4] *
+                    0x05830a443f86c4ac +
+                    state[5] *
+                    0x3b68225874a20a7c +
+                    state[6] *
+                    0x10b3309838e236fb +
+                    state[7] *
+                    0x9b77fc8bcd559e2c +
+                    state[8] *
+                    0xbdecf5e0cb9cb213 +
+                    state[9] *
+                    0x30276f1221ace5fa +
+                    state[10] *
+                    0x7935dd342764a144 +
+                    state[11] *
+                    0xeac6db520bb03708;
+            } else if (r == 6) {
+                d_sum +=
+                    state[1] *
+                    0x7186a80551025f8f +
+                    state[2] *
+                    0x622247557e9b5371 +
+                    state[3] *
+                    0xc4cbe326d1ad9742 +
+                    state[4] *
+                    0x55f1523ac6a23ea2 +
+                    state[5] *
+                    0xa13dfe77a3d52f53 +
+                    state[6] *
+                    0xe30750b6301c0452 +
+                    state[7] *
+                    0x08bd488070a3a32b +
+                    state[8] *
+                    0xcd800caef5b72ae3 +
+                    state[9] *
+                    0x83329c90f04233ce +
+                    state[10] *
+                    0xb5b99e6664a0a3ee +
+                    state[11] *
+                    0x6b0731849e200a7f;
+            } else if (r == 7) {
+                d_sum +=
+                    state[1] *
+                    0xec3fabc192b01799 +
+                    state[2] *
+                    0x382b38cee8ee5375 +
+                    state[3] *
+                    0x3bfb6c3f0e616572 +
+                    state[4] *
+                    0x514abd0cf6c7bc86 +
+                    state[5] *
+                    0x47521b1361dcc546 +
+                    state[6] *
+                    0x178093843f863d14 +
+                    state[7] *
+                    0xad1003c5d28918e7 +
+                    state[8] *
+                    0x738450e42495bc81 +
+                    state[9] *
+                    0xaf947c59af5e4047 +
+                    state[10] *
+                    0x4653fb0685084ef2 +
+                    state[11] *
+                    0x057fde2062ae35bf;
+            } else if (r == 8) {
+                d_sum +=
+                    state[1] *
+                    0xe376678d843ce55e +
+                    state[2] *
+                    0x66f3860d7514e7fc +
+                    state[3] *
+                    0x7817f3dfff8b4ffa +
+                    state[4] *
+                    0x3929624a9def725b +
+                    state[5] *
+                    0x0126ca37f215a80a +
+                    state[6] *
+                    0xfce2f5d02762a303 +
+                    state[7] *
+                    0x1bc927375febbad7 +
+                    state[8] *
+                    0x85b481e5243f60bf +
+                    state[9] *
+                    0x2d3c5f42a39c91a0 +
+                    state[10] *
+                    0x0811719919351ae8 +
+                    state[11] *
+                    0xf669de0add993131;
+            } else if (r == 9) {
+                d_sum +=
+                    state[1] *
+                    0x7de38bae084da92d +
+                    state[2] *
+                    0x5b848442237e8a9b +
+                    state[3] *
+                    0xf6c705da84d57310 +
+                    state[4] *
+                    0x31e6a4bdb6a49017 +
+                    state[5] *
+                    0x889489706e5c5c0f +
+                    state[6] *
+                    0x0e4a205459692a1b +
+                    state[7] *
+                    0xbac3fa75ee26f299 +
+                    state[8] *
+                    0x5f5894f4057d755e +
+                    state[9] *
+                    0xb0dc3ecd724bb076 +
+                    state[10] *
+                    0x5e34d8554a6452ba +
+                    state[11] *
+                    0x04f78fd8c1fdcc5f;
+            } else if (r == 10) {
+                d_sum +=
+                    state[1] *
+                    0x4dd19c38779512ea +
+                    state[2] *
+                    0xdb79ba02704620e9 +
+                    state[3] *
+                    0x92a29a3675a5d2be +
+                    state[4] *
+                    0xd5177029fe495166 +
+                    state[5] *
+                    0xd32b3298a13330c1 +
+                    state[6] *
+                    0x251c4a3eb2c5f8fd +
+                    state[7] *
+                    0xe1c48b26e0d98825 +
+                    state[8] *
+                    0x3301d3362a4ffccb +
+                    state[9] *
+                    0x09bb6c88de8cd178 +
+                    state[10] *
+                    0xdc05b676564f538a +
+                    state[11] *
+                    0x60192d883e473fee;
+            } else if (r == 11) {
+                d_sum +=
+                    state[1] *
+                    0x16b9774801ac44a0 +
+                    state[2] *
+                    0x3cb8411e786d3c8e +
+                    state[3] *
+                    0xa86e9cf505072491 +
+                    state[4] *
+                    0x0178928152e109ae +
+                    state[5] *
+                    0x5317b905a6e1ab7b +
+                    state[6] *
+                    0xda20b3be7f53d59f +
+                    state[7] *
+                    0xcb97dedecebee9ad +
+                    state[8] *
+                    0x4bd545218c59f58d +
+                    state[9] *
+                    0x77dc8d856c05a44a +
+                    state[10] *
+                    0x87948589e4f243fd +
+                    state[11] *
+                    0x7e5217af969952c2;
+            } else if (r == 12) {
+                d_sum +=
+                    state[1] *
+                    0xbc58987d06a84e4d +
+                    state[2] *
+                    0x0b5d420244c9cae3 +
+                    state[3] *
+                    0xa3c4711b938c02c0 +
+                    state[4] *
+                    0x3aace640a3e03990 +
+                    state[5] *
+                    0x865a0f3249aacd8a +
+                    state[6] *
+                    0x8d00b2a7dbed06c7 +
+                    state[7] *
+                    0x6eacb905beb7e2f8 +
+                    state[8] *
+                    0x045322b216ec3ec7 +
+                    state[9] *
+                    0xeb9de00d594828e6 +
+                    state[10] *
+                    0x088c5f20df9e5c26 +
+                    state[11] *
+                    0xf555f4112b19781f;
+            } else if (r == 13) {
+                d_sum +=
+                    state[1] *
+                    0xa8cedbff1813d3a7 +
+                    state[2] *
+                    0x50dcaee0fd27d164 +
+                    state[3] *
+                    0xf1cb02417e23bd82 +
+                    state[4] *
+                    0xfaf322786e2abe8b +
+                    state[5] *
+                    0x937a4315beb5d9b6 +
+                    state[6] *
+                    0x1b18992921a11d85 +
+                    state[7] *
+                    0x7d66c4368b3c497b +
+                    state[8] *
+                    0x0e7946317a6b4e99 +
+                    state[9] *
+                    0xbe4430134182978b +
+                    state[10] *
+                    0x3771e82493ab262d +
+                    state[11] *
+                    0xa671690d8095ce82;
+            } else if (r == 14) {
+                d_sum +=
+                    state[1] *
+                    0xb035585f6e929d9d +
+                    state[2] *
+                    0xba1579c7e219b954 +
+                    state[3] *
+                    0xcb201cf846db4ba3 +
+                    state[4] *
+                    0x287bf9177372cf45 +
+                    state[5] *
+                    0xa350e4f61147d0a6 +
+                    state[6] *
+                    0xd5d0ecfb50bcff99 +
+                    state[7] *
+                    0x2e166aa6c776ed21 +
+                    state[8] *
+                    0xe1e66c991990e282 +
+                    state[9] *
+                    0x662b329b01e7bb38 +
+                    state[10] *
+                    0x8aa674b36144d9a9 +
+                    state[11] *
+                    0xcbabf78f97f95e65;
+            } else if (r == 15) {
+                d_sum +=
+                    state[1] *
+                    0xeec24b15a06b53fe +
+                    state[2] *
+                    0xc8a7aa07c5633533 +
+                    state[3] *
+                    0xefe9c6fa4311ad51 +
+                    state[4] *
+                    0xb9173f13977109a1 +
+                    state[5] *
+                    0x69ce43c9cc94aedc +
+                    state[6] *
+                    0xecf623c9cd118815 +
+                    state[7] *
+                    0x28625def198c33c7 +
+                    state[8] *
+                    0xccfc5f7de5c3636a +
+                    state[9] *
+                    0xf5e6c40f1621c299 +
+                    state[10] *
+                    0xcec0e58c34cb64b1 +
+                    state[11] *
+                    0xa868ea113387939f;
+            } else if (r == 16) {
+                d_sum +=
+                    state[1] *
+                    0xd8dddbdc5ce4ef45 +
+                    state[2] *
+                    0xacfc51de8131458c +
+                    state[3] *
+                    0x146bb3c0fe499ac0 +
+                    state[4] *
+                    0x9e65309f15943903 +
+                    state[5] *
+                    0x80d0ad980773aa70 +
+                    state[6] *
+                    0xf97817d4ddbf0607 +
+                    state[7] *
+                    0xe4626620a75ba276 +
+                    state[8] *
+                    0x0dfdc7fd6fc74f66 +
+                    state[9] *
+                    0xf464864ad6f2bb93 +
+                    state[10] *
+                    0x02d55e52a5d44414 +
+                    state[11] *
+                    0xdd8de62487c40925;
+            } else if (r == 17) {
+                d_sum +=
+                    state[1] *
+                    0xc15acf44759545a3 +
+                    state[2] *
+                    0xcbfdcf39869719d4 +
+                    state[3] *
+                    0x33f62042e2f80225 +
+                    state[4] *
+                    0x2599c5ead81d8fa3 +
+                    state[5] *
+                    0x0b306cb6c1d7c8d0 +
+                    state[6] *
+                    0x658c80d3df3729b1 +
+                    state[7] *
+                    0xe8d1b2b21b41429c +
+                    state[8] *
+                    0xa1b67f09d4b3ccb8 +
+                    state[9] *
+                    0x0e1adf8b84437180 +
+                    state[10] *
+                    0x0d593a5e584af47b +
+                    state[11] *
+                    0xa023d94c56e151c7;
+            } else if (r == 18) {
+                d_sum +=
+                    state[1] *
+                    0x49026cc3a4afc5a6 +
+                    state[2] *
+                    0xe06dff00ab25b91b +
+                    state[3] *
+                    0x0ab38c561e8850ff +
+                    state[4] *
+                    0x92c3c8275e105eeb +
+                    state[5] *
+                    0xb65256e546889bd0 +
+                    state[6] *
+                    0x3c0468236ea142f6 +
+                    state[7] *
+                    0xee61766b889e18f2 +
+                    state[8] *
+                    0xa206f41b12c30415 +
+                    state[9] *
+                    0x02fe9d756c9f12d1 +
+                    state[10] *
+                    0xe9633210630cbf12 +
+                    state[11] *
+                    0x1ffea9fe85a0b0b1;
+            } else if (r == 19) {
+                d_sum +=
+                    state[1] *
+                    0x81d1ae8cc50240f3 +
+                    state[2] *
+                    0xf4c77a079a4607d7 +
+                    state[3] *
+                    0xed446b2315e3efc1 +
+                    state[4] *
+                    0x0b0a6b70915178c3 +
+                    state[5] *
+                    0xb11ff3e089f15d9a +
+                    state[6] *
+                    0x1d4dba0b7ae9cc18 +
+                    state[7] *
+                    0x65d74e2f43b48d05 +
+                    state[8] *
+                    0xa2df8c6b8ae0804a +
+                    state[9] *
+                    0xa4e6f0a8c33348a6 +
+                    state[10] *
+                    0xc0a26efc7be5669b +
+                    state[11] *
+                    0xa6b6582c547d0d60;
+            } else if (r == 20) {
+                d_sum +=
+                    state[1] *
+                    0x84afc741f1c13213 +
+                    state[2] *
+                    0x2f8f43734fc906f3 +
+                    state[3] *
+                    0xde682d72da0a02d9 +
+                    state[4] *
+                    0x0bb005236adb9ef2 +
+                    state[5] *
+                    0x5bdf35c10a8b5624 +
+                    state[6] *
+                    0x0739a8a343950010 +
+                    state[7] *
+                    0x52f515f44785cfbc +
+                    state[8] *
+                    0xcbaf4e5d82856c60 +
+                    state[9] *
+                    0xac9ea09074e3e150 +
+                    state[10] *
+                    0x8f0fa011a2035fb0 +
+                    state[11] *
+                    0x1a37905d8450904a;
+            } else if (r == 21) {
+                d_sum +=
+                    state[1] *
+                    0x3abeb80def61cc85 +
+                    state[2] *
+                    0x9d19c9dd4eac4133 +
+                    state[3] *
+                    0x075a652d9641a985 +
+                    state[4] *
+                    0x9daf69ae1b67e667 +
+                    state[5] *
+                    0x364f71da77920a18 +
+                    state[6] *
+                    0x50bd769f745c95b1 +
+                    state[7] *
+                    0xf223d1180dbbf3fc +
+                    state[8] *
+                    0x2f885e584e04aa99 +
+                    state[9] *
+                    0xb69a0fa70aea684a +
+                    state[10] *
+                    0x09584acaa6e062a0 +
+                    state[11] *
+                    0x0bc051640145b19b;
+            }
+
+            new_state[0] = mod(d_sum);
+
+            // for (uint256 i = 1; i < 12; i++)  {
+            //     new_state[i] = mod(state[i] + state[0] * FAST_PARTIAL_ROUND_VS[r][i - 1]);
+            // }
+            if (r == 0) {
+                new_state[1] = mod(state[1] + state[0] * 0x94877900674181c3);
+                new_state[2] = mod(state[2] + state[0] * 0xc6c67cc37a2a2bbd);
+                new_state[3] = mod(state[3] + state[0] * 0xd667c2055387940f);
+                new_state[4] = mod(state[4] + state[0] * 0x0ba63a63e94b5ff0);
+                new_state[5] = mod(state[5] + state[0] * 0x99460cc41b8f079f);
+                new_state[6] = mod(state[6] + state[0] * 0x7ff02375ed524bb3);
+                new_state[7] = mod(state[7] + state[0] * 0xea0870b47a8caf0e);
+                new_state[8] = mod(state[8] + state[0] * 0xabcad82633b7bc9d);
+                new_state[9] = mod(state[9] + state[0] * 0x3b8d135261052241);
+                new_state[10] = mod(state[10] + state[0] * 0xfb4515f5e5b0d539);
+                new_state[11] = mod(state[11] + state[0] * 0x3ee8011c2b37f77c);
+            } else if (r == 1) {
+                new_state[1] = mod(state[1] + state[0] * 0x0adef3740e71c726);
+                new_state[2] = mod(state[2] + state[0] * 0xa37bf67c6f986559);
+                new_state[3] = mod(state[3] + state[0] * 0xc6b16f7ed4fa1b00);
+                new_state[4] = mod(state[4] + state[0] * 0x6a065da88d8bfc3c);
+                new_state[5] = mod(state[5] + state[0] * 0x4cabc0916844b46f);
+                new_state[6] = mod(state[6] + state[0] * 0x407faac0f02e78d1);
+                new_state[7] = mod(state[7] + state[0] * 0x07a786d9cf0852cf);
+                new_state[8] = mod(state[8] + state[0] * 0x42433fb6949a629a);
+                new_state[9] = mod(state[9] + state[0] * 0x891682a147ce43b0);
+                new_state[10] = mod(state[10] + state[0] * 0x26cfd58e7b003b55);
+                new_state[11] = mod(state[11] + state[0] * 0x2bbf0ed7b657acb3);
+            } else if (r == 2) {
+                new_state[1] = mod(state[1] + state[0] * 0x481ac7746b159c67);
+                new_state[2] = mod(state[2] + state[0] * 0xe367de32f108e278);
+                new_state[3] = mod(state[3] + state[0] * 0x73f260087ad28bec);
+                new_state[4] = mod(state[4] + state[0] * 0x5cfc82216bc1bdca);
+                new_state[5] = mod(state[5] + state[0] * 0xcaccc870a2663a0e);
+                new_state[6] = mod(state[6] + state[0] * 0xdb69cd7b4298c45d);
+                new_state[7] = mod(state[7] + state[0] * 0x7bc9e0c57243e62d);
+                new_state[8] = mod(state[8] + state[0] * 0x3cc51c5d368693ae);
+                new_state[9] = mod(state[9] + state[0] * 0x366b4e8cc068895b);
+                new_state[10] = mod(state[10] + state[0] * 0x2bd18715cdabbca4);
+                new_state[11] = mod(state[11] + state[0] * 0xa752061c4f33b8cf);
+            } else if (r == 3) {
+                new_state[1] = mod(state[1] + state[0] * 0xb22d2432b72d5098);
+                new_state[2] = mod(state[2] + state[0] * 0x9e18a487f44d2fe4);
+                new_state[3] = mod(state[3] + state[0] * 0x4b39e14ce22abd3c);
+                new_state[4] = mod(state[4] + state[0] * 0x9e77fde2eb315e0d);
+                new_state[5] = mod(state[5] + state[0] * 0xca5e0385fe67014d);
+                new_state[6] = mod(state[6] + state[0] * 0x0c2cb99bf1b6bddb);
+                new_state[7] = mod(state[7] + state[0] * 0x99ec1cd2a4460bfe);
+                new_state[8] = mod(state[8] + state[0] * 0x8577a815a2ff843f);
+                new_state[9] = mod(state[9] + state[0] * 0x7d80a6b4fd6518a5);
+                new_state[10] = mod(state[10] + state[0] * 0xeb6c67123eab62cb);
+                new_state[11] = mod(state[11] + state[0] * 0x8f7851650eca21a5);
+            } else if (r == 4) {
+                new_state[1] = mod(state[1] + state[0] * 0x11ba9a1b81718c2a);
+                new_state[2] = mod(state[2] + state[0] * 0x9f7d798a3323410c);
+                new_state[3] = mod(state[3] + state[0] * 0xa821855c8c1cf5e5);
+                new_state[4] = mod(state[4] + state[0] * 0x535e8d6fac0031b2);
+                new_state[5] = mod(state[5] + state[0] * 0x404e7c751b634320);
+                new_state[6] = mod(state[6] + state[0] * 0xa729353f6e55d354);
+                new_state[7] = mod(state[7] + state[0] * 0x4db97d92e58bb831);
+                new_state[8] = mod(state[8] + state[0] * 0xb53926c27897bf7d);
+                new_state[9] = mod(state[9] + state[0] * 0x965040d52fe115c5);
+                new_state[10] = mod(state[10] + state[0] * 0x9565fa41ebd31fd7);
+                new_state[11] = mod(state[11] + state[0] * 0xaae4438c877ea8f4);
+            } else if (r == 5) {
+                new_state[1] = mod(state[1] + state[0] * 0x37f4e36af6073c6e);
+                new_state[2] = mod(state[2] + state[0] * 0x4edc0918210800e9);
+                new_state[3] = mod(state[3] + state[0] * 0xc44998e99eae4188);
+                new_state[4] = mod(state[4] + state[0] * 0x9f4310d05d068338);
+                new_state[5] = mod(state[5] + state[0] * 0x9ec7fe4350680f29);
+                new_state[6] = mod(state[6] + state[0] * 0xc5b2c1fdc0b50874);
+                new_state[7] = mod(state[7] + state[0] * 0xa01920c5ef8b2ebe);
+                new_state[8] = mod(state[8] + state[0] * 0x59fa6f8bd91d58ba);
+                new_state[9] = mod(state[9] + state[0] * 0x8bfc9eb89b515a82);
+                new_state[10] = mod(state[10] + state[0] * 0xbe86a7a2555ae775);
+                new_state[11] = mod(state[11] + state[0] * 0xcbb8bbaa3810babf);
+            } else if (r == 6) {
+                new_state[1] = mod(state[1] + state[0] * 0x577f9a9e7ee3f9c2);
+                new_state[2] = mod(state[2] + state[0] * 0x88c522b949ace7b1);
+                new_state[3] = mod(state[3] + state[0] * 0x82f07007c8b72106);
+                new_state[4] = mod(state[4] + state[0] * 0x8283d37c6675b50e);
+                new_state[5] = mod(state[5] + state[0] * 0x98b074d9bbac1123);
+                new_state[6] = mod(state[6] + state[0] * 0x75c56fb7758317c1);
+                new_state[7] = mod(state[7] + state[0] * 0xfed24e206052bc72);
+                new_state[8] = mod(state[8] + state[0] * 0x26d7c3d1bc07dae5);
+                new_state[9] = mod(state[9] + state[0] * 0xf88c5e441e28dbb4);
+                new_state[10] = mod(state[10] + state[0] * 0x4fe27f9f96615270);
+                new_state[11] = mod(state[11] + state[0] * 0x514d4ba49c2b14fe);
+            } else if (r == 7) {
+                new_state[1] = mod(state[1] + state[0] * 0xf02a3ac068ee110b);
+                new_state[2] = mod(state[2] + state[0] * 0x0a3630dafb8ae2d7);
+                new_state[3] = mod(state[3] + state[0] * 0xce0dc874eaf9b55c);
+                new_state[4] = mod(state[4] + state[0] * 0x9a95f6cff5b55c7e);
+                new_state[5] = mod(state[5] + state[0] * 0x626d76abfed00c7b);
+                new_state[6] = mod(state[6] + state[0] * 0xa0c1cf1251c204ad);
+                new_state[7] = mod(state[7] + state[0] * 0xdaebd3006321052c);
+                new_state[8] = mod(state[8] + state[0] * 0x3d4bd48b625a8065);
+                new_state[9] = mod(state[9] + state[0] * 0x7f1e584e071f6ed2);
+                new_state[10] = mod(state[10] + state[0] * 0x720574f0501caed3);
+                new_state[11] = mod(state[11] + state[0] * 0xe3260ba93d23540a);
+            } else if (r == 8) {
+                new_state[1] = mod(state[1] + state[0] * 0xab1cbd41d8c1e335);
+                new_state[2] = mod(state[2] + state[0] * 0x9322ed4c0bc2df01);
+                new_state[3] = mod(state[3] + state[0] * 0x51c3c0983d4284e5);
+                new_state[4] = mod(state[4] + state[0] * 0x94178e291145c231);
+                new_state[5] = mod(state[5] + state[0] * 0xfd0f1a973d6b2085);
+                new_state[6] = mod(state[6] + state[0] * 0xd427ad96e2b39719);
+                new_state[7] = mod(state[7] + state[0] * 0x8a52437fecaac06b);
+                new_state[8] = mod(state[8] + state[0] * 0xdc20ee4b8c4c9a80);
+                new_state[9] = mod(state[9] + state[0] * 0xa2c98e9549da2100);
+                new_state[10] = mod(state[10] + state[0] * 0x1603fe12613db5b6);
+                new_state[11] = mod(state[11] + state[0] * 0x0e174929433c5505);
+            } else if (r == 9) {
+                new_state[1] = mod(state[1] + state[0] * 0x3d4eab2b8ef5f796);
+                new_state[2] = mod(state[2] + state[0] * 0xcfff421583896e22);
+                new_state[3] = mod(state[3] + state[0] * 0x4143cb32d39ac3d9);
+                new_state[4] = mod(state[4] + state[0] * 0x22365051b78a5b65);
+                new_state[5] = mod(state[5] + state[0] * 0x6f7fd010d027c9b6);
+                new_state[6] = mod(state[6] + state[0] * 0xd9dd36fba77522ab);
+                new_state[7] = mod(state[7] + state[0] * 0xa44cf1cb33e37165);
+                new_state[8] = mod(state[8] + state[0] * 0x3fc83d3038c86417);
+                new_state[9] = mod(state[9] + state[0] * 0xc4588d418e88d270);
+                new_state[10] = mod(state[10] + state[0] * 0xce1320f10ab80fe2);
+                new_state[11] = mod(state[11] + state[0] * 0xdb5eadbbec18de5d);
+            } else if (r == 10) {
+                new_state[1] = mod(state[1] + state[0] * 0x1183dfce7c454afd);
+                new_state[2] = mod(state[2] + state[0] * 0x21cea4aa3d3ed949);
+                new_state[3] = mod(state[3] + state[0] * 0x0fce6f70303f2304);
+                new_state[4] = mod(state[4] + state[0] * 0x19557d34b55551be);
+                new_state[5] = mod(state[5] + state[0] * 0x4c56f689afc5bbc9);
+                new_state[6] = mod(state[6] + state[0] * 0xa1e920844334f944);
+                new_state[7] = mod(state[7] + state[0] * 0xbad66d423d2ec861);
+                new_state[8] = mod(state[8] + state[0] * 0xf318c785dc9e0479);
+                new_state[9] = mod(state[9] + state[0] * 0x99e2032e765ddd81);
+                new_state[10] = mod(state[10] + state[0] * 0x400ccc9906d66f45);
+                new_state[11] = mod(state[11] + state[0] * 0xe1197454db2e0dd9);
+            } else if (r == 11) {
+                new_state[1] = mod(state[1] + state[0] * 0x84d1ecc4d53d2ff1);
+                new_state[2] = mod(state[2] + state[0] * 0xd8af8b9ceb4e11b6);
+                new_state[3] = mod(state[3] + state[0] * 0x335856bb527b52f4);
+                new_state[4] = mod(state[4] + state[0] * 0xc756f17fb59be595);
+                new_state[5] = mod(state[5] + state[0] * 0xc0654e4ea5553a78);
+                new_state[6] = mod(state[6] + state[0] * 0x9e9a46b61f2ea942);
+                new_state[7] = mod(state[7] + state[0] * 0x14fc8b5b3b809127);
+                new_state[8] = mod(state[8] + state[0] * 0xd7009f0f103be413);
+                new_state[9] = mod(state[9] + state[0] * 0x3e0ee7b7a9fb4601);
+                new_state[10] = mod(state[10] + state[0] * 0xa74e888922085ed7);
+                new_state[11] = mod(state[11] + state[0] * 0xe80a7cde3d4ac526);
+            } else if (r == 12) {
+                new_state[1] = mod(state[1] + state[0] * 0x238aa6daa612186d);
+                new_state[2] = mod(state[2] + state[0] * 0x9137a5c630bad4b4);
+                new_state[3] = mod(state[3] + state[0] * 0xc7db3817870c5eda);
+                new_state[4] = mod(state[4] + state[0] * 0x217e4f04e5718dc9);
+                new_state[5] = mod(state[5] + state[0] * 0xcae814e2817bd99d);
+                new_state[6] = mod(state[6] + state[0] * 0xe3292e7ab770a8ba);
+                new_state[7] = mod(state[7] + state[0] * 0x7bb36ef70b6b9482);
+                new_state[8] = mod(state[8] + state[0] * 0x3c7835fb85bca2d3);
+                new_state[9] = mod(state[9] + state[0] * 0xfe2cdf8ee3c25e86);
+                new_state[10] = mod(state[10] + state[0] * 0x61b3915ad7274b20);
+                new_state[11] = mod(state[11] + state[0] * 0xeab75ca7c918e4ef);
+            } else if (r == 13) {
+                new_state[1] = mod(state[1] + state[0] * 0xd6e15ffc055e154e);
+                new_state[2] = mod(state[2] + state[0] * 0xec67881f381a32bf);
+                new_state[3] = mod(state[3] + state[0] * 0xfbb1196092bf409c);
+                new_state[4] = mod(state[4] + state[0] * 0xdc9d2e07830ba226);
+                new_state[5] = mod(state[5] + state[0] * 0x0698ef3245ff7988);
+                new_state[6] = mod(state[6] + state[0] * 0x194fae2974f8b576);
+                new_state[7] = mod(state[7] + state[0] * 0x7a5d9bea6ca4910e);
+                new_state[8] = mod(state[8] + state[0] * 0x7aebfea95ccdd1c9);
+                new_state[9] = mod(state[9] + state[0] * 0xf9bd38a67d5f0e86);
+                new_state[10] = mod(state[10] + state[0] * 0xfa65539de65492d8);
+                new_state[11] = mod(state[11] + state[0] * 0xf0dfcbe7653ff787);
+            } else if (r == 14) {
+                new_state[1] = mod(state[1] + state[0] * 0x0bd87ad390420258);
+                new_state[2] = mod(state[2] + state[0] * 0x0ad8617bca9e33c8);
+                new_state[3] = mod(state[3] + state[0] * 0x0c00ad377a1e2666);
+                new_state[4] = mod(state[4] + state[0] * 0x0ac6fc58b3f0518f);
+                new_state[5] = mod(state[5] + state[0] * 0x0c0cc8a892cc4173);
+                new_state[6] = mod(state[6] + state[0] * 0x0c210accb117bc21);
+                new_state[7] = mod(state[7] + state[0] * 0x0b73630dbb46ca18);
+                new_state[8] = mod(state[8] + state[0] * 0x0c8be4920cbd4a54);
+                new_state[9] = mod(state[9] + state[0] * 0x0bfe877a21be1690);
+                new_state[10] = mod(state[10] + state[0] * 0x0ae790559b0ded81);
+                new_state[11] = mod(state[11] + state[0] * 0x0bf50db2f8d6ce31);
+            } else if (r == 15) {
+                new_state[1] = mod(state[1] + state[0] * 0x000cf29427ff7c58);
+                new_state[2] = mod(state[2] + state[0] * 0x000bd9b3cf49eec8);
+                new_state[3] = mod(state[3] + state[0] * 0x000d1dc8aa81fb26);
+                new_state[4] = mod(state[4] + state[0] * 0x000bc792d5c394ef);
+                new_state[5] = mod(state[5] + state[0] * 0x000d2ae0b2266453);
+                new_state[6] = mod(state[6] + state[0] * 0x000d413f12c496c1);
+                new_state[7] = mod(state[7] + state[0] * 0x000c84128cfed618);
+                new_state[8] = mod(state[8] + state[0] * 0x000db5ebd48fc0d4);
+                new_state[9] = mod(state[9] + state[0] * 0x000d1b77326dcb90);
+                new_state[10] = mod(state[10] + state[0] * 0x000beb0ccc145421);
+                new_state[11] = mod(state[11] + state[0] * 0x000d10e5b22b11d1);
+            } else if (r == 16) {
+                new_state[1] = mod(state[1] + state[0] * 0x00000e24c99adad8);
+                new_state[2] = mod(state[2] + state[0] * 0x00000cf389ed4bc8);
+                new_state[3] = mod(state[3] + state[0] * 0x00000e580cbf6966);
+                new_state[4] = mod(state[4] + state[0] * 0x00000cde5fd7e04f);
+                new_state[5] = mod(state[5] + state[0] * 0x00000e63628041b3);
+                new_state[6] = mod(state[6] + state[0] * 0x00000e7e81a87361);
+                new_state[7] = mod(state[7] + state[0] * 0x00000dabe78f6d98);
+                new_state[8] = mod(state[8] + state[0] * 0x00000efb14cac554);
+                new_state[9] = mod(state[9] + state[0] * 0x00000e5574743b10);
+                new_state[10] = mod(state[10] + state[0] * 0x00000d05709f42c1);
+                new_state[11] = mod(state[11] + state[0] * 0x00000e4690c96af1);
+            } else if (r == 17) {
+                new_state[1] = mod(state[1] + state[0] * 0x0000000f7157bc98);
+                new_state[2] = mod(state[2] + state[0] * 0x0000000e3006d948);
+                new_state[3] = mod(state[3] + state[0] * 0x0000000fa65811e6);
+                new_state[4] = mod(state[4] + state[0] * 0x0000000e0d127e2f);
+                new_state[5] = mod(state[5] + state[0] * 0x0000000fc18bfe53);
+                new_state[6] = mod(state[6] + state[0] * 0x0000000fd002d901);
+                new_state[7] = mod(state[7] + state[0] * 0x0000000eed6461d8);
+                new_state[8] = mod(state[8] + state[0] * 0x0000001068562754);
+                new_state[9] = mod(state[9] + state[0] * 0x0000000fa0236f50);
+                new_state[10] = mod(state[10] + state[0] * 0x0000000e3af13ee1);
+                new_state[11] = mod(state[11] + state[0] * 0x0000000fa460f6d1);
+            } else if (r == 18) {
+                new_state[1] = mod(state[1] + state[0] * 0x0000000011131738);
+                new_state[2] = mod(state[2] + state[0] * 0x000000000f56d588);
+                new_state[3] = mod(state[3] + state[0] * 0x0000000011050f86);
+                new_state[4] = mod(state[4] + state[0] * 0x000000000f848f4f);
+                new_state[5] = mod(state[5] + state[0] * 0x00000000111527d3);
+                new_state[6] = mod(state[6] + state[0] * 0x00000000114369a1);
+                new_state[7] = mod(state[7] + state[0] * 0x00000000106f2f38);
+                new_state[8] = mod(state[8] + state[0] * 0x0000000011e2ca94);
+                new_state[9] = mod(state[9] + state[0] * 0x00000000110a29f0);
+                new_state[10] = mod(state[10] + state[0] * 0x000000000fa9f5c1);
+                new_state[11] = mod(state[11] + state[0] * 0x0000000010f625d1);
+            } else if (r == 19) {
+                new_state[1] = mod(state[1] + state[0] * 0x000000000011f718);
+                new_state[2] = mod(state[2] + state[0] * 0x000000000010b6c8);
+                new_state[3] = mod(state[3] + state[0] * 0x0000000000134a96);
+                new_state[4] = mod(state[4] + state[0] * 0x000000000010cf7f);
+                new_state[5] = mod(state[5] + state[0] * 0x0000000000124d03);
+                new_state[6] = mod(state[6] + state[0] * 0x000000000013f8a1);
+                new_state[7] = mod(state[7] + state[0] * 0x0000000000117c58);
+                new_state[8] = mod(state[8] + state[0] * 0x0000000000132c94);
+                new_state[9] = mod(state[9] + state[0] * 0x0000000000134fc0);
+                new_state[10] = mod(state[10] + state[0] * 0x000000000010a091);
+                new_state[11] = mod(state[11] + state[0] * 0x0000000000128961);
+            } else if (r == 20) {
+                new_state[1] = mod(state[1] + state[0] * 0x0000000000001300);
+                new_state[2] = mod(state[2] + state[0] * 0x0000000000001750);
+                new_state[3] = mod(state[3] + state[0] * 0x000000000000114e);
+                new_state[4] = mod(state[4] + state[0] * 0x000000000000131f);
+                new_state[5] = mod(state[5] + state[0] * 0x000000000000167b);
+                new_state[6] = mod(state[6] + state[0] * 0x0000000000001371);
+                new_state[7] = mod(state[7] + state[0] * 0x0000000000001230);
+                new_state[8] = mod(state[8] + state[0] * 0x000000000000182c);
+                new_state[9] = mod(state[9] + state[0] * 0x0000000000001368);
+                new_state[10] = mod(state[10] + state[0] * 0x0000000000000f31);
+                new_state[11] = mod(state[11] + state[0] * 0x00000000000015c9);
+            } else if (r == 21) {
+                new_state[1] = mod(state[1] + state[0] * 0x0000000000000014);
+                new_state[2] = mod(state[2] + state[0] * 0x0000000000000022);
+                new_state[3] = mod(state[3] + state[0] * 0x0000000000000012);
+                new_state[4] = mod(state[4] + state[0] * 0x0000000000000027);
+                new_state[5] = mod(state[5] + state[0] * 0x000000000000000d);
+                new_state[6] = mod(state[6] + state[0] * 0x000000000000000d);
+                new_state[7] = mod(state[7] + state[0] * 0x000000000000001c);
+                new_state[8] = mod(state[8] + state[0] * 0x0000000000000002);
+                new_state[9] = mod(state[9] + state[0] * 0x0000000000000010);
+                new_state[10] = mod(state[10] + state[0] * 0x0000000000000029);
+                new_state[11] = mod(state[11] + state[0] * 0x000000000000000f);
             }
         }
     }
 
-    // 10614 gas
-    function _mds_layer(
+    function _partial_first_layer(
         uint256[WIDTH] memory state
     ) internal pure returns (uint256[WIDTH] memory new_state) {
-        // for (uint256 r = 0; r < 12; r++) {
-        //     new_state[r] = _mds_row_shf(r, state);
+        // _partial_first_constant_layer
+        // for (uint256 i = 0; i < 12; i++) {
+        //     new_state[i] = add(state[i], FAST_PARTIAL_FIRST_ROUND_CONSTANT[i]);
         // }
-        new_state[0] = _mds_row_shf(0, state);
-        new_state[1] = _mds_row_shf(1, state);
-        new_state[2] = _mds_row_shf(2, state);
-        new_state[3] = _mds_row_shf(3, state);
-        new_state[4] = _mds_row_shf(4, state);
-        new_state[5] = _mds_row_shf(5, state);
-        new_state[6] = _mds_row_shf(6, state);
-        new_state[7] = _mds_row_shf(7, state);
-        new_state[8] = _mds_row_shf(8, state);
-        new_state[9] = _mds_row_shf(9, state);
-        new_state[10] = _mds_row_shf(10, state);
-        new_state[11] = _mds_row_shf(11, state);
+        state[1] = add(state[1], FAST_PARTIAL_FIRST_ROUND_CONSTANT_1);
+        state[2] = add(state[2], FAST_PARTIAL_FIRST_ROUND_CONSTANT_2);
+        state[3] = add(state[3], FAST_PARTIAL_FIRST_ROUND_CONSTANT_3);
+        state[4] = add(state[4], FAST_PARTIAL_FIRST_ROUND_CONSTANT_4);
+        state[5] = add(state[5], FAST_PARTIAL_FIRST_ROUND_CONSTANT_5);
+        state[6] = add(state[6], FAST_PARTIAL_FIRST_ROUND_CONSTANT_6);
+        state[7] = add(state[7], FAST_PARTIAL_FIRST_ROUND_CONSTANT_7);
+        state[8] = add(state[8], FAST_PARTIAL_FIRST_ROUND_CONSTANT_8);
+        state[9] = add(state[9], FAST_PARTIAL_FIRST_ROUND_CONSTANT_9);
+        state[10] = add(state[10], FAST_PARTIAL_FIRST_ROUND_CONSTANT_10);
+        state[11] = add(state[11], FAST_PARTIAL_FIRST_ROUND_CONSTANT_11);
+        // state[0] = add(state[0], FAST_PARTIAL_FIRST_ROUND_CONSTANT_0);
+
+        // _mds_partial_layer_init
+        // for (uint256 c = 1; c < WIDTH; c++) {
+        //     for (uint256 r = 0; r < WIDTH; r++) {
+        //         new_state[c] += state[r] * FAST_PARTIAL_ROUND_INITIAL_MATRIX[r - 1][c - 1];
+        //     }
+        // }
+        new_state[1] = _mds_partial_layer_init_1(state);
+        uint256 res = _mds_partial_layer_init_3(state);
+        new_state[3] = res;
+        new_state[4] = _mds_partial_layer_init_4(state);
+        new_state[5] = _mds_partial_layer_init_5(state);
+        new_state[6] = _mds_partial_layer_init_6(state);
+        new_state[7] = _mds_partial_layer_init_7(state);
+        new_state[8] = _mds_partial_layer_init_8(state);
+        new_state[9] = _mds_partial_layer_init_9(state);
+        new_state[10] = _mds_partial_layer_init_10(state);
+        new_state[11] = _mds_partial_layer_init_11(state);
+        new_state[2] = _mds_partial_layer_init_2(state);
+        new_state[0] = add(state[0], FAST_PARTIAL_FIRST_ROUND_CONSTANT_0);
+    }
+
+    function _getRoundConstant(
+        uint256 index
+    ) private pure returns (uint256 roundConstant) {
+        if (index < 48) {
+            if (index < 24) {
+                if (index < 12) {
+                    if (index < 4) {
+                        if (index < 2) {
+                            if (index == 0) return 0xb585f766f2144405;
+                            /* if (index == 1) */ return 0x7746a55f43921ad7;
+                        }
+                        if (index == 2) return 0xb2fb0d31cee799b4;
+                        /* if (index == 3) */ return 0x0f6760a4803427d7;
+                    }
+                    if (index < 8) {
+                        if (index < 6) {
+                            if (index == 4) return 0xe10d666650f4e012;
+                            /* if (index == 5) */ return 0x8cae14cb07d09bf1;
+                        }
+                        if (index == 6) return 0xd438539c95f63e9f;
+                        /* if (index == 7) */ return 0xef781c7ce35b4c3d;
+                    }
+                    if (index < 10) {
+                        if (index == 8) return 0xcdc4a239b0c44426;
+                        /* if (index == 9) */ return 0x277fa208bf337bff;
+                    }
+                    if (index == 10) return 0xe17653a29da578a1;
+                    /* if (index == 11) */ return 0xc54302f225db2c76;
+                }
+                if (index < 16) {
+                    if (index < 14) {
+                        if (index == 12) return 0x86287821f722c881;
+                        /* if (index == 13) */ return 0x59cd1a8a41c18e55;
+                    }
+                    if (index == 14) return 0xc3b919ad495dc574;
+                    /* if (index == 15) */ return 0xa484c4c5ef6a0781;
+                }
+                if (index < 20) {
+                    if (index < 18) {
+                        if (index == 16) return 0x308bbd23dc5416cc;
+                        /* if (index == 17) */ return 0x6e4a40c18f30c09c;
+                    }
+                    if (index == 18) return 0x9a2eedb70d8f8cfa;
+                    /* if (index == 19) */ return 0xe360c6e0ae486f38;
+                }
+                if (index < 22) {
+                    if (index == 20) return 0xd5c7718fbfc647fb;
+                    /* if (index == 21) */ return 0xc35eae071903ff0b;
+                }
+                if (index == 22) return 0x849c2656969c4be7;
+                /* if (index == 23) */ return 0xc0572c8c08cbbbad;
+            }
+            if (index < 36) {
+                if (index < 28) {
+                    if (index < 26) {
+                        if (index == 24) return 0xe9fa634a21de0082;
+                        /* if (index == 25) */ return 0xf56f6d48959a600d;
+                    }
+                    if (index == 26) return 0xf7d713e806391165;
+                    /* if (index == 27) */ return 0x8297132b32825daf;
+                }
+                if (index < 32) {
+                    if (index < 30) {
+                        if (index == 28) return 0xad6805e0e30b2c8a;
+                        /* if (index == 29) */ return 0xac51d9f5fcf8535e;
+                    }
+                    if (index == 30) return 0x502ad7dc18c2ad87;
+                    /* if (index == 31) */ return 0x57a1550c110b3041;
+                }
+                if (index < 34) {
+                    if (index == 32) return 0x66bbd30e6ce0e583;
+                    /* if (index == 33) */ return 0x0da2abef589d644e;
+                }
+                if (index == 34) return 0xf061274fdb150d61;
+                /* if (index == 35) */ return 0x28b8ec3ae9c29633;
+            }
+            if (index < 40) {
+                if (index < 38) {
+                    if (index == 36) return 0x92a756e67e2b9413;
+                    /* if (index == 37) */ return 0x70e741ebfee96586;
+                }
+                if (index == 38) return 0x019d5ee2af82ec1c;
+                /* if (index == 39) */ return 0x6f6f2ed772466352;
+            }
+            if (index < 44) {
+                if (index < 42) {
+                    if (index == 40) return 0x7cf416cfe7e14ca1;
+                    /* if (index == 41) */ return 0x61df517b86a46439;
+                }
+                if (index == 42) return 0x85dc499b11d77b75;
+                /* if (index == 43) */ return 0x4b959b48b9c10733;
+            }
+            if (index < 46) {
+                if (index == 44) return 0xe8be3e5da8043e57;
+                /* if (index == 45) */ return 0xf5c0bc1de6da8699;
+            }
+            if (index == 46) return 0x40b12cbf09ef74bf;
+            /* if (index == 47) */ return 0xa637093ecb2ad631;
+        }
+        if (index < 72) {
+            if (index < 60) {
+                if (index < 52) {
+                    if (index < 50) {
+                        if (index == 48) return 0x475cd3205a3bdcde;
+                        /* if (index == 49) */ return 0x18a42105c31b7e88;
+                    }
+                    if (index == 50) return 0x023e7414af663068;
+                    /* if (index == 51) */ return 0x15147108121967d7;
+                }
+                if (index < 56) {
+                    if (index < 54) {
+                        if (index == 52) return 0xe4a3dff1d7d6fef9;
+                        /* if (index == 53) */ return 0x01a8d1a588085737;
+                    }
+                    if (index == 54) return 0x11b4c74eda62beef;
+                    /* if (index == 55) */ return 0xe587cc0d69a73346;
+                }
+                if (index < 58) {
+                    if (index == 56) return 0x1ff7327017aa2a6e;
+                    /* if (index == 57) */ return 0x594e29c42473d06b;
+                }
+                if (index == 58) return 0xf6f31db1899b12d5;
+                /* if (index == 59) */ return 0xc02ac5e47312d3ca;
+            }
+            if (index < 64) {
+                if (index < 62) {
+                    if (index == 60) return 0xe70201e960cb78b8;
+                    /* if (index == 61) */ return 0x6f90ff3b6a65f108;
+                }
+                if (index == 62) return 0x42747a7245e7fa84;
+                /* if (index == 63) */ return 0xd1f507e43ab749b2;
+            }
+            if (index < 68) {
+                if (index < 66) {
+                    if (index == 64) return 0x1c86d265f15750cd;
+                    /* if (index == 65) */ return 0x3996ce73dd832c1c;
+                }
+                if (index == 66) return 0x8e7fba02983224bd;
+                /* if (index == 67) */ return 0xba0dec7103255dd4;
+            }
+            if (index < 70) {
+                if (index == 68) return 0x9e9cbd781628fc5b;
+                /* if (index == 69) */ return 0xdae8645996edd6a5;
+            }
+            if (index == 70) return 0xdebe0853b1a1d378;
+            /* if (index == 71) */ return 0xa49229d24d014343;
+        }
+        if (index < 84) {
+            if (index < 76) {
+                if (index < 74) {
+                    if (index == 72) return 0x7be5b9ffda905e1c;
+                    /* if (index == 73) */ return 0xa3c95eaec244aa30;
+                }
+                if (index == 74) return 0x0230bca8f4df0544;
+                /* if (index == 75) */ return 0x4135c2bebfe148c6;
+            }
+            if (index < 80) {
+                if (index < 78) {
+                    if (index == 76) return 0x166fc0cc438a3c72;
+                    /* if (index == 77) */ return 0x3762b59a8ae83efa;
+                }
+                if (index == 78) return 0xe8928a4c89114750;
+                /* if (index == 79) */ return 0x2a440b51a4945ee5;
+            }
+            if (index < 82) {
+                if (index == 80) return 0x80cefd2b7d99ff83;
+                /* if (index == 81) */ return 0xbb9879c6e61fd62a;
+            }
+            if (index == 82) return 0x6e7c8f1a84265034;
+            /* if (index == 83) */ return 0x164bb2de1bbeddc8;
+        }
+        if (index < 88) {
+            if (index < 86) {
+                if (index == 84) return 0xf3c12fe54d5c653b;
+                /* if (index == 85) */ return 0x40b9e922ed9771e2;
+            }
+            if (index == 86) return 0x551f5b0fbe7b1840;
+            /* if (index == 87) */ return 0x25032aa7c4cb1811;
+        }
+        if (index < 92) {
+            if (index < 90) {
+                if (index == 88) return 0xaaed34074b164346;
+                /* if (index == 89) */ return 0x8ffd96bbf9c9c81d;
+            }
+            if (index == 90) return 0x70fc91eb5937085c;
+            /* if (index == 91) */ return 0x7f795e2a5f915440;
+        }
+        if (index < 94) {
+            if (index == 92) return 0x4543d9df5476d3cb;
+            /* if (index == 93) */ return 0xf172d73e004fc90d;
+        }
+        if (index == 94) return 0xdfd1c4febcc81238;
+        /* if (index == 95) */ return 0xbc8dfb627fe558fc;
+        // revert("illegal index");
     }
 
     // `state[i]` allows 200 bits number.
@@ -478,30 +1885,24 @@ contract GoldilocksPoseidon {
     function _constant_layer(
         uint256[WIDTH] memory state,
         uint256 round_ctr
-    ) internal view returns (uint256[WIDTH] memory new_state) {
-        // for (uint256 i = 0; i < 12; i++) {
-        //     new_state[0] = add(state[0], ALL_ROUND_CONSTANTS[i + WIDTH * round_ctr]);
-        // }
+    ) internal pure returns (uint256[WIDTH] memory new_state) {
         unchecked {
+            // for (uint256 i = 0; i < 12; i++) {
+            //     new_state[i] = add(state[i], ALL_ROUND_CONSTANTS[i + WIDTH * round_ctr]);
+            // }
             uint256 base_index = WIDTH * round_ctr;
-            new_state[0] = add(state[0], ALL_ROUND_CONSTANTS[base_index]);
-            new_state[1] = add(state[1], ALL_ROUND_CONSTANTS[base_index + 1]);
-            new_state[2] = add(state[2], ALL_ROUND_CONSTANTS[base_index + 2]);
-            new_state[3] = add(state[3], ALL_ROUND_CONSTANTS[base_index + 3]);
-            new_state[4] = add(state[4], ALL_ROUND_CONSTANTS[base_index + 4]);
-            new_state[5] = add(state[5], ALL_ROUND_CONSTANTS[base_index + 5]);
-            new_state[6] = add(state[6], ALL_ROUND_CONSTANTS[base_index + 6]);
-            new_state[7] = add(state[7], ALL_ROUND_CONSTANTS[base_index + 7]);
-            new_state[8] = add(state[8], ALL_ROUND_CONSTANTS[base_index + 8]);
-            new_state[9] = add(state[9], ALL_ROUND_CONSTANTS[base_index + 9]);
-            new_state[10] = add(
-                state[10],
-                ALL_ROUND_CONSTANTS[base_index + 10]
-            );
-            new_state[11] = add(
-                state[11],
-                ALL_ROUND_CONSTANTS[base_index + 11]
-            );
+            new_state[0] = mod(state[0] + _getRoundConstant(base_index));
+            new_state[1] = mod(state[1] + _getRoundConstant(base_index + 1));
+            new_state[2] = mod(state[2] + _getRoundConstant(base_index + 2));
+            new_state[3] = mod(state[3] + _getRoundConstant(base_index + 3));
+            new_state[4] = mod(state[4] + _getRoundConstant(base_index + 4));
+            new_state[5] = mod(state[5] + _getRoundConstant(base_index + 5));
+            new_state[6] = mod(state[6] + _getRoundConstant(base_index + 6));
+            new_state[7] = mod(state[7] + _getRoundConstant(base_index + 7));
+            new_state[8] = mod(state[8] + _getRoundConstant(base_index + 8));
+            new_state[9] = mod(state[9] + _getRoundConstant(base_index + 9));
+            new_state[10] = mod(state[10] + _getRoundConstant(base_index + 10));
+            new_state[11] = mod(state[11] + _getRoundConstant(base_index + 11));
         }
     }
 
@@ -509,107 +1910,174 @@ contract GoldilocksPoseidon {
     // `x7` is 192 bits number.
     // 64 gas
     function _sbox_monomial(uint256 x) internal pure returns (uint256 x7) {
-        uint256 x3;
         unchecked {
-            x3 = x * x * x; // 192 bits
-        }
-        x3 = mod(x3); // 64 bits
-
-        unchecked {
+            uint256 x3 = x * x * x; // 192 bits
+            x3 = mod(x3); // 64 bits
             x7 = x3 * x3 * x; // 192 bits
         }
     }
 
-    // 2250 gas (Can be improved to 1192 gas if all are expanded to inline.)
-    function _sbox_layer(
+    function _mds_sbox_layer(
         uint256[WIDTH] memory state
     ) internal pure returns (uint256[WIDTH] memory new_state) {
-        unchecked {
-            for (uint256 i = 0; i < 12; i++) {
-                new_state[i] = _sbox_monomial(state[i]);
-            }
-        }
-    }
+        // _sbox_layer
+        // for (uint256 i = 0; i < 12; i++) {
+        //     state[i] = _sbox_monomial(state[i]);
+        // }
+        state[0] = _sbox_monomial(state[0]);
+        state[1] = _sbox_monomial(state[1]);
+        state[2] = _sbox_monomial(state[2]);
+        state[3] = _sbox_monomial(state[3]);
+        state[4] = _sbox_monomial(state[4]);
+        state[5] = _sbox_monomial(state[5]);
+        state[6] = _sbox_monomial(state[6]);
+        state[7] = _sbox_monomial(state[7]);
+        state[8] = _sbox_monomial(state[8]);
+        state[9] = _sbox_monomial(state[9]);
+        state[10] = _sbox_monomial(state[10]);
+        state[11] = _sbox_monomial(state[11]);
 
-    function _full_rounds(
-        uint256[WIDTH] memory state,
-        uint256 round_ctr
-    ) internal view returns (uint256[WIDTH] memory, uint256) {
-        unchecked {
-            for (uint256 i = 0; i < HALF_N_FULL_ROUNDS; i++) {
-                state = _constant_layer(state, round_ctr);
-                state = _sbox_layer(state);
-                state = _mds_layer(state);
-                round_ctr += 1;
-            }
-        }
-
-        return (state, round_ctr);
-    }
-
-    function _partial_rounds(
-        uint256[WIDTH] memory state,
-        uint256 round_ctr
-    ) internal view returns (uint256[WIDTH] memory, uint256) {
-        unchecked {
-            for (uint256 i = 0; i < N_PARTIAL_ROUNDS; i++) {
-                state = _constant_layer(state, round_ctr);
-                state[0] = _sbox_monomial(state[0]);
-                state = _mds_layer(state);
-                round_ctr += 1;
-            }
-        }
-
-        return (state, round_ctr);
+        // _mds_layer
+        // for (uint256 r = 0; r < 12; r++) {
+        //     new_state[r] = _mds_row_shf(r, state);
+        // }
+        new_state[0] = _mds_row_shf_0(state);
+        new_state[1] = _mds_row_shf_1(state);
+        new_state[2] = _mds_row_shf_2(state);
+        new_state[3] = _mds_row_shf_3(state);
+        new_state[4] = _mds_row_shf_4(state);
+        new_state[5] = _mds_row_shf_5(state);
+        new_state[6] = _mds_row_shf_6(state);
+        new_state[7] = _mds_row_shf_7(state);
+        new_state[8] = _mds_row_shf_8(state);
+        new_state[9] = _mds_row_shf_9(state);
+        new_state[10] = _mds_row_shf_10(state);
+        new_state[11] = _mds_row_shf_11(state);
     }
 
     function _permute(
         uint256[WIDTH] memory state
-    ) internal view returns (uint256[WIDTH] memory) {
-        uint256 round_ctr = 0;
-        (state, round_ctr) = _full_rounds(state, round_ctr);
-        (state, round_ctr) = _partial_rounds(state, round_ctr);
-        (state, round_ctr) = _full_rounds(state, round_ctr);
-        for (uint256 i = 0; i < WIDTH; i++) {
-            state[i] = mod(state[i]);
+    ) internal pure returns (uint256[WIDTH] memory) {
+        // first full rounds
+        state = _mds_sbox_layer(_constant_layer(state, 0));
+        state = _mds_sbox_layer(_constant_layer(state, 1));
+        state = _mds_sbox_layer(_constant_layer(state, 2));
+        state = _mds_sbox_layer(_constant_layer(state, 3));
+
+        // partial rounds
+        state = _partial_first_layer(state);
+
+        // for (uint256 r = 0; r < 22; r++) {
+        //     state[0] = _sbox_monomial(state[0]) + FAST_PARTIAL_ROUND_CONSTANTS[r];
+        //     state = _mds_partial_layer_fast(state, r);
+        // }
+        unchecked {
+            state[0] = _sbox_monomial(state[0]) + 0x74cb2e819ae421ab;
+            state = _mds_partial_layer_fast(state, 0);
+            state[0] = _sbox_monomial(state[0]) + 0xd2559d2370e7f663;
+            state = _mds_partial_layer_fast(state, 1);
+            state[0] = _sbox_monomial(state[0]) + 0x62bf78acf843d17c;
+            state = _mds_partial_layer_fast(state, 2);
+            state[0] = _sbox_monomial(state[0]) + 0xd5ab7b67e14d1fb4;
+            state = _mds_partial_layer_fast(state, 3);
+            state[0] = _sbox_monomial(state[0]) + 0xb9fe2ae6e0969bdc;
+            state = _mds_partial_layer_fast(state, 4);
+            state[0] = _sbox_monomial(state[0]) + 0xe33fdf79f92a10e8;
+            state = _mds_partial_layer_fast(state, 5);
+            state[0] = _sbox_monomial(state[0]) + 0x0ea2bb4c2b25989b;
+            state = _mds_partial_layer_fast(state, 6);
+            state[0] = _sbox_monomial(state[0]) + 0xca9121fbf9d38f06;
+            state = _mds_partial_layer_fast(state, 7);
+            state[0] = _sbox_monomial(state[0]) + 0xbdd9b0aa81f58fa4;
+            state = _mds_partial_layer_fast(state, 8);
+            state[0] = _sbox_monomial(state[0]) + 0x83079fa4ecf20d7e;
+            state = _mds_partial_layer_fast(state, 9);
+            state[0] = _sbox_monomial(state[0]) + 0x650b838edfcc4ad3;
+            state = _mds_partial_layer_fast(state, 10);
+            state[0] = _sbox_monomial(state[0]) + 0x77180c88583c76ac;
+            state = _mds_partial_layer_fast(state, 11);
+            state[0] = _sbox_monomial(state[0]) + 0xaf8c20753143a180;
+            state = _mds_partial_layer_fast(state, 12);
+            state[0] = _sbox_monomial(state[0]) + 0xb8ccfe9989a39175;
+            state = _mds_partial_layer_fast(state, 13);
+            state[0] = _sbox_monomial(state[0]) + 0x954a1729f60cc9c5;
+            state = _mds_partial_layer_fast(state, 14);
+            state[0] = _sbox_monomial(state[0]) + 0xdeb5b550c4dca53b;
+            state = _mds_partial_layer_fast(state, 15);
+            state[0] = _sbox_monomial(state[0]) + 0xf01bb0b00f77011e;
+            state = _mds_partial_layer_fast(state, 16);
+            state[0] = _sbox_monomial(state[0]) + 0xa1ebb404b676afd9;
+            state = _mds_partial_layer_fast(state, 17);
+            state[0] = _sbox_monomial(state[0]) + 0x860b6e1597a0173e;
+            state = _mds_partial_layer_fast(state, 18);
+            state[0] = _sbox_monomial(state[0]) + 0x308bb65a036acbce;
+            state = _mds_partial_layer_fast(state, 19);
+            state[0] = _sbox_monomial(state[0]) + 0x1aca78f31c97c876;
+            state = _mds_partial_layer_fast(state, 20);
+            state[0] = _sbox_monomial(state[0]) + 0x0000000000000000;
+            state = _mds_partial_layer_fast(state, 21);
         }
 
-        require(round_ctr == N_ROUNDS);
+        // second full rounds
+        state = _mds_sbox_layer(_constant_layer(state, 4));
+        state = _mds_sbox_layer(_constant_layer(state, 5));
+        state = _mds_sbox_layer(_constant_layer(state, 6));
+        state = _mds_sbox_layer(_constant_layer(state, 7));
+
         return state;
     }
 
     function permute(
         uint256[WIDTH] memory state
-    ) external view returns (uint256[WIDTH] memory) {
-        return _permute(state);
+    ) external pure returns (uint256[WIDTH] memory new_state) {
+        state = _permute(state);
+        for (uint256 i = 0; i < WIDTH; i++) {
+            new_state[i] = mod(state[i]);
+        }
     }
 
-    function hash_n_to_m_no_pad(
+    // Require each input[i] is less than 2^256 - 2^64.
+    function _hash_n_to_m_no_pad(
         uint256[] memory input,
         uint256 num_outputs
-    ) public view returns (uint256[] memory) {
-        uint256[WIDTH] memory state;
-        for (uint256 i = 0; i < WIDTH; i++) {
-            state[i] = 0;
-        }
+    ) internal pure returns (uint256[] memory output) {
         uint256 num_full_round = input.length / SPONGE_RATE;
         uint256 last_round = input.length % SPONGE_RATE;
 
+        uint256[WIDTH] memory state;
         for (uint256 i = 0; i < num_full_round; i++) {
-            for (uint256 j = 0; j < SPONGE_RATE; j++) {
-                state[j] = input[i * SPONGE_RATE + j];
-            }
+            // for (uint256 j = 0; j < SPONGE_RATE; j++) {
+            //     state[j] = input[i * SPONGE_RATE + j];
+            // }
+            state[0] = input[i * SPONGE_RATE + 0];
+            state[1] = input[i * SPONGE_RATE + 1];
+            state[2] = input[i * SPONGE_RATE + 2];
+            state[3] = input[i * SPONGE_RATE + 3];
+            state[4] = input[i * SPONGE_RATE + 4];
+            state[5] = input[i * SPONGE_RATE + 5];
+            state[6] = input[i * SPONGE_RATE + 6];
+            state[7] = input[i * SPONGE_RATE + 7];
             state = _permute(state);
         }
         for (uint256 j = 0; j < last_round; j++) {
             state[j] = input[num_full_round * SPONGE_RATE + j];
         }
         state = _permute(state);
-        uint256[] memory output = new uint256[](num_outputs);
+
+        output = new uint256[](num_outputs);
         for (uint256 j = 0; j < num_outputs; j++) {
-            output[j] = state[j];
+            output[j] = mod(state[j]);
         }
-        return output;
+    }
+
+    function hash_n_to_m_no_pad(
+        uint256[] memory input,
+        uint256 num_outputs
+    ) external pure returns (uint256[] memory output) {
+        for (uint256 i = 0; i < input.length; i++) {
+            input[i] = mod(input[i]);
+        }
+        output = _hash_n_to_m_no_pad(input, num_outputs);
     }
 
     function decodeHashOut(
@@ -642,7 +2110,7 @@ contract GoldilocksPoseidon {
     function two_to_one(
         bytes32 left,
         bytes32 right
-    ) public view returns (bytes32 hash_out) {
+    ) public pure returns (bytes32 hash_out) {
         uint256[4] memory a_hash_out = decodeHashOut(left);
         uint256[4] memory b_hash_out = decodeHashOut(right);
         uint256[12] memory state;
@@ -656,10 +2124,10 @@ contract GoldilocksPoseidon {
         state[7] = b_hash_out[3];
         state = _permute(state);
         uint256[4] memory output;
-        output[0] = state[0];
-        output[1] = state[1];
-        output[2] = state[2];
-        output[3] = state[3];
+        output[0] = mod(state[0]);
+        output[1] = mod(state[1]);
+        output[2] = mod(state[2]);
+        output[3] = mod(state[3]);
         hash_out = encodeHashOut(output);
     }
 }

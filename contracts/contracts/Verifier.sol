@@ -21,8 +21,8 @@ contract Verifier is SimpleVerifier, MerkleTree {
         bytes32 key,
         bytes32 value
     ) internal view returns (bytes32 leafHash) {
-        uint256[4] memory a_hash_out = decodeHashOut(key);
-        uint256[4] memory b_hash_out = decodeHashOut(value);
+        uint256[4] memory a_hash_out = poseidonHasher.decodeHashOut(key);
+        uint256[4] memory b_hash_out = poseidonHasher.decodeHashOut(value);
         uint256[] memory state = new uint256[](12);
         state[0] = a_hash_out[0];
         state[1] = a_hash_out[1];
@@ -35,13 +35,13 @@ contract Verifier is SimpleVerifier, MerkleTree {
         state[8] = 1;
         state[9] = 1;
         state[11] = 1;
-        state = hash_n_to_m_no_pad(state, 4);
+        state = poseidonHasher.hash_n_to_m_no_pad(state, 4);
         uint256[4] memory output;
         output[0] = state[0];
         output[1] = state[1];
         output[2] = state[2];
         output[3] = state[3];
-        leafHash = encodeHashOut(output);
+        leafHash = poseidonHasher.encodeHashOut(output);
     }
 
     function _calcTransactionHash(
@@ -73,13 +73,13 @@ contract Verifier is SimpleVerifier, MerkleTree {
             recipientMerkleSiblings
         );
         bytes32 diffRoot = _computeMerkleRootRbo(recipientMerkleProof);
-        transactionHash = two_to_one(diffRoot, nonce);
+        transactionHash = poseidonHasher.two_to_one(diffRoot, nonce);
     }
 
     function _calcBlockHash(
         BlockHeader memory blockHeader
     ) internal view returns (bytes32 blockHash) {
-        blockHash = two_to_one(
+        blockHash = poseidonHasher.two_to_one(
             blockHeader.transactionsDigest,
             blockHeader.depositDigest
         );
@@ -88,19 +88,25 @@ contract Verifier is SimpleVerifier, MerkleTree {
             abi.encode(blockHeader.blockNumber),
             (bytes32)
         );
-        bytes32 a = two_to_one(blockNumber, blockHeader.latestAccountDigest);
-        bytes32 b = two_to_one(
+        bytes32 a = poseidonHasher.two_to_one(
+            blockNumber,
+            blockHeader.latestAccountDigest
+        );
+        bytes32 b = poseidonHasher.two_to_one(
             blockHeader.depositDigest,
             blockHeader.transactionsDigest
         );
-        bytes32 c = two_to_one(a, b);
-        bytes32 d = two_to_one(
+        bytes32 c = poseidonHasher.two_to_one(a, b);
+        bytes32 d = poseidonHasher.two_to_one(
             blockHeader.proposedWorldStateDigest,
             blockHeader.approvedWorldStateDigest
         );
-        bytes32 e = two_to_one(c, d);
+        bytes32 e = poseidonHasher.two_to_one(c, d);
 
-        blockHash = two_to_one(blockHeader.blockHeadersDigest, e);
+        blockHash = poseidonHasher.two_to_one(
+            blockHeader.blockHeadersDigest,
+            e
+        );
     }
 
     function _verifyAsset(

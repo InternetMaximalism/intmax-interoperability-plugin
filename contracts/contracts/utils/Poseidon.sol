@@ -2039,8 +2039,13 @@ contract GoldilocksPoseidon {
         uint256[] memory input,
         uint256 numOutputs
     ) internal pure returns (uint256[] memory output) {
-        uint256 numFullRound = input.length / SPONGE_RATE;
-        uint256 lastRound = input.length % SPONGE_RATE;
+        require(numOutputs < 8, "too many outputs");
+        if (input.length == 0) {
+            return new uint256[](numOutputs);
+        }
+
+        uint256 numFullRound = (input.length - 1) / SPONGE_RATE;
+        uint256 lastRound = ((input.length - 1) % SPONGE_RATE) + 1;
 
         uint256[WIDTH] memory state;
         for (uint256 i = 0; i < numFullRound; i++) {

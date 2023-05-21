@@ -16,6 +16,10 @@ contract OfferManagerV2Wrapper is OfferManagerV2 {
         initialize();
     }
 
+    function checkTaker(bytes32 taker) external pure returns (bool ok) {
+        return _checkTaker(taker);
+    }
+
     function _checkAndNullifyWitness(
         Offer storage,
         bytes memory
@@ -38,7 +42,6 @@ contract OfferManagerV2ForgeTest is Test {
         {
             uint256 privateKey = vm.deriveKey(mnemonic, 0);
             maker = vm.addr(privateKey);
-            vm.deal(maker, 100 ether);
         }
         {
             uint256 privateKey = vm.deriveKey(mnemonic, 1);
@@ -54,7 +57,7 @@ contract OfferManagerV2ForgeTest is Test {
         offerManager.addTokenAddressToAllowList(newAllowList);
     }
 
-    function testRegister(
+    function testRegisterActivate(
         bytes32 makerIntmaxAddress,
         uint256 makerAssetId,
         uint256 makerAmount,
@@ -80,6 +83,7 @@ contract OfferManagerV2ForgeTest is Test {
         );
 
         for (uint256 i = 0; i < newTakers.length; i++) {
+            vm.assume(offerManager.checkTaker(newTakers[i]));
             vm.prank(maker);
             offerManager.updateTaker(offerId, newTakers[i]);
         }

@@ -31,7 +31,7 @@ contract OfferManagerReverse is
         uint256 makerAssetId,
         uint256 makerAmount
     ) external payable virtual returns (uint256 offerId) {
-        require(_checkMaker(maker), "`maker` must not be zero.");
+        require(_checkMaker(maker), "`maker` must not be zero address.");
 
         // Check if given `takerTokenAddress` is either ETH or ERC20.
         if (takerTokenAddress == address(0)) {

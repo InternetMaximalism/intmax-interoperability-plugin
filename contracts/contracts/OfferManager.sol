@@ -66,7 +66,7 @@ contract OfferManager is
 
         require(
             _checkTaker(newTakerIntmaxAddress),
-            "`newTakerIntmaxAddress` should not be zero"
+            "`newTakerIntmaxAddress` should not be burn address"
         );
 
         _offers[offerId].takerIntmaxAddress = newTakerIntmaxAddress;
@@ -139,7 +139,7 @@ contract OfferManager is
         address takerTokenAddress,
         uint256 takerAmount
     ) internal returns (uint256 offerId) {
-        require(maker != address(0), "The maker must not be zero address.");
+        require(maker != address(0), "`maker` must not be zero address.");
         offerId = _nextOfferId.current();
         require(!isRegistered(offerId), "This offer ID is already registered.");
 
@@ -222,8 +222,9 @@ contract OfferManager is
         // );
     }
 
-    function _checkTaker(bytes32 taker) internal pure returns (bool) {
+    function _checkTaker(bytes32 taker) internal pure virtual returns (bool) {
         // A taker should not be the burn address.
-        return taker != bytes32(0);
+        uint256 takerUint = abi.decode(abi.encode(taker), (uint256));
+        return takerUint > 2;
     }
 }

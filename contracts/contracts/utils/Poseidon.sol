@@ -849,20 +849,18 @@ contract GoldilocksPoseidon {
                     0xc810936e64982542 +
                     state[11] *
                     0x043b1c289f7bc3ac;
-                // TODO: Rewrite to reduce gas.
-                // newState[0] = mod(dSum);
-                // newState[1] = mod(state[1] + state[0] * 0x94877900674181c3);
-                // newState[2] = mod(state[2] + state[0] * 0xc6c67cc37a2a2bbd);
-                // newState[3] = mod(state[3] + state[0] * 0xd667c2055387940f);
-                // newState[4] = mod(state[4] + state[0] * 0x0ba63a63e94b5ff0);
-                // newState[5] = mod(state[5] + state[0] * 0x99460cc41b8f079f);
-                // newState[6] = mod(state[6] + state[0] * 0x7ff02375ed524bb3);
-                // newState[7] = mod(state[7] + state[0] * 0xea0870b47a8caf0e);
-                // newState[8] = mod(state[8] + state[0] * 0xabcad82633b7bc9d);
-                // newState[9] = mod(state[9] + state[0] * 0x3b8d135261052241);
-                // newState[10] = mod(state[10] + state[0] * 0xfb4515f5e5b0d539);
-                // newState[11] = mod(state[11] + state[0] * 0x3ee8011c2b37f77c);
-                // return newState;
+                newState[0] = mod(dSum);
+                newState[1] = mod(state[1] + state[0] * 0x94877900674181c3);
+                newState[2] = mod(state[2] + state[0] * 0xc6c67cc37a2a2bbd);
+                newState[3] = mod(state[3] + state[0] * 0xd667c2055387940f);
+                newState[4] = mod(state[4] + state[0] * 0x0ba63a63e94b5ff0);
+                newState[5] = mod(state[5] + state[0] * 0x99460cc41b8f079f);
+                newState[6] = mod(state[6] + state[0] * 0x7ff02375ed524bb3);
+                newState[7] = mod(state[7] + state[0] * 0xea0870b47a8caf0e);
+                newState[8] = mod(state[8] + state[0] * 0xabcad82633b7bc9d);
+                newState[9] = mod(state[9] + state[0] * 0x3b8d135261052241);
+                newState[10] = mod(state[10] + state[0] * 0xfb4515f5e5b0d539);
+                newState[11] = mod(state[11] + state[0] * 0x3ee8011c2b37f77c);
             } else if (r == 1) {
                 dSum +=
                     state[1] *
@@ -887,6 +885,18 @@ contract GoldilocksPoseidon {
                     0x00e18c71963dd1b7 +
                     state[11] *
                     0x8a21bcd24a14218a;
+                newState[0] = mod(dSum);
+                newState[1] = mod(state[1] + state[0] * 0x0adef3740e71c726);
+                newState[2] = mod(state[2] + state[0] * 0xa37bf67c6f986559);
+                newState[3] = mod(state[3] + state[0] * 0xc6b16f7ed4fa1b00);
+                newState[4] = mod(state[4] + state[0] * 0x6a065da88d8bfc3c);
+                newState[5] = mod(state[5] + state[0] * 0x4cabc0916844b46f);
+                newState[6] = mod(state[6] + state[0] * 0x407faac0f02e78d1);
+                newState[7] = mod(state[7] + state[0] * 0x07a786d9cf0852cf);
+                newState[8] = mod(state[8] + state[0] * 0x42433fb6949a629a);
+                newState[9] = mod(state[9] + state[0] * 0x891682a147ce43b0);
+                newState[10] = mod(state[10] + state[0] * 0x26cfd58e7b003b55);
+                newState[11] = mod(state[11] + state[0] * 0x2bbf0ed7b657acb3);
             } else if (r == 2) {
                 dSum +=
                     state[1] *
@@ -911,6 +921,18 @@ contract GoldilocksPoseidon {
                     0xda6f61838efa1ffe +
                     state[11] *
                     0xe8f749470bd7c446;
+                newState[0] = mod(dSum);
+                newState[1] = mod(state[1] + state[0] * 0x481ac7746b159c67);
+                newState[2] = mod(state[2] + state[0] * 0xe367de32f108e278);
+                newState[3] = mod(state[3] + state[0] * 0x73f260087ad28bec);
+                newState[4] = mod(state[4] + state[0] * 0x5cfc82216bc1bdca);
+                newState[5] = mod(state[5] + state[0] * 0xcaccc870a2663a0e);
+                newState[6] = mod(state[6] + state[0] * 0xdb69cd7b4298c45d);
+                newState[7] = mod(state[7] + state[0] * 0x7bc9e0c57243e62d);
+                newState[8] = mod(state[8] + state[0] * 0x3cc51c5d368693ae);
+                newState[9] = mod(state[9] + state[0] * 0x366b4e8cc068895b);
+                newState[10] = mod(state[10] + state[0] * 0x2bd18715cdabbca4);
+                newState[11] = mod(state[11] + state[0] * 0xa752061c4f33b8cf);
             } else if (r == 3) {
                 dSum +=
                     state[1] *
@@ -935,6 +957,18 @@ contract GoldilocksPoseidon {
                     0x3c5fe4aeb1fb52ba +
                     state[11] *
                     0x9e7cd88acf543a5e;
+                newState[0] = mod(dSum);
+                newState[1] = mod(state[1] + state[0] * 0xb22d2432b72d5098);
+                newState[2] = mod(state[2] + state[0] * 0x9e18a487f44d2fe4);
+                newState[3] = mod(state[3] + state[0] * 0x4b39e14ce22abd3c);
+                newState[4] = mod(state[4] + state[0] * 0x9e77fde2eb315e0d);
+                newState[5] = mod(state[5] + state[0] * 0xca5e0385fe67014d);
+                newState[6] = mod(state[6] + state[0] * 0x0c2cb99bf1b6bddb);
+                newState[7] = mod(state[7] + state[0] * 0x99ec1cd2a4460bfe);
+                newState[8] = mod(state[8] + state[0] * 0x8577a815a2ff843f);
+                newState[9] = mod(state[9] + state[0] * 0x7d80a6b4fd6518a5);
+                newState[10] = mod(state[10] + state[0] * 0xeb6c67123eab62cb);
+                newState[11] = mod(state[11] + state[0] * 0x8f7851650eca21a5);
             } else if (r == 4) {
                 dSum +=
                     state[1] *
@@ -959,6 +993,18 @@ contract GoldilocksPoseidon {
                     0x0ed3cbcff6fcc5ba +
                     state[11] *
                     0xc82f510ecf81f6d0;
+                newState[0] = mod(dSum);
+                newState[1] = mod(state[1] + state[0] * 0x11ba9a1b81718c2a);
+                newState[2] = mod(state[2] + state[0] * 0x9f7d798a3323410c);
+                newState[3] = mod(state[3] + state[0] * 0xa821855c8c1cf5e5);
+                newState[4] = mod(state[4] + state[0] * 0x535e8d6fac0031b2);
+                newState[5] = mod(state[5] + state[0] * 0x404e7c751b634320);
+                newState[6] = mod(state[6] + state[0] * 0xa729353f6e55d354);
+                newState[7] = mod(state[7] + state[0] * 0x4db97d92e58bb831);
+                newState[8] = mod(state[8] + state[0] * 0xb53926c27897bf7d);
+                newState[9] = mod(state[9] + state[0] * 0x965040d52fe115c5);
+                newState[10] = mod(state[10] + state[0] * 0x9565fa41ebd31fd7);
+                newState[11] = mod(state[11] + state[0] * 0xaae4438c877ea8f4);
             } else if (r == 5) {
                 dSum +=
                     state[1] *
@@ -983,6 +1029,18 @@ contract GoldilocksPoseidon {
                     0x7935dd342764a144 +
                     state[11] *
                     0xeac6db520bb03708;
+                newState[0] = mod(dSum);
+                newState[1] = mod(state[1] + state[0] * 0x37f4e36af6073c6e);
+                newState[2] = mod(state[2] + state[0] * 0x4edc0918210800e9);
+                newState[3] = mod(state[3] + state[0] * 0xc44998e99eae4188);
+                newState[4] = mod(state[4] + state[0] * 0x9f4310d05d068338);
+                newState[5] = mod(state[5] + state[0] * 0x9ec7fe4350680f29);
+                newState[6] = mod(state[6] + state[0] * 0xc5b2c1fdc0b50874);
+                newState[7] = mod(state[7] + state[0] * 0xa01920c5ef8b2ebe);
+                newState[8] = mod(state[8] + state[0] * 0x59fa6f8bd91d58ba);
+                newState[9] = mod(state[9] + state[0] * 0x8bfc9eb89b515a82);
+                newState[10] = mod(state[10] + state[0] * 0xbe86a7a2555ae775);
+                newState[11] = mod(state[11] + state[0] * 0xcbb8bbaa3810babf);
             } else if (r == 6) {
                 dSum +=
                     state[1] *
@@ -1007,6 +1065,18 @@ contract GoldilocksPoseidon {
                     0xb5b99e6664a0a3ee +
                     state[11] *
                     0x6b0731849e200a7f;
+                newState[0] = mod(dSum);
+                newState[1] = mod(state[1] + state[0] * 0x577f9a9e7ee3f9c2);
+                newState[2] = mod(state[2] + state[0] * 0x88c522b949ace7b1);
+                newState[3] = mod(state[3] + state[0] * 0x82f07007c8b72106);
+                newState[4] = mod(state[4] + state[0] * 0x8283d37c6675b50e);
+                newState[5] = mod(state[5] + state[0] * 0x98b074d9bbac1123);
+                newState[6] = mod(state[6] + state[0] * 0x75c56fb7758317c1);
+                newState[7] = mod(state[7] + state[0] * 0xfed24e206052bc72);
+                newState[8] = mod(state[8] + state[0] * 0x26d7c3d1bc07dae5);
+                newState[9] = mod(state[9] + state[0] * 0xf88c5e441e28dbb4);
+                newState[10] = mod(state[10] + state[0] * 0x4fe27f9f96615270);
+                newState[11] = mod(state[11] + state[0] * 0x514d4ba49c2b14fe);
             } else if (r == 7) {
                 dSum +=
                     state[1] *
@@ -1031,6 +1101,18 @@ contract GoldilocksPoseidon {
                     0x4653fb0685084ef2 +
                     state[11] *
                     0x057fde2062ae35bf;
+                newState[0] = mod(dSum);
+                newState[1] = mod(state[1] + state[0] * 0xf02a3ac068ee110b);
+                newState[2] = mod(state[2] + state[0] * 0x0a3630dafb8ae2d7);
+                newState[3] = mod(state[3] + state[0] * 0xce0dc874eaf9b55c);
+                newState[4] = mod(state[4] + state[0] * 0x9a95f6cff5b55c7e);
+                newState[5] = mod(state[5] + state[0] * 0x626d76abfed00c7b);
+                newState[6] = mod(state[6] + state[0] * 0xa0c1cf1251c204ad);
+                newState[7] = mod(state[7] + state[0] * 0xdaebd3006321052c);
+                newState[8] = mod(state[8] + state[0] * 0x3d4bd48b625a8065);
+                newState[9] = mod(state[9] + state[0] * 0x7f1e584e071f6ed2);
+                newState[10] = mod(state[10] + state[0] * 0x720574f0501caed3);
+                newState[11] = mod(state[11] + state[0] * 0xe3260ba93d23540a);
             } else if (r == 8) {
                 dSum +=
                     state[1] *
@@ -1055,6 +1137,18 @@ contract GoldilocksPoseidon {
                     0x0811719919351ae8 +
                     state[11] *
                     0xf669de0add993131;
+                newState[0] = mod(dSum);
+                newState[1] = mod(state[1] + state[0] * 0xab1cbd41d8c1e335);
+                newState[2] = mod(state[2] + state[0] * 0x9322ed4c0bc2df01);
+                newState[3] = mod(state[3] + state[0] * 0x51c3c0983d4284e5);
+                newState[4] = mod(state[4] + state[0] * 0x94178e291145c231);
+                newState[5] = mod(state[5] + state[0] * 0xfd0f1a973d6b2085);
+                newState[6] = mod(state[6] + state[0] * 0xd427ad96e2b39719);
+                newState[7] = mod(state[7] + state[0] * 0x8a52437fecaac06b);
+                newState[8] = mod(state[8] + state[0] * 0xdc20ee4b8c4c9a80);
+                newState[9] = mod(state[9] + state[0] * 0xa2c98e9549da2100);
+                newState[10] = mod(state[10] + state[0] * 0x1603fe12613db5b6);
+                newState[11] = mod(state[11] + state[0] * 0x0e174929433c5505);
             } else if (r == 9) {
                 dSum +=
                     state[1] *
@@ -1079,6 +1173,18 @@ contract GoldilocksPoseidon {
                     0x5e34d8554a6452ba +
                     state[11] *
                     0x04f78fd8c1fdcc5f;
+                newState[0] = mod(dSum);
+                newState[1] = mod(state[1] + state[0] * 0x3d4eab2b8ef5f796);
+                newState[2] = mod(state[2] + state[0] * 0xcfff421583896e22);
+                newState[3] = mod(state[3] + state[0] * 0x4143cb32d39ac3d9);
+                newState[4] = mod(state[4] + state[0] * 0x22365051b78a5b65);
+                newState[5] = mod(state[5] + state[0] * 0x6f7fd010d027c9b6);
+                newState[6] = mod(state[6] + state[0] * 0xd9dd36fba77522ab);
+                newState[7] = mod(state[7] + state[0] * 0xa44cf1cb33e37165);
+                newState[8] = mod(state[8] + state[0] * 0x3fc83d3038c86417);
+                newState[9] = mod(state[9] + state[0] * 0xc4588d418e88d270);
+                newState[10] = mod(state[10] + state[0] * 0xce1320f10ab80fe2);
+                newState[11] = mod(state[11] + state[0] * 0xdb5eadbbec18de5d);
             } else if (r == 10) {
                 dSum +=
                     state[1] *
@@ -1103,6 +1209,18 @@ contract GoldilocksPoseidon {
                     0xdc05b676564f538a +
                     state[11] *
                     0x60192d883e473fee;
+                newState[0] = mod(dSum);
+                newState[1] = mod(state[1] + state[0] * 0x1183dfce7c454afd);
+                newState[2] = mod(state[2] + state[0] * 0x21cea4aa3d3ed949);
+                newState[3] = mod(state[3] + state[0] * 0x0fce6f70303f2304);
+                newState[4] = mod(state[4] + state[0] * 0x19557d34b55551be);
+                newState[5] = mod(state[5] + state[0] * 0x4c56f689afc5bbc9);
+                newState[6] = mod(state[6] + state[0] * 0xa1e920844334f944);
+                newState[7] = mod(state[7] + state[0] * 0xbad66d423d2ec861);
+                newState[8] = mod(state[8] + state[0] * 0xf318c785dc9e0479);
+                newState[9] = mod(state[9] + state[0] * 0x99e2032e765ddd81);
+                newState[10] = mod(state[10] + state[0] * 0x400ccc9906d66f45);
+                newState[11] = mod(state[11] + state[0] * 0xe1197454db2e0dd9);
             } else if (r == 11) {
                 dSum +=
                     state[1] *
@@ -1127,6 +1245,18 @@ contract GoldilocksPoseidon {
                     0x87948589e4f243fd +
                     state[11] *
                     0x7e5217af969952c2;
+                newState[0] = mod(dSum);
+                newState[1] = mod(state[1] + state[0] * 0x84d1ecc4d53d2ff1);
+                newState[2] = mod(state[2] + state[0] * 0xd8af8b9ceb4e11b6);
+                newState[3] = mod(state[3] + state[0] * 0x335856bb527b52f4);
+                newState[4] = mod(state[4] + state[0] * 0xc756f17fb59be595);
+                newState[5] = mod(state[5] + state[0] * 0xc0654e4ea5553a78);
+                newState[6] = mod(state[6] + state[0] * 0x9e9a46b61f2ea942);
+                newState[7] = mod(state[7] + state[0] * 0x14fc8b5b3b809127);
+                newState[8] = mod(state[8] + state[0] * 0xd7009f0f103be413);
+                newState[9] = mod(state[9] + state[0] * 0x3e0ee7b7a9fb4601);
+                newState[10] = mod(state[10] + state[0] * 0xa74e888922085ed7);
+                newState[11] = mod(state[11] + state[0] * 0xe80a7cde3d4ac526);
             } else if (r == 12) {
                 dSum +=
                     state[1] *
@@ -1151,6 +1281,18 @@ contract GoldilocksPoseidon {
                     0x088c5f20df9e5c26 +
                     state[11] *
                     0xf555f4112b19781f;
+                newState[0] = mod(dSum);
+                newState[1] = mod(state[1] + state[0] * 0x238aa6daa612186d);
+                newState[2] = mod(state[2] + state[0] * 0x9137a5c630bad4b4);
+                newState[3] = mod(state[3] + state[0] * 0xc7db3817870c5eda);
+                newState[4] = mod(state[4] + state[0] * 0x217e4f04e5718dc9);
+                newState[5] = mod(state[5] + state[0] * 0xcae814e2817bd99d);
+                newState[6] = mod(state[6] + state[0] * 0xe3292e7ab770a8ba);
+                newState[7] = mod(state[7] + state[0] * 0x7bb36ef70b6b9482);
+                newState[8] = mod(state[8] + state[0] * 0x3c7835fb85bca2d3);
+                newState[9] = mod(state[9] + state[0] * 0xfe2cdf8ee3c25e86);
+                newState[10] = mod(state[10] + state[0] * 0x61b3915ad7274b20);
+                newState[11] = mod(state[11] + state[0] * 0xeab75ca7c918e4ef);
             } else if (r == 13) {
                 dSum +=
                     state[1] *
@@ -1175,6 +1317,18 @@ contract GoldilocksPoseidon {
                     0x3771e82493ab262d +
                     state[11] *
                     0xa671690d8095ce82;
+                newState[0] = mod(dSum);
+                newState[1] = mod(state[1] + state[0] * 0xd6e15ffc055e154e);
+                newState[2] = mod(state[2] + state[0] * 0xec67881f381a32bf);
+                newState[3] = mod(state[3] + state[0] * 0xfbb1196092bf409c);
+                newState[4] = mod(state[4] + state[0] * 0xdc9d2e07830ba226);
+                newState[5] = mod(state[5] + state[0] * 0x0698ef3245ff7988);
+                newState[6] = mod(state[6] + state[0] * 0x194fae2974f8b576);
+                newState[7] = mod(state[7] + state[0] * 0x7a5d9bea6ca4910e);
+                newState[8] = mod(state[8] + state[0] * 0x7aebfea95ccdd1c9);
+                newState[9] = mod(state[9] + state[0] * 0xf9bd38a67d5f0e86);
+                newState[10] = mod(state[10] + state[0] * 0xfa65539de65492d8);
+                newState[11] = mod(state[11] + state[0] * 0xf0dfcbe7653ff787);
             } else if (r == 14) {
                 dSum +=
                     state[1] *
@@ -1199,6 +1353,18 @@ contract GoldilocksPoseidon {
                     0x8aa674b36144d9a9 +
                     state[11] *
                     0xcbabf78f97f95e65;
+                newState[0] = mod(dSum);
+                newState[1] = mod(state[1] + state[0] * 0x0bd87ad390420258);
+                newState[2] = mod(state[2] + state[0] * 0x0ad8617bca9e33c8);
+                newState[3] = mod(state[3] + state[0] * 0x0c00ad377a1e2666);
+                newState[4] = mod(state[4] + state[0] * 0x0ac6fc58b3f0518f);
+                newState[5] = mod(state[5] + state[0] * 0x0c0cc8a892cc4173);
+                newState[6] = mod(state[6] + state[0] * 0x0c210accb117bc21);
+                newState[7] = mod(state[7] + state[0] * 0x0b73630dbb46ca18);
+                newState[8] = mod(state[8] + state[0] * 0x0c8be4920cbd4a54);
+                newState[9] = mod(state[9] + state[0] * 0x0bfe877a21be1690);
+                newState[10] = mod(state[10] + state[0] * 0x0ae790559b0ded81);
+                newState[11] = mod(state[11] + state[0] * 0x0bf50db2f8d6ce31);
             } else if (r == 15) {
                 dSum +=
                     state[1] *
@@ -1223,6 +1389,18 @@ contract GoldilocksPoseidon {
                     0xcec0e58c34cb64b1 +
                     state[11] *
                     0xa868ea113387939f;
+                newState[0] = mod(dSum);
+                newState[1] = mod(state[1] + state[0] * 0x000cf29427ff7c58);
+                newState[2] = mod(state[2] + state[0] * 0x000bd9b3cf49eec8);
+                newState[3] = mod(state[3] + state[0] * 0x000d1dc8aa81fb26);
+                newState[4] = mod(state[4] + state[0] * 0x000bc792d5c394ef);
+                newState[5] = mod(state[5] + state[0] * 0x000d2ae0b2266453);
+                newState[6] = mod(state[6] + state[0] * 0x000d413f12c496c1);
+                newState[7] = mod(state[7] + state[0] * 0x000c84128cfed618);
+                newState[8] = mod(state[8] + state[0] * 0x000db5ebd48fc0d4);
+                newState[9] = mod(state[9] + state[0] * 0x000d1b77326dcb90);
+                newState[10] = mod(state[10] + state[0] * 0x000beb0ccc145421);
+                newState[11] = mod(state[11] + state[0] * 0x000d10e5b22b11d1);
             } else if (r == 16) {
                 dSum +=
                     state[1] *
@@ -1247,6 +1425,18 @@ contract GoldilocksPoseidon {
                     0x02d55e52a5d44414 +
                     state[11] *
                     0xdd8de62487c40925;
+                newState[0] = mod(dSum);
+                newState[1] = mod(state[1] + state[0] * 0x00000e24c99adad8);
+                newState[2] = mod(state[2] + state[0] * 0x00000cf389ed4bc8);
+                newState[3] = mod(state[3] + state[0] * 0x00000e580cbf6966);
+                newState[4] = mod(state[4] + state[0] * 0x00000cde5fd7e04f);
+                newState[5] = mod(state[5] + state[0] * 0x00000e63628041b3);
+                newState[6] = mod(state[6] + state[0] * 0x00000e7e81a87361);
+                newState[7] = mod(state[7] + state[0] * 0x00000dabe78f6d98);
+                newState[8] = mod(state[8] + state[0] * 0x00000efb14cac554);
+                newState[9] = mod(state[9] + state[0] * 0x00000e5574743b10);
+                newState[10] = mod(state[10] + state[0] * 0x00000d05709f42c1);
+                newState[11] = mod(state[11] + state[0] * 0x00000e4690c96af1);
             } else if (r == 17) {
                 dSum +=
                     state[1] *
@@ -1271,6 +1461,18 @@ contract GoldilocksPoseidon {
                     0x0d593a5e584af47b +
                     state[11] *
                     0xa023d94c56e151c7;
+                newState[0] = mod(dSum);
+                newState[1] = mod(state[1] + state[0] * 0x0000000f7157bc98);
+                newState[2] = mod(state[2] + state[0] * 0x0000000e3006d948);
+                newState[3] = mod(state[3] + state[0] * 0x0000000fa65811e6);
+                newState[4] = mod(state[4] + state[0] * 0x0000000e0d127e2f);
+                newState[5] = mod(state[5] + state[0] * 0x0000000fc18bfe53);
+                newState[6] = mod(state[6] + state[0] * 0x0000000fd002d901);
+                newState[7] = mod(state[7] + state[0] * 0x0000000eed6461d8);
+                newState[8] = mod(state[8] + state[0] * 0x0000001068562754);
+                newState[9] = mod(state[9] + state[0] * 0x0000000fa0236f50);
+                newState[10] = mod(state[10] + state[0] * 0x0000000e3af13ee1);
+                newState[11] = mod(state[11] + state[0] * 0x0000000fa460f6d1);
             } else if (r == 18) {
                 dSum +=
                     state[1] *
@@ -1295,6 +1497,18 @@ contract GoldilocksPoseidon {
                     0xe9633210630cbf12 +
                     state[11] *
                     0x1ffea9fe85a0b0b1;
+                newState[0] = mod(dSum);
+                newState[1] = mod(state[1] + state[0] * 0x0000000011131738);
+                newState[2] = mod(state[2] + state[0] * 0x000000000f56d588);
+                newState[3] = mod(state[3] + state[0] * 0x0000000011050f86);
+                newState[4] = mod(state[4] + state[0] * 0x000000000f848f4f);
+                newState[5] = mod(state[5] + state[0] * 0x00000000111527d3);
+                newState[6] = mod(state[6] + state[0] * 0x00000000114369a1);
+                newState[7] = mod(state[7] + state[0] * 0x00000000106f2f38);
+                newState[8] = mod(state[8] + state[0] * 0x0000000011e2ca94);
+                newState[9] = mod(state[9] + state[0] * 0x00000000110a29f0);
+                newState[10] = mod(state[10] + state[0] * 0x000000000fa9f5c1);
+                newState[11] = mod(state[11] + state[0] * 0x0000000010f625d1);
             } else if (r == 19) {
                 dSum +=
                     state[1] *
@@ -1319,6 +1533,18 @@ contract GoldilocksPoseidon {
                     0xc0a26efc7be5669b +
                     state[11] *
                     0xa6b6582c547d0d60;
+                newState[0] = mod(dSum);
+                newState[1] = mod(state[1] + state[0] * 0x000000000011f718);
+                newState[2] = mod(state[2] + state[0] * 0x000000000010b6c8);
+                newState[3] = mod(state[3] + state[0] * 0x0000000000134a96);
+                newState[4] = mod(state[4] + state[0] * 0x000000000010cf7f);
+                newState[5] = mod(state[5] + state[0] * 0x0000000000124d03);
+                newState[6] = mod(state[6] + state[0] * 0x000000000013f8a1);
+                newState[7] = mod(state[7] + state[0] * 0x0000000000117c58);
+                newState[8] = mod(state[8] + state[0] * 0x0000000000132c94);
+                newState[9] = mod(state[9] + state[0] * 0x0000000000134fc0);
+                newState[10] = mod(state[10] + state[0] * 0x000000000010a091);
+                newState[11] = mod(state[11] + state[0] * 0x0000000000128961);
             } else if (r == 20) {
                 dSum +=
                     state[1] *
@@ -1343,6 +1569,18 @@ contract GoldilocksPoseidon {
                     0x8f0fa011a2035fb0 +
                     state[11] *
                     0x1a37905d8450904a;
+                newState[0] = mod(dSum);
+                newState[1] = mod(state[1] + state[0] * 0x0000000000001300);
+                newState[2] = mod(state[2] + state[0] * 0x0000000000001750);
+                newState[3] = mod(state[3] + state[0] * 0x000000000000114e);
+                newState[4] = mod(state[4] + state[0] * 0x000000000000131f);
+                newState[5] = mod(state[5] + state[0] * 0x000000000000167b);
+                newState[6] = mod(state[6] + state[0] * 0x0000000000001371);
+                newState[7] = mod(state[7] + state[0] * 0x0000000000001230);
+                newState[8] = mod(state[8] + state[0] * 0x000000000000182c);
+                newState[9] = mod(state[9] + state[0] * 0x0000000000001368);
+                newState[10] = mod(state[10] + state[0] * 0x0000000000000f31);
+                newState[11] = mod(state[11] + state[0] * 0x00000000000015c9);
             } else if (r == 21) {
                 dSum +=
                     state[1] *
@@ -1367,266 +1605,7 @@ contract GoldilocksPoseidon {
                     0x09584acaa6e062a0 +
                     state[11] *
                     0x0bc051640145b19b;
-            }
-
-            newState[0] = mod(dSum);
-
-            // for (uint256 i = 1; i < 12; i++)  {
-            //     newState[i] = mod(state[i] + state[0] * FAST_PARTIAL_ROUND_VS[r][i - 1]);
-            // }
-            if (r == 0) {
-                newState[1] = mod(state[1] + state[0] * 0x94877900674181c3);
-                newState[2] = mod(state[2] + state[0] * 0xc6c67cc37a2a2bbd);
-                newState[3] = mod(state[3] + state[0] * 0xd667c2055387940f);
-                newState[4] = mod(state[4] + state[0] * 0x0ba63a63e94b5ff0);
-                newState[5] = mod(state[5] + state[0] * 0x99460cc41b8f079f);
-                newState[6] = mod(state[6] + state[0] * 0x7ff02375ed524bb3);
-                newState[7] = mod(state[7] + state[0] * 0xea0870b47a8caf0e);
-                newState[8] = mod(state[8] + state[0] * 0xabcad82633b7bc9d);
-                newState[9] = mod(state[9] + state[0] * 0x3b8d135261052241);
-                newState[10] = mod(state[10] + state[0] * 0xfb4515f5e5b0d539);
-                newState[11] = mod(state[11] + state[0] * 0x3ee8011c2b37f77c);
-            } else if (r == 1) {
-                newState[1] = mod(state[1] + state[0] * 0x0adef3740e71c726);
-                newState[2] = mod(state[2] + state[0] * 0xa37bf67c6f986559);
-                newState[3] = mod(state[3] + state[0] * 0xc6b16f7ed4fa1b00);
-                newState[4] = mod(state[4] + state[0] * 0x6a065da88d8bfc3c);
-                newState[5] = mod(state[5] + state[0] * 0x4cabc0916844b46f);
-                newState[6] = mod(state[6] + state[0] * 0x407faac0f02e78d1);
-                newState[7] = mod(state[7] + state[0] * 0x07a786d9cf0852cf);
-                newState[8] = mod(state[8] + state[0] * 0x42433fb6949a629a);
-                newState[9] = mod(state[9] + state[0] * 0x891682a147ce43b0);
-                newState[10] = mod(state[10] + state[0] * 0x26cfd58e7b003b55);
-                newState[11] = mod(state[11] + state[0] * 0x2bbf0ed7b657acb3);
-            } else if (r == 2) {
-                newState[1] = mod(state[1] + state[0] * 0x481ac7746b159c67);
-                newState[2] = mod(state[2] + state[0] * 0xe367de32f108e278);
-                newState[3] = mod(state[3] + state[0] * 0x73f260087ad28bec);
-                newState[4] = mod(state[4] + state[0] * 0x5cfc82216bc1bdca);
-                newState[5] = mod(state[5] + state[0] * 0xcaccc870a2663a0e);
-                newState[6] = mod(state[6] + state[0] * 0xdb69cd7b4298c45d);
-                newState[7] = mod(state[7] + state[0] * 0x7bc9e0c57243e62d);
-                newState[8] = mod(state[8] + state[0] * 0x3cc51c5d368693ae);
-                newState[9] = mod(state[9] + state[0] * 0x366b4e8cc068895b);
-                newState[10] = mod(state[10] + state[0] * 0x2bd18715cdabbca4);
-                newState[11] = mod(state[11] + state[0] * 0xa752061c4f33b8cf);
-            } else if (r == 3) {
-                newState[1] = mod(state[1] + state[0] * 0xb22d2432b72d5098);
-                newState[2] = mod(state[2] + state[0] * 0x9e18a487f44d2fe4);
-                newState[3] = mod(state[3] + state[0] * 0x4b39e14ce22abd3c);
-                newState[4] = mod(state[4] + state[0] * 0x9e77fde2eb315e0d);
-                newState[5] = mod(state[5] + state[0] * 0xca5e0385fe67014d);
-                newState[6] = mod(state[6] + state[0] * 0x0c2cb99bf1b6bddb);
-                newState[7] = mod(state[7] + state[0] * 0x99ec1cd2a4460bfe);
-                newState[8] = mod(state[8] + state[0] * 0x8577a815a2ff843f);
-                newState[9] = mod(state[9] + state[0] * 0x7d80a6b4fd6518a5);
-                newState[10] = mod(state[10] + state[0] * 0xeb6c67123eab62cb);
-                newState[11] = mod(state[11] + state[0] * 0x8f7851650eca21a5);
-            } else if (r == 4) {
-                newState[1] = mod(state[1] + state[0] * 0x11ba9a1b81718c2a);
-                newState[2] = mod(state[2] + state[0] * 0x9f7d798a3323410c);
-                newState[3] = mod(state[3] + state[0] * 0xa821855c8c1cf5e5);
-                newState[4] = mod(state[4] + state[0] * 0x535e8d6fac0031b2);
-                newState[5] = mod(state[5] + state[0] * 0x404e7c751b634320);
-                newState[6] = mod(state[6] + state[0] * 0xa729353f6e55d354);
-                newState[7] = mod(state[7] + state[0] * 0x4db97d92e58bb831);
-                newState[8] = mod(state[8] + state[0] * 0xb53926c27897bf7d);
-                newState[9] = mod(state[9] + state[0] * 0x965040d52fe115c5);
-                newState[10] = mod(state[10] + state[0] * 0x9565fa41ebd31fd7);
-                newState[11] = mod(state[11] + state[0] * 0xaae4438c877ea8f4);
-            } else if (r == 5) {
-                newState[1] = mod(state[1] + state[0] * 0x37f4e36af6073c6e);
-                newState[2] = mod(state[2] + state[0] * 0x4edc0918210800e9);
-                newState[3] = mod(state[3] + state[0] * 0xc44998e99eae4188);
-                newState[4] = mod(state[4] + state[0] * 0x9f4310d05d068338);
-                newState[5] = mod(state[5] + state[0] * 0x9ec7fe4350680f29);
-                newState[6] = mod(state[6] + state[0] * 0xc5b2c1fdc0b50874);
-                newState[7] = mod(state[7] + state[0] * 0xa01920c5ef8b2ebe);
-                newState[8] = mod(state[8] + state[0] * 0x59fa6f8bd91d58ba);
-                newState[9] = mod(state[9] + state[0] * 0x8bfc9eb89b515a82);
-                newState[10] = mod(state[10] + state[0] * 0xbe86a7a2555ae775);
-                newState[11] = mod(state[11] + state[0] * 0xcbb8bbaa3810babf);
-            } else if (r == 6) {
-                newState[1] = mod(state[1] + state[0] * 0x577f9a9e7ee3f9c2);
-                newState[2] = mod(state[2] + state[0] * 0x88c522b949ace7b1);
-                newState[3] = mod(state[3] + state[0] * 0x82f07007c8b72106);
-                newState[4] = mod(state[4] + state[0] * 0x8283d37c6675b50e);
-                newState[5] = mod(state[5] + state[0] * 0x98b074d9bbac1123);
-                newState[6] = mod(state[6] + state[0] * 0x75c56fb7758317c1);
-                newState[7] = mod(state[7] + state[0] * 0xfed24e206052bc72);
-                newState[8] = mod(state[8] + state[0] * 0x26d7c3d1bc07dae5);
-                newState[9] = mod(state[9] + state[0] * 0xf88c5e441e28dbb4);
-                newState[10] = mod(state[10] + state[0] * 0x4fe27f9f96615270);
-                newState[11] = mod(state[11] + state[0] * 0x514d4ba49c2b14fe);
-            } else if (r == 7) {
-                newState[1] = mod(state[1] + state[0] * 0xf02a3ac068ee110b);
-                newState[2] = mod(state[2] + state[0] * 0x0a3630dafb8ae2d7);
-                newState[3] = mod(state[3] + state[0] * 0xce0dc874eaf9b55c);
-                newState[4] = mod(state[4] + state[0] * 0x9a95f6cff5b55c7e);
-                newState[5] = mod(state[5] + state[0] * 0x626d76abfed00c7b);
-                newState[6] = mod(state[6] + state[0] * 0xa0c1cf1251c204ad);
-                newState[7] = mod(state[7] + state[0] * 0xdaebd3006321052c);
-                newState[8] = mod(state[8] + state[0] * 0x3d4bd48b625a8065);
-                newState[9] = mod(state[9] + state[0] * 0x7f1e584e071f6ed2);
-                newState[10] = mod(state[10] + state[0] * 0x720574f0501caed3);
-                newState[11] = mod(state[11] + state[0] * 0xe3260ba93d23540a);
-            } else if (r == 8) {
-                newState[1] = mod(state[1] + state[0] * 0xab1cbd41d8c1e335);
-                newState[2] = mod(state[2] + state[0] * 0x9322ed4c0bc2df01);
-                newState[3] = mod(state[3] + state[0] * 0x51c3c0983d4284e5);
-                newState[4] = mod(state[4] + state[0] * 0x94178e291145c231);
-                newState[5] = mod(state[5] + state[0] * 0xfd0f1a973d6b2085);
-                newState[6] = mod(state[6] + state[0] * 0xd427ad96e2b39719);
-                newState[7] = mod(state[7] + state[0] * 0x8a52437fecaac06b);
-                newState[8] = mod(state[8] + state[0] * 0xdc20ee4b8c4c9a80);
-                newState[9] = mod(state[9] + state[0] * 0xa2c98e9549da2100);
-                newState[10] = mod(state[10] + state[0] * 0x1603fe12613db5b6);
-                newState[11] = mod(state[11] + state[0] * 0x0e174929433c5505);
-            } else if (r == 9) {
-                newState[1] = mod(state[1] + state[0] * 0x3d4eab2b8ef5f796);
-                newState[2] = mod(state[2] + state[0] * 0xcfff421583896e22);
-                newState[3] = mod(state[3] + state[0] * 0x4143cb32d39ac3d9);
-                newState[4] = mod(state[4] + state[0] * 0x22365051b78a5b65);
-                newState[5] = mod(state[5] + state[0] * 0x6f7fd010d027c9b6);
-                newState[6] = mod(state[6] + state[0] * 0xd9dd36fba77522ab);
-                newState[7] = mod(state[7] + state[0] * 0xa44cf1cb33e37165);
-                newState[8] = mod(state[8] + state[0] * 0x3fc83d3038c86417);
-                newState[9] = mod(state[9] + state[0] * 0xc4588d418e88d270);
-                newState[10] = mod(state[10] + state[0] * 0xce1320f10ab80fe2);
-                newState[11] = mod(state[11] + state[0] * 0xdb5eadbbec18de5d);
-            } else if (r == 10) {
-                newState[1] = mod(state[1] + state[0] * 0x1183dfce7c454afd);
-                newState[2] = mod(state[2] + state[0] * 0x21cea4aa3d3ed949);
-                newState[3] = mod(state[3] + state[0] * 0x0fce6f70303f2304);
-                newState[4] = mod(state[4] + state[0] * 0x19557d34b55551be);
-                newState[5] = mod(state[5] + state[0] * 0x4c56f689afc5bbc9);
-                newState[6] = mod(state[6] + state[0] * 0xa1e920844334f944);
-                newState[7] = mod(state[7] + state[0] * 0xbad66d423d2ec861);
-                newState[8] = mod(state[8] + state[0] * 0xf318c785dc9e0479);
-                newState[9] = mod(state[9] + state[0] * 0x99e2032e765ddd81);
-                newState[10] = mod(state[10] + state[0] * 0x400ccc9906d66f45);
-                newState[11] = mod(state[11] + state[0] * 0xe1197454db2e0dd9);
-            } else if (r == 11) {
-                newState[1] = mod(state[1] + state[0] * 0x84d1ecc4d53d2ff1);
-                newState[2] = mod(state[2] + state[0] * 0xd8af8b9ceb4e11b6);
-                newState[3] = mod(state[3] + state[0] * 0x335856bb527b52f4);
-                newState[4] = mod(state[4] + state[0] * 0xc756f17fb59be595);
-                newState[5] = mod(state[5] + state[0] * 0xc0654e4ea5553a78);
-                newState[6] = mod(state[6] + state[0] * 0x9e9a46b61f2ea942);
-                newState[7] = mod(state[7] + state[0] * 0x14fc8b5b3b809127);
-                newState[8] = mod(state[8] + state[0] * 0xd7009f0f103be413);
-                newState[9] = mod(state[9] + state[0] * 0x3e0ee7b7a9fb4601);
-                newState[10] = mod(state[10] + state[0] * 0xa74e888922085ed7);
-                newState[11] = mod(state[11] + state[0] * 0xe80a7cde3d4ac526);
-            } else if (r == 12) {
-                newState[1] = mod(state[1] + state[0] * 0x238aa6daa612186d);
-                newState[2] = mod(state[2] + state[0] * 0x9137a5c630bad4b4);
-                newState[3] = mod(state[3] + state[0] * 0xc7db3817870c5eda);
-                newState[4] = mod(state[4] + state[0] * 0x217e4f04e5718dc9);
-                newState[5] = mod(state[5] + state[0] * 0xcae814e2817bd99d);
-                newState[6] = mod(state[6] + state[0] * 0xe3292e7ab770a8ba);
-                newState[7] = mod(state[7] + state[0] * 0x7bb36ef70b6b9482);
-                newState[8] = mod(state[8] + state[0] * 0x3c7835fb85bca2d3);
-                newState[9] = mod(state[9] + state[0] * 0xfe2cdf8ee3c25e86);
-                newState[10] = mod(state[10] + state[0] * 0x61b3915ad7274b20);
-                newState[11] = mod(state[11] + state[0] * 0xeab75ca7c918e4ef);
-            } else if (r == 13) {
-                newState[1] = mod(state[1] + state[0] * 0xd6e15ffc055e154e);
-                newState[2] = mod(state[2] + state[0] * 0xec67881f381a32bf);
-                newState[3] = mod(state[3] + state[0] * 0xfbb1196092bf409c);
-                newState[4] = mod(state[4] + state[0] * 0xdc9d2e07830ba226);
-                newState[5] = mod(state[5] + state[0] * 0x0698ef3245ff7988);
-                newState[6] = mod(state[6] + state[0] * 0x194fae2974f8b576);
-                newState[7] = mod(state[7] + state[0] * 0x7a5d9bea6ca4910e);
-                newState[8] = mod(state[8] + state[0] * 0x7aebfea95ccdd1c9);
-                newState[9] = mod(state[9] + state[0] * 0xf9bd38a67d5f0e86);
-                newState[10] = mod(state[10] + state[0] * 0xfa65539de65492d8);
-                newState[11] = mod(state[11] + state[0] * 0xf0dfcbe7653ff787);
-            } else if (r == 14) {
-                newState[1] = mod(state[1] + state[0] * 0x0bd87ad390420258);
-                newState[2] = mod(state[2] + state[0] * 0x0ad8617bca9e33c8);
-                newState[3] = mod(state[3] + state[0] * 0x0c00ad377a1e2666);
-                newState[4] = mod(state[4] + state[0] * 0x0ac6fc58b3f0518f);
-                newState[5] = mod(state[5] + state[0] * 0x0c0cc8a892cc4173);
-                newState[6] = mod(state[6] + state[0] * 0x0c210accb117bc21);
-                newState[7] = mod(state[7] + state[0] * 0x0b73630dbb46ca18);
-                newState[8] = mod(state[8] + state[0] * 0x0c8be4920cbd4a54);
-                newState[9] = mod(state[9] + state[0] * 0x0bfe877a21be1690);
-                newState[10] = mod(state[10] + state[0] * 0x0ae790559b0ded81);
-                newState[11] = mod(state[11] + state[0] * 0x0bf50db2f8d6ce31);
-            } else if (r == 15) {
-                newState[1] = mod(state[1] + state[0] * 0x000cf29427ff7c58);
-                newState[2] = mod(state[2] + state[0] * 0x000bd9b3cf49eec8);
-                newState[3] = mod(state[3] + state[0] * 0x000d1dc8aa81fb26);
-                newState[4] = mod(state[4] + state[0] * 0x000bc792d5c394ef);
-                newState[5] = mod(state[5] + state[0] * 0x000d2ae0b2266453);
-                newState[6] = mod(state[6] + state[0] * 0x000d413f12c496c1);
-                newState[7] = mod(state[7] + state[0] * 0x000c84128cfed618);
-                newState[8] = mod(state[8] + state[0] * 0x000db5ebd48fc0d4);
-                newState[9] = mod(state[9] + state[0] * 0x000d1b77326dcb90);
-                newState[10] = mod(state[10] + state[0] * 0x000beb0ccc145421);
-                newState[11] = mod(state[11] + state[0] * 0x000d10e5b22b11d1);
-            } else if (r == 16) {
-                newState[1] = mod(state[1] + state[0] * 0x00000e24c99adad8);
-                newState[2] = mod(state[2] + state[0] * 0x00000cf389ed4bc8);
-                newState[3] = mod(state[3] + state[0] * 0x00000e580cbf6966);
-                newState[4] = mod(state[4] + state[0] * 0x00000cde5fd7e04f);
-                newState[5] = mod(state[5] + state[0] * 0x00000e63628041b3);
-                newState[6] = mod(state[6] + state[0] * 0x00000e7e81a87361);
-                newState[7] = mod(state[7] + state[0] * 0x00000dabe78f6d98);
-                newState[8] = mod(state[8] + state[0] * 0x00000efb14cac554);
-                newState[9] = mod(state[9] + state[0] * 0x00000e5574743b10);
-                newState[10] = mod(state[10] + state[0] * 0x00000d05709f42c1);
-                newState[11] = mod(state[11] + state[0] * 0x00000e4690c96af1);
-            } else if (r == 17) {
-                newState[1] = mod(state[1] + state[0] * 0x0000000f7157bc98);
-                newState[2] = mod(state[2] + state[0] * 0x0000000e3006d948);
-                newState[3] = mod(state[3] + state[0] * 0x0000000fa65811e6);
-                newState[4] = mod(state[4] + state[0] * 0x0000000e0d127e2f);
-                newState[5] = mod(state[5] + state[0] * 0x0000000fc18bfe53);
-                newState[6] = mod(state[6] + state[0] * 0x0000000fd002d901);
-                newState[7] = mod(state[7] + state[0] * 0x0000000eed6461d8);
-                newState[8] = mod(state[8] + state[0] * 0x0000001068562754);
-                newState[9] = mod(state[9] + state[0] * 0x0000000fa0236f50);
-                newState[10] = mod(state[10] + state[0] * 0x0000000e3af13ee1);
-                newState[11] = mod(state[11] + state[0] * 0x0000000fa460f6d1);
-            } else if (r == 18) {
-                newState[1] = mod(state[1] + state[0] * 0x0000000011131738);
-                newState[2] = mod(state[2] + state[0] * 0x000000000f56d588);
-                newState[3] = mod(state[3] + state[0] * 0x0000000011050f86);
-                newState[4] = mod(state[4] + state[0] * 0x000000000f848f4f);
-                newState[5] = mod(state[5] + state[0] * 0x00000000111527d3);
-                newState[6] = mod(state[6] + state[0] * 0x00000000114369a1);
-                newState[7] = mod(state[7] + state[0] * 0x00000000106f2f38);
-                newState[8] = mod(state[8] + state[0] * 0x0000000011e2ca94);
-                newState[9] = mod(state[9] + state[0] * 0x00000000110a29f0);
-                newState[10] = mod(state[10] + state[0] * 0x000000000fa9f5c1);
-                newState[11] = mod(state[11] + state[0] * 0x0000000010f625d1);
-            } else if (r == 19) {
-                newState[1] = mod(state[1] + state[0] * 0x000000000011f718);
-                newState[2] = mod(state[2] + state[0] * 0x000000000010b6c8);
-                newState[3] = mod(state[3] + state[0] * 0x0000000000134a96);
-                newState[4] = mod(state[4] + state[0] * 0x000000000010cf7f);
-                newState[5] = mod(state[5] + state[0] * 0x0000000000124d03);
-                newState[6] = mod(state[6] + state[0] * 0x000000000013f8a1);
-                newState[7] = mod(state[7] + state[0] * 0x0000000000117c58);
-                newState[8] = mod(state[8] + state[0] * 0x0000000000132c94);
-                newState[9] = mod(state[9] + state[0] * 0x0000000000134fc0);
-                newState[10] = mod(state[10] + state[0] * 0x000000000010a091);
-                newState[11] = mod(state[11] + state[0] * 0x0000000000128961);
-            } else if (r == 20) {
-                newState[1] = mod(state[1] + state[0] * 0x0000000000001300);
-                newState[2] = mod(state[2] + state[0] * 0x0000000000001750);
-                newState[3] = mod(state[3] + state[0] * 0x000000000000114e);
-                newState[4] = mod(state[4] + state[0] * 0x000000000000131f);
-                newState[5] = mod(state[5] + state[0] * 0x000000000000167b);
-                newState[6] = mod(state[6] + state[0] * 0x0000000000001371);
-                newState[7] = mod(state[7] + state[0] * 0x0000000000001230);
-                newState[8] = mod(state[8] + state[0] * 0x000000000000182c);
-                newState[9] = mod(state[9] + state[0] * 0x0000000000001368);
-                newState[10] = mod(state[10] + state[0] * 0x0000000000000f31);
-                newState[11] = mod(state[11] + state[0] * 0x00000000000015c9);
-            } else if (r == 21) {
+                newState[0] = mod(dSum);
                 newState[1] = mod(state[1] + state[0] * 0x0000000000000014);
                 newState[2] = mod(state[2] + state[0] * 0x0000000000000022);
                 newState[3] = mod(state[3] + state[0] * 0x0000000000000012);
@@ -1639,6 +1618,12 @@ contract GoldilocksPoseidon {
                 newState[10] = mod(state[10] + state[0] * 0x0000000000000029);
                 newState[11] = mod(state[11] + state[0] * 0x000000000000000f);
             }
+
+            // newState[0] = mod(dSum);
+
+            // for (uint256 i = 1; i < 12; i++)  {
+            //     newState[i] = mod(state[i] + state[0] * FAST_PARTIAL_ROUND_VS[r][i - 1]);
+            // }
         }
     }
 

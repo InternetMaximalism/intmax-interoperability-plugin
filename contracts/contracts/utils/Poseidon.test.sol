@@ -4,6 +4,21 @@ pragma solidity 0.8.17;
 import "forge-std/Test.sol";
 import "./Poseidon.sol";
 
+contract PoseidonTest is GoldilocksPoseidon {
+    function testPoseidon() public view {
+        uint256[] memory input = new uint256[](1);
+        input[0] = 1;
+        uint256 gasBefore = gasleft();
+        uint256[] memory output = _hashNToMNoPad(input, 4);
+        uint256 gasAfter = gasleft();
+        console.log("used gas: %d", gasBefore - gasAfter);
+        assert(output[0] == 15020833855946683413);
+        assert(output[1] == 2541896837400596712);
+        assert(output[2] == 5158482081674306993);
+        assert(output[3] == 15736419290823331982);
+    }
+}
+
 contract PoseidonForgeTest is Test {
     GoldilocksPoseidon poseidon;
 

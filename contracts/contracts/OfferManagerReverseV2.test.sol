@@ -38,7 +38,6 @@ contract OfferManagerReverseV2ForgeTest is Test {
         {
             uint256 privateKey = vm.deriveKey(mnemonic, 0);
             maker = vm.addr(privateKey);
-            vm.deal(maker, 100 ether);
         }
         {
             uint256 privateKey = vm.deriveKey(mnemonic, 1);
@@ -54,7 +53,7 @@ contract OfferManagerReverseV2ForgeTest is Test {
         offerManager.addTokenAddressToAllowList(newAllowList);
     }
 
-    function testRegister(
+    function testRegisterActivate(
         uint256 makerAssetId,
         uint256 makerAmount,
         bytes32 takerIntmaxAddress,

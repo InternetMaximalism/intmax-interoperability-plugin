@@ -37,7 +37,7 @@ contract OfferManagerReverseV2 is
         override(OfferManagerReverse, OfferManagerReverseInterface)
         returns (uint256 offerId)
     {
-        require(_checkMaker(maker), "`maker` must not be zero.");
+        require(_checkMaker(maker), "`maker` must not be zero address.");
 
         // Check if given `takerTokenAddress` is in the token allow list.
         require(

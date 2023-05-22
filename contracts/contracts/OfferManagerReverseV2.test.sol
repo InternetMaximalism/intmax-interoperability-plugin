@@ -25,6 +25,7 @@ contract OfferManagerReverseV2Wrapper is OfferManagerReverseV2 {
 contract OfferManagerReverseV2ForgeTest is Test {
     address maker;
     address taker;
+    address[] newMakers;
 
     SimpleVerifier verifier;
     OfferManagerReverseV2Wrapper offerManager;
@@ -44,6 +45,10 @@ contract OfferManagerReverseV2ForgeTest is Test {
             taker = vm.addr(privateKey);
             vm.deal(taker, 100 ether);
         }
+        for (uint32 i = 2; i < 12; i++) {
+            uint256 privateKey = vm.deriveKey(mnemonic, i);
+            newMakers.push(vm.addr(privateKey));
+        }
 
         verifier = new SimpleVerifierTest(NETWORK_INDEX);
         offerManager = new OfferManagerReverseV2Wrapper();
@@ -58,13 +63,13 @@ contract OfferManagerReverseV2ForgeTest is Test {
         uint256 makerAmount,
         bytes32 takerIntmaxAddress,
         uint256 takerAmount,
-        address[] memory newMakers
+        uint256 numMakers
     ) external {
         address takerTokenAddress = address(0);
         bytes memory witness = "0x";
         vm.assume(makerAmount <= MAX_REMITTANCE_AMOUNT);
         vm.assume(takerAmount <= 100 ether);
-        vm.assume(newMakers.length < 3);
+        vm.assume(numMakers < newMakers.length);
         vm.prank(taker);
         uint256 offerId = offerManager.register{value: takerAmount}(
             takerIntmaxAddress,
@@ -76,8 +81,7 @@ contract OfferManagerReverseV2ForgeTest is Test {
         );
 
         address newMaker = maker;
-        for (uint256 i = 0; i < newMakers.length; i++) {
-            vm.assume(newMakers[i] != address(0));
+        for (uint256 i = 0; i < numMakers; i++) {
             vm.prank(taker);
             offerManager.updateMaker(offerId, newMakers[i]);
             newMaker = newMakers[i];

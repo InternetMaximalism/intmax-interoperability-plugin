@@ -206,7 +206,7 @@ contract OfferManager is
      * @dev Verify the validity of the offer.
      * @param offer is the offer that needs to be verified.
      */
-    function _isValidOffer(Offer memory offer) internal pure {
+    function _isValidOffer(Offer memory offer) internal pure virtual {
         // The `makerAmount` in the offer must be less than or equal to `MAX_REMITTANCE_AMOUNT`.
         require(
             offer.makerAmount <= MAX_REMITTANCE_AMOUNT,
@@ -224,7 +224,6 @@ contract OfferManager is
 
     function _checkTaker(bytes32 taker) internal pure virtual returns (bool) {
         // A taker should not be the burn address.
-        uint256 takerUint = abi.decode(abi.encode(taker), (uint256));
-        return takerUint > 2;
+        return taker != bytes32(0);
     }
 }

@@ -29,11 +29,13 @@ contract OfferManagerV2Wrapper is OfferManagerV2 {
 contract OfferManagerV2ForgeTest is Test {
     address maker;
     address taker;
+    bytes32[] newTakers;
 
     SimpleVerifier verifier;
     OfferManagerV2Wrapper offerManager;
 
-    bytes32 constant NETWORK_INDEX = bytes32("2");
+    bytes32 constant NETWORK_INDEX =
+        0x0000000000000000000000000000000000000000000000000000000000000002;
     uint256 constant MAX_REMITTANCE_AMOUNT = 18446744069414584320; // the maximum value of Goldilocks field
 
     function setUp() external {
@@ -47,6 +49,10 @@ contract OfferManagerV2ForgeTest is Test {
             uint256 privateKey = vm.deriveKey(mnemonic, 1);
             taker = vm.addr(privateKey);
             vm.deal(taker, 100 ether);
+        }
+        for (uint256 i = 2; i < 12; i++) {
+            bytes32 newTaker = keccak256(abi.encode(mnemonic, i));
+            newTakers.push(newTaker);
         }
 
         verifier = new SimpleVerifierTest(NETWORK_INDEX);
@@ -63,13 +69,13 @@ contract OfferManagerV2ForgeTest is Test {
         uint256 makerAmount,
         bytes32 takerIntmaxAddress,
         uint256 takerAmount,
-        bytes32[] memory newTakers
+        uint256 numTakers
     ) external {
         address takerTokenAddress = address(0);
         bytes memory witness = "0x";
         vm.assume(makerAmount <= MAX_REMITTANCE_AMOUNT);
         vm.assume(takerAmount <= 100 ether);
-        vm.assume(newTakers.length < 3);
+        vm.assume(numTakers < newTakers.length);
         vm.prank(maker);
         uint256 offerId = offerManager.register(
             makerIntmaxAddress,
@@ -82,8 +88,7 @@ contract OfferManagerV2ForgeTest is Test {
             witness
         );
 
-        for (uint256 i = 0; i < newTakers.length; i++) {
-            vm.assume(offerManager.checkTaker(newTakers[i]));
+        for (uint256 i = 0; i < numTakers; i++) {
             vm.prank(maker);
             offerManager.updateTaker(offerId, newTakers[i]);
         }

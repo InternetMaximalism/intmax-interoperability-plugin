@@ -217,7 +217,9 @@ contract OfferManagerV2 is
         emit OfferActivated(offerId, _offers[offerId].makerIntmaxAddress);
     }
 
-    function _checkTaker(bytes32 taker) internal pure override returns (bool) {
+    function _checkTaker(
+        bytes32 taker
+    ) internal pure virtual override returns (bool) {
         // A taker should not be the burn address.
         uint256 takerUint = abi.decode(abi.encode(taker), (uint256));
         return takerUint > 2;

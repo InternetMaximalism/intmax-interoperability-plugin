@@ -1,6 +1,5 @@
 use std::{sync::Arc, time::Duration};
 
-use dotenv::dotenv;
 use ethers::{
     core::types::{Address, U256},
     middleware::SignerMiddleware,
@@ -13,16 +12,20 @@ use intmax_interoperability_plugin::contracts::offer_manager::OfferManagerContra
 
 #[tokio::main]
 async fn main() {
-    let _ = dotenv().ok();
-    let secret_key =
-        std::env::var("PRIVATE_KEY").expect("PRIVATE_KEY must be set in .env file. This address must have sufficient ETH (around 0.1 ETH) on Scroll alpha to execute the transaction.");
     let rpc_url = "https://alpha-rpc.scroll.io/l2";
     let chain_id = 534353u64;
 
     let provider = Provider::<Http>::try_from(rpc_url)
         .unwrap()
         .interval(Duration::from_millis(10u64));
-    let signer_key = SigningKey::from_bytes(&hex::decode(&secret_key).unwrap()).unwrap();
+
+    let rng = rand::thread_rng();
+    let signer_key = SigningKey::random(rng);
+    // let _ = dotenv::dotenv().ok();
+    // let secret_key =
+    //     std::env::var("PRIVATE_KEY").expect("PRIVATE_KEY must be set in .env file. This address must have sufficient ETH (around 0.1 ETH) on Scroll alpha to execute the transaction.");
+    // let signer_key = SigningKey::from_bytes(&hex::decode(&secret_key).unwrap()).unwrap();
+
     let my_account = secret_key_to_address(&signer_key);
     let wallet = LocalWallet::new_with_signer(signer_key, my_account, chain_id);
     let client = SignerMiddleware::new(provider, wallet);

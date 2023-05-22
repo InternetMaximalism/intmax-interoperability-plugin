@@ -4,7 +4,13 @@ pragma solidity 0.8.17;
 import "./MerkleTreeInterface.sol";
 import "./Poseidon.sol";
 
-contract MerkleTree is MerkleTreeInterface, GoldilocksPoseidon {
+contract MerkleTree is MerkleTreeInterface {
+    GoldilocksPoseidon public poseidonHasher;
+
+    constructor() {
+        poseidonHasher = new GoldilocksPoseidon();
+    }
+
     // Compure Merkle root.
     function _computeMerkleRoot(
         MerkleProof memory proof
@@ -17,9 +23,15 @@ contract MerkleTree is MerkleTreeInterface, GoldilocksPoseidon {
             index = index >> 1;
 
             if (branchIndex == 1) {
-                computedHash = two_to_one(proof.siblings[i], computedHash);
+                computedHash = poseidonHasher.twoToOne(
+                    proof.siblings[i],
+                    computedHash
+                );
             } else {
-                computedHash = two_to_one(computedHash, proof.siblings[i]);
+                computedHash = poseidonHasher.twoToOne(
+                    computedHash,
+                    proof.siblings[i]
+                );
             }
         }
 
@@ -38,9 +50,15 @@ contract MerkleTree is MerkleTreeInterface, GoldilocksPoseidon {
             index = index << 1;
 
             if (branchIndex == 1) {
-                computedHash = two_to_one(proof.siblings[i - 1], computedHash);
+                computedHash = poseidonHasher.twoToOne(
+                    proof.siblings[i - 1],
+                    computedHash
+                );
             } else {
-                computedHash = two_to_one(computedHash, proof.siblings[i - 1]);
+                computedHash = poseidonHasher.twoToOne(
+                    computedHash,
+                    proof.siblings[i - 1]
+                );
             }
         }
 

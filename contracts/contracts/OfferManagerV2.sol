@@ -156,7 +156,7 @@ contract OfferManagerV2 is
     function _checkAndNullifyWitness(
         Offer storage offer,
         bytes memory witness
-    ) internal {
+    ) internal virtual {
         (, , MerkleTree.MerkleProof memory diffTreeInclusionProof, , ) = abi
             .decode(
                 witness,
@@ -215,6 +215,14 @@ contract OfferManagerV2 is
     function _deactivate(uint256 offerId) internal override {
         _markOfferAsActivated(offerId);
         emit OfferActivated(offerId, _offers[offerId].makerIntmaxAddress);
+    }
+
+    function _checkTaker(
+        bytes32 taker
+    ) internal pure virtual override returns (bool) {
+        // A taker should not be the burn address.
+        uint256 takerUint = abi.decode(abi.encode(taker), (uint256));
+        return takerUint > 2;
     }
 
     /**

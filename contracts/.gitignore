@@ -8,4 +8,6 @@ typechain-types
 # Hardhat files
 cache
 artifacts
+/cache_hardhat
+/out
 compiled-artifacts/**/*.dbg.json

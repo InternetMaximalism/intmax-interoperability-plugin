@@ -37,7 +37,7 @@ contract OfferManagerReverseV2 is
         override(OfferManagerReverse, OfferManagerReverseInterface)
         returns (uint256 offerId)
     {
-        require(_checkMaker(maker), "`maker` must not be zero.");
+        require(_checkMaker(maker), "`maker` must not be zero address.");
 
         // Check if given `takerTokenAddress` is in the token allow list.
         require(
@@ -136,7 +136,7 @@ contract OfferManagerReverseV2 is
     function _checkAndNullifyWitness(
         Offer storage offer,
         bytes memory witness
-    ) internal {
+    ) internal virtual {
         (, , MerkleTree.MerkleProof memory diffTreeInclusionProof, , ) = abi
             .decode(
                 witness,

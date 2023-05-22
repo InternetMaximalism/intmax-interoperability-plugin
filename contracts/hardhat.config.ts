@@ -1,5 +1,6 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "hardhat-gas-reporter";
+import "@nomicfoundation/hardhat-foundry";
 import "@nomicfoundation/hardhat-toolbox";
 import "@openzeppelin/hardhat-upgrades";
 

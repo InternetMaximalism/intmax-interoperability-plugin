@@ -66,7 +66,7 @@ contract OfferManager is
 
         require(
             _checkTaker(newTakerIntmaxAddress),
-            "`newTakerIntmaxAddress` should not be zero"
+            "`newTakerIntmaxAddress` should not be burn address"
         );
 
         _offers[offerId].takerIntmaxAddress = newTakerIntmaxAddress;
@@ -139,7 +139,7 @@ contract OfferManager is
         address takerTokenAddress,
         uint256 takerAmount
     ) internal returns (uint256 offerId) {
-        require(maker != address(0), "The maker must not be zero address.");
+        require(maker != address(0), "`maker` must not be zero address.");
         offerId = _nextOfferId.current();
         require(!isRegistered(offerId), "This offer ID is already registered.");
 
@@ -206,7 +206,7 @@ contract OfferManager is
      * @dev Verify the validity of the offer.
      * @param offer is the offer that needs to be verified.
      */
-    function _isValidOffer(Offer memory offer) internal pure {
+    function _isValidOffer(Offer memory offer) internal pure virtual {
         // The `makerAmount` in the offer must be less than or equal to `MAX_REMITTANCE_AMOUNT`.
         require(
             offer.makerAmount <= MAX_REMITTANCE_AMOUNT,
@@ -222,7 +222,7 @@ contract OfferManager is
         // );
     }
 
-    function _checkTaker(bytes32 taker) internal pure returns (bool) {
+    function _checkTaker(bytes32 taker) internal pure virtual returns (bool) {
         // A taker should not be the burn address.
         return taker != bytes32(0);
     }

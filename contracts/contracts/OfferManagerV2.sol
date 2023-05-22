@@ -31,7 +31,7 @@ contract OfferManagerV2 is
         _transferOwnership(newOwner);
     }
 
-    function changeVerifier(VerifierInterface newVerifier) public onlyOwner {
+    function changeVerifier(VerifierInterface newVerifier) external onlyOwner {
         verifier = newVerifier;
     }
 
@@ -64,7 +64,7 @@ contract OfferManagerV2 is
         address takerTokenAddress,
         uint256 takerAmount,
         bytes memory witness
-    ) public returns (uint256 offerId) {
+    ) external returns (uint256 offerId) {
         // Check if given `takerTokenAddress` is in the token allow list.
         require(
             tokenAllowList[takerTokenAddress],
@@ -88,7 +88,7 @@ contract OfferManagerV2 is
     function activate(
         uint256 offerId
     )
-        public
+        external
         payable
         override(OfferManager, OfferManagerInterface)
         returns (bool ok)

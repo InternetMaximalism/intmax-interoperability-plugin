@@ -111,23 +111,37 @@ describe("OfferManagerV2", function () {
       const OfferManager = await ethers.getContractFactory("OfferManagerV2");
       const offerManager = await OfferManager.deploy();
       await offerManager.initialize();
-      await expect(offerManager.initialize()).to.be.revertedWith("Initializable: contract is already initialized");
+      await expect(offerManager.initialize()).to.be.revertedWith(
+        "Initializable: contract is already initialized"
+      );
     });
     it("cannot execute initializeV2 after executing initialize", async function () {
       const OfferManager = await ethers.getContractFactory("OfferManagerV2");
       const offerManager = await OfferManager.deploy();
       await offerManager.initialize();
       const tmp = ethers.Wallet.createRandom();
-      await expect(offerManager.initializeV2(tmp.address)).to.be.revertedWith("Initializable: contract is already initialized");
+      await expect(offerManager.initializeV2(tmp.address)).to.be.revertedWith(
+        "Initializable: contract is already initialized"
+      );
     });
   });
 
   describe("register", function () {
     it("register is deprecated", async function () {
-      const { offerManager } = await loadFixture(
-        deployOfferManager
+      const { offerManager } = await loadFixture(deployOfferManager);
+      await expect(
+        offerManager[REGISTER_FUNC](
+          ethers.utils.formatBytes32String(""),
+          0,
+          0,
+          ethers.constants.AddressZero,
+          ethers.utils.formatBytes32String(""),
+          ethers.constants.AddressZero,
+          0
+        )
+      ).to.be.revertedWith(
+        "this function is deprecated: 'witness' argument required"
       );
-      await expect(offerManager[REGISTER_FUNC](ethers.utils.formatBytes32String(""), 0, 0, ethers.constants.AddressZero, ethers.utils.formatBytes32String(""), ethers.constants.AddressZero, 0)).to.be.revertedWith("this function is deprecated: 'witness' argument required");
     });
   });
 
@@ -154,16 +168,16 @@ describe("OfferManagerV2", function () {
       await expect(
         offerManager
           .connect(maker)
-        [REGISTER_FUNC_V2](
-          makerIntmaxAddress,
-          makerAssetId,
-          makerAmount,
-          taker.address,
-          takerIntmaxAddress,
-          takerTokenAddress,
-          takerAmount,
-          witness
-        )
+          [REGISTER_FUNC_V2](
+            makerIntmaxAddress,
+            makerAssetId,
+            makerAmount,
+            taker.address,
+            takerIntmaxAddress,
+            takerTokenAddress,
+            takerAmount,
+            witness
+          )
       )
         .to.emit(offerManager, "OfferTakerUpdated")
         .withArgs(offerId, takerIntmaxAddress);
@@ -188,20 +202,6 @@ describe("OfferManagerV2", function () {
 
       await offerManager
         .connect(maker)
-      [REGISTER_FUNC_V2](
-        makerIntmaxAddress,
-        makerAssetId,
-        makerAmount,
-        taker.address,
-        takerIntmaxAddress,
-        takerTokenAddress,
-        takerAmount,
-        witness
-      );
-
-      expect(
-        offerManager
-          .connect(maker)
         [REGISTER_FUNC_V2](
           makerIntmaxAddress,
           makerAssetId,
@@ -211,7 +211,21 @@ describe("OfferManagerV2", function () {
           takerTokenAddress,
           takerAmount,
           witness
-        )
+        );
+
+      expect(
+        offerManager
+          .connect(maker)
+          [REGISTER_FUNC_V2](
+            makerIntmaxAddress,
+            makerAssetId,
+            makerAmount,
+            taker.address,
+            takerIntmaxAddress,
+            takerTokenAddress,
+            takerAmount,
+            witness
+          )
       ).to.be.revertedWith("Given witness already used");
     });
   });
@@ -236,16 +250,16 @@ describe("OfferManagerV2", function () {
 
       await offerManager
         .connect(maker)
-      [REGISTER_FUNC_V2](
-        makerIntmaxAddress,
-        makerAssetId,
-        makerAmount,
-        taker.address,
-        takerIntmaxAddress,
-        takerTokenAddress,
-        takerAmount,
-        witness
-      );
+        [REGISTER_FUNC_V2](
+          makerIntmaxAddress,
+          makerAssetId,
+          makerAmount,
+          taker.address,
+          takerIntmaxAddress,
+          takerTokenAddress,
+          takerAmount,
+          witness
+        );
 
       const offerId = 0;
       const newTakerIntmaxAddress =
@@ -279,16 +293,16 @@ describe("OfferManagerV2", function () {
 
       await offerManager
         .connect(maker)
-      [REGISTER_FUNC_V2](
-        makerIntmaxAddress,
-        makerAssetId,
-        makerAmount,
-        taker.address,
-        takerIntmaxAddress,
-        takerTokenAddress,
-        takerAmount,
-        witness
-      );
+        [REGISTER_FUNC_V2](
+          makerIntmaxAddress,
+          makerAssetId,
+          makerAmount,
+          taker.address,
+          takerIntmaxAddress,
+          takerTokenAddress,
+          takerAmount,
+          witness
+        );
 
       const offerId = 0;
 
@@ -331,16 +345,16 @@ describe("OfferManagerV2", function () {
       await expect(
         offerManager
           .connect(maker)
-        [REGISTER_FUNC_V2](
-          makerIntmaxAddress,
-          makerAssetId,
-          makerAmount,
-          taker.address,
-          takerIntmaxAddress,
-          takerTokenAddress,
-          takerAmount,
-          witness
-        )
+          [REGISTER_FUNC_V2](
+            makerIntmaxAddress,
+            makerAssetId,
+            makerAmount,
+            taker.address,
+            takerIntmaxAddress,
+            takerTokenAddress,
+            takerAmount,
+            witness
+          )
       ).to.be.revertedWith(
         "the taker's token address is not in the token allow list"
       );
@@ -364,16 +378,16 @@ describe("OfferManagerV2", function () {
       await expect(
         offerManager
           .connect(maker)
-        [REGISTER_FUNC_V2](
-          makerIntmaxAddress,
-          makerAssetId,
-          makerAmount,
-          taker.address,
-          takerIntmaxAddress,
-          takerTokenAddress,
-          takerAmount,
-          witness
-        )
+          [REGISTER_FUNC_V2](
+            makerIntmaxAddress,
+            makerAssetId,
+            makerAmount,
+            taker.address,
+            takerIntmaxAddress,
+            takerTokenAddress,
+            takerAmount,
+            witness
+          )
       )
         .to.emit(offerManager, "OfferTakerUpdated")
         .withArgs(offerId, takerIntmaxAddress);
@@ -395,16 +409,16 @@ describe("OfferManagerV2", function () {
       await expect(
         offerManager
           .connect(maker)
-        [REGISTER_FUNC_V2](
-          makerIntmaxAddress,
-          makerAssetId,
-          makerAmount,
-          taker.address,
-          takerIntmaxAddress,
-          takerTokenAddress,
-          takerAmount,
-          witness
-        )
+          [REGISTER_FUNC_V2](
+            makerIntmaxAddress,
+            makerAssetId,
+            makerAmount,
+            taker.address,
+            takerIntmaxAddress,
+            takerTokenAddress,
+            takerAmount,
+            witness
+          )
       ).to.be.revertedWith(
         "the taker's token address is not in the token allow list"
       );
@@ -435,16 +449,16 @@ describe("OfferManagerV2", function () {
 
       await offerManager
         .connect(maker)
-      [REGISTER_FUNC_V2](
-        makerIntmaxAddress,
-        makerAssetId,
-        makerAmount,
-        taker.address,
-        takerIntmaxAddress,
-        takerTokenAddress,
-        takerAmount,
-        witness
-      );
+        [REGISTER_FUNC_V2](
+          makerIntmaxAddress,
+          makerAssetId,
+          makerAmount,
+          taker.address,
+          takerIntmaxAddress,
+          takerTokenAddress,
+          takerAmount,
+          witness
+        );
 
       const offerId = 0;
 
@@ -538,16 +552,16 @@ describe("OfferManagerV2", function () {
       const witness = calcWitness(owner);
       await offerManagerV2
         .connect(maker)
-      [REGISTER_FUNC_V2](
-        makerIntmaxAddress,
-        makerAssetId,
-        makerAmount,
-        taker.address,
-        takerIntmaxAddress,
-        ZERO_ADDRESS,
-        takerAmount,
-        witness
-      );
+        [REGISTER_FUNC_V2](
+          makerIntmaxAddress,
+          makerAssetId,
+          makerAmount,
+          taker.address,
+          takerIntmaxAddress,
+          ZERO_ADDRESS,
+          takerAmount,
+          witness
+        );
 
       // const OfferManagerV3 = await ethers.getContractFactory(
       //   "OfferManagerV3"

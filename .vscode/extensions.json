@@ -4,6 +4,7 @@
     "jscearcy.rust-doc-viewer",
     "streetsidesoftware.code-spell-checker",
     "bierner.markdown-mermaid",
-    "hediet.vscode-drawio"
+    "nomicfoundation.hardhat-solidity",
+    "esbenp.prettier-vscode"
   ]
 }

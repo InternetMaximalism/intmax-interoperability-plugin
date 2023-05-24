@@ -10,6 +10,9 @@ import {
 } from "./sampleData";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
+const REGISTER_FUNC =
+  "register(bytes32,uint256,uint256,address,bytes32,address,uint256)";
+
 const REGISTER_FUNC_V2 =
   "register(bytes32,uint256,uint256,address,bytes32,address,uint256,bytes)";
 
@@ -100,6 +103,45 @@ describe("OfferManagerV2", function () {
       const { offerManager } = await loadFixture(deployOfferManager);
 
       expect(await offerManager.nextOfferId()).to.equal(0);
+    });
+  });
+
+  describe("initialize", function () {
+    it("initialize cannot be executed twice", async function () {
+      const OfferManager = await ethers.getContractFactory("OfferManagerV2");
+      const offerManager = await OfferManager.deploy();
+      await offerManager.initialize();
+      await expect(offerManager.initialize()).to.be.revertedWith(
+        "Initializable: contract is already initialized"
+      );
+    });
+    it("cannot execute initializeV2 after executing initialize", async function () {
+      const OfferManager = await ethers.getContractFactory("OfferManagerV2");
+      const offerManager = await OfferManager.deploy();
+      await offerManager.initialize();
+      const tmp = ethers.Wallet.createRandom();
+      await expect(offerManager.initializeV2(tmp.address)).to.be.revertedWith(
+        "Initializable: contract is already initialized"
+      );
+    });
+  });
+
+  describe("register", function () {
+    it("register is deprecated", async function () {
+      const { offerManager } = await loadFixture(deployOfferManager);
+      await expect(
+        offerManager[REGISTER_FUNC](
+          ethers.utils.formatBytes32String(""),
+          0,
+          0,
+          ethers.constants.AddressZero,
+          ethers.utils.formatBytes32String(""),
+          ethers.constants.AddressZero,
+          0
+        )
+      ).to.be.revertedWith(
+        "this function is deprecated: 'witness' argument required"
+      );
     });
   });
 

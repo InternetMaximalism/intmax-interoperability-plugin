@@ -145,7 +145,7 @@ describe("OfferManagerV2", function () {
     });
   });
 
-  describe.only("changeVerifier", function () {
+  describe("changeVerifier", function () {
     it("Only the owner can execute changeVerifier", async function () {
       const { offerManager, maker } = await loadFixture(deployOfferManager);
       await expect(

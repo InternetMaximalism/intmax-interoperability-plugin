@@ -145,6 +145,15 @@ describe("OfferManagerV2", function () {
     });
   });
 
+  describe.only("changeVerifier", function () {
+    it("Only the owner can execute changeVerifier", async function () {
+      const { offerManager, maker } = await loadFixture(deployOfferManager);
+      await expect(
+        offerManager.connect(maker).changeVerifier(maker.address)
+      ).to.be.revertedWith("Ownable: caller is not the owner");
+    });
+  });
+
   describe("Register with ETH", function () {
     it("Should execute without errors", async function () {
       const { offerManager, owner, maker, taker } = await loadFixture(

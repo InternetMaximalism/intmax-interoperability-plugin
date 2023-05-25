@@ -153,6 +153,7 @@ describe("OfferManagerV2", function () {
       ).to.be.revertedWith("Ownable: caller is not the owner");
     });
   });
+
   describe("checkWitness", function () {
     it("It just returns true.r", async function () {
       const { offerManager, owner, maker, taker } = await loadFixture(

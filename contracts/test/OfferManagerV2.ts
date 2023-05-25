@@ -153,6 +153,88 @@ describe("OfferManagerV2", function () {
       ).to.be.revertedWith("Ownable: caller is not the owner");
     });
   });
+  describe("checkWitness", function () {
+    it("It just returns true.r", async function () {
+      const { offerManager, owner, maker, taker } = await loadFixture(
+        deployOfferManager
+      );
+
+      const {
+        makerIntmaxAddress,
+        makerAssetId,
+        makerAmount,
+        takerIntmaxAddress,
+        takerAmount,
+      } = sampleOffer;
+
+      const takerTokenAddress = ZERO_ADDRESS; // ETH
+
+      const witness = calcWitness(owner);
+
+      const offerId = 0;
+
+      await offerManager
+        .connect(maker)
+        [REGISTER_FUNC_V2](
+          makerIntmaxAddress,
+          makerAssetId,
+          makerAmount,
+          taker.address,
+          takerIntmaxAddress,
+          takerTokenAddress,
+          takerAmount,
+          witness
+        );
+      const result = await offerManager.checkWitness(offerId, witness);
+      expect(result).to.equal(true);
+    });
+  });
+  describe("addTokenAddressToAllowList", function () {
+    it("Only the owner can execute addTokenAddressToAllowList", async function () {
+      const { offerManager, maker } = await loadFixture(deployOfferManager);
+      await expect(
+        offerManager.connect(maker).addTokenAddressToAllowList([])
+      ).to.be.revertedWith("Ownable: caller is not the owner");
+    });
+    it("Multiple addresses can be added to the allow list", async function () {
+      const { offerManager, maker } = await loadFixture(deployOfferManager);
+      const wallet1 = ethers.Wallet.createRandom();
+      const wallet2 = ethers.Wallet.createRandom();
+      const wallet3 = ethers.Wallet.createRandom();
+      await offerManager.addTokenAddressToAllowList([
+        wallet1.address,
+        wallet2.address,
+        wallet3.address,
+      ]);
+      const result1 = await offerManager.tokenAllowList(wallet1.address);
+      const result2 = await offerManager.tokenAllowList(wallet2.address);
+      const result3 = await offerManager.tokenAllowList(wallet3.address);
+      expect(result1).to.equal(true);
+      expect(result2).to.equal(true);
+      expect(result3).to.equal(true);
+    });
+    it("Multiple addresses can be deleted to the allow list", async function () {
+      const { offerManager, maker } = await loadFixture(deployOfferManager);
+      const wallet1 = ethers.Wallet.createRandom();
+      const wallet2 = ethers.Wallet.createRandom();
+      const wallet3 = ethers.Wallet.createRandom();
+      await offerManager.addTokenAddressToAllowList([
+        wallet1.address,
+        wallet2.address,
+        wallet3.address,
+      ]);
+      await offerManager.removeTokenAddressFromAllowList([
+        wallet2.address,
+        wallet3.address,
+      ]);
+      const result1 = await offerManager.tokenAllowList(wallet1.address);
+      const result2 = await offerManager.tokenAllowList(wallet2.address);
+      const result3 = await offerManager.tokenAllowList(wallet3.address);
+      expect(result1).to.equal(true);
+      expect(result2).to.equal(false);
+      expect(result3).to.equal(false);
+    });
+  });
 
   describe("Register with ETH", function () {
     it("Should execute without errors", async function () {
@@ -484,6 +566,91 @@ describe("OfferManagerV2", function () {
           [takerAmount, takerAmount.mul(-1)]
         );
       }
+    });
+
+    it("Only the taker can execute the activate function.", async function () {
+      const { offerManager, testToken, owner, maker, taker } =
+        await loadFixture(deployOfferManager);
+
+      const {
+        makerIntmaxAddress,
+        makerAssetId,
+        makerAmount,
+        takerIntmaxAddress,
+        takerAmount,
+      } = sampleOffer;
+
+      const takerTokenAddress = testToken.address;
+
+      // Add token address to allow list.
+      await offerManager
+        .connect(owner)
+        .addTokenAddressToAllowList([takerTokenAddress]);
+
+      const witness = calcWitness(owner);
+
+      await offerManager
+        .connect(maker)
+        [REGISTER_FUNC_V2](
+          makerIntmaxAddress,
+          makerAssetId,
+          makerAmount,
+          taker.address,
+          takerIntmaxAddress,
+          takerTokenAddress,
+          takerAmount,
+          witness
+        );
+
+      const offerId = 0;
+      await testToken.connect(owner).transfer(taker.address, takerAmount);
+      await testToken.connect(taker).approve(offerManager.address, takerAmount);
+      const tx = offerManager.activate(offerId);
+      await expect(tx).to.be.revertedWith(
+        "offers can be activated by its taker"
+      );
+    });
+    it("If the taker token address is 0 and the token amount is incorrect, an error is generated.", async function () {
+      const { offerManager, testToken, owner, maker, taker } =
+        await loadFixture(deployOfferManager);
+
+      const {
+        makerIntmaxAddress,
+        makerAssetId,
+        makerAmount,
+        takerIntmaxAddress,
+        takerAmount,
+      } = sampleOffer;
+
+      const takerTokenAddress = testToken.address;
+
+      // Add token address to allow list.
+      await offerManager
+        .connect(owner)
+        .addTokenAddressToAllowList([takerTokenAddress]);
+
+      const witness = calcWitness(owner);
+
+      await offerManager
+        .connect(maker)
+        [REGISTER_FUNC_V2](
+          makerIntmaxAddress,
+          makerAssetId,
+          makerAmount,
+          taker.address,
+          takerIntmaxAddress,
+          ethers.constants.AddressZero,
+          takerAmount,
+          witness
+        );
+
+      const offerId = 0;
+      await testToken.connect(owner).transfer(taker.address, takerAmount);
+      await testToken.connect(taker).approve(offerManager.address, takerAmount);
+      const tx = offerManager.connect(taker).activate(offerId);
+      await expect(tx).to.be.revertedWith(
+        "please send just the amount needed to activate"
+      );
     });
   });
 

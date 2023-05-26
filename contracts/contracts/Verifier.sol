@@ -2,19 +2,22 @@
 pragma solidity 0.8.17;
 
 import "./VerifierInterface.sol";
-import "./SimpleVerifier.sol";
 import "./utils/MerkleTree.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Verifier is SimpleVerifier, MerkleTree {
+contract Verifier is VerifierInterface, Ownable, MerkleTree {
+    /**
+     * @notice This variable is the network index used to identify the chain.
+     */
+    bytes32 public networkIndex;
     /**
      * @notice This mapping stores the correspondence from block number to transactions digest.
      */
     mapping(uint256 => bytes32) public transactionsDigestHistory;
 
     constructor(bytes32 networkIndex_) {
-        SimpleVerifier.initialize(networkIndex_);
+       networkIndex = networkIndex_;
     }
 
     function _calcLeafHash(

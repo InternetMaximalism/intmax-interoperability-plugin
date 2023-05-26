@@ -31,11 +31,23 @@ export const calcSampleWitness = () => {
     "0x93275bdc7c643a0e10757c4f650f020f10cb1f024335e1cc112039447010189f";
   const recipient =
     "0x00000000000000000000000000000000000000000000000010d1cb00b658931e";
+  const recipient2 =
+    "0x00000000000000000000000000000000000000000000000010d1cb00b658931f";
   const tokenAddress =
     "0x000000000000000000000000000000000000000000000000f7c23e5c2d79b6ae";
+  const tokenAddress2 =
+    "0x000000000000000000000000000000000000000000000000f7c23e5c2d79b6af";
+  const tokenAddress3 =
+    "0x000000000000000000000000000000000000000000000000f8c23e5c2d79b6af";
   const tokenId =
     "0x0000000000000000000000000000000000000000000000000000000000000000";
+  const tokenId2 =
+    "0x0000000000000000000000000000000000000000000000000000000000000001";
+  const tokenId3 =
+    "0x0000000000000000000000000000000000000000000000000000000000000099";
   const tokenAmount = 3;
+  const tokenAmount2 = 6;
+  const tokenAmount3 = 9;
   const nonce =
     "0xa710189dc0d8eb00a46e0411c0b1965192f80c50fbd8cbd51b5c67b26fc9dff1";
   const recipientMerkleSiblings = [
@@ -51,9 +63,16 @@ export const calcSampleWitness = () => {
     blockHeader,
     blockHash,
     recipient,
+    recipient2,
     tokenAddress,
     tokenId,
+    tokenId2,
+    tokenId3,
     tokenAmount,
+    tokenAddress2,
+    tokenAddress3,
+    tokenAmount2,
+    tokenAmount3,
     nonce,
     recipientMerkleSiblings,
   };

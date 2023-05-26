@@ -105,6 +105,64 @@ describe("OfferManagerReverseV2", function () {
     });
   });
 
+  describe("changeVerifier", function () {
+    it("Only the owner can execute changeVerifier", async function () {
+      const { offerManagerReverse, maker } = await loadFixture(
+        deployOfferManager
+      );
+      await expect(
+        offerManagerReverse.connect(maker).changeVerifier(maker.address)
+      ).to.be.revertedWith("Ownable: caller is not the owner");
+    });
+  });
+  describe("addTokenAddressToAllowList", function () {
+    it("Only the owner can execute addTokenAddressToAllowList", async function () {
+      const { offerManagerReverse, maker } = await loadFixture(
+        deployOfferManager
+      );
+      await expect(
+        offerManagerReverse.connect(maker).addTokenAddressToAllowList([])
+      ).to.be.revertedWith("Ownable: caller is not the owner");
+    });
+    it("Multiple addresses can be added to the allow list", async function () {
+      const { offerManagerReverse } = await loadFixture(deployOfferManager);
+      const wallet1 = ethers.Wallet.createRandom();
+      const wallet2 = ethers.Wallet.createRandom();
+      const wallet3 = ethers.Wallet.createRandom();
+      await offerManagerReverse.addTokenAddressToAllowList([
+        wallet1.address,
+        wallet2.address,
+        wallet3.address,
+      ]);
+      const result1 = await offerManagerReverse.tokenAllowList(wallet1.address);
+      const result2 = await offerManagerReverse.tokenAllowList(wallet2.address);
+      const result3 = await offerManagerReverse.tokenAllowList(wallet3.address);
+      expect(result1).to.equal(true);
+      expect(result2).to.equal(true);
+      expect(result3).to.equal(true);
+    });
+    it("Multiple addresses can be deleted to the allow list", async function () {
+      const { offerManagerReverse } = await loadFixture(deployOfferManager);
+      const wallet1 = ethers.Wallet.createRandom();
+      const wallet2 = ethers.Wallet.createRandom();
+      const wallet3 = ethers.Wallet.createRandom();
+      await offerManagerReverse.addTokenAddressToAllowList([
+        wallet1.address,
+        wallet2.address,
+        wallet3.address,
+      ]);
+      await offerManagerReverse.removeTokenAddressFromAllowList([
+        wallet2.address,
+        wallet3.address,
+      ]);
+      const result1 = await offerManagerReverse.tokenAllowList(wallet1.address);
+      const result2 = await offerManagerReverse.tokenAllowList(wallet2.address);
+      const result3 = await offerManagerReverse.tokenAllowList(wallet3.address);
+      expect(result1).to.equal(true);
+      expect(result2).to.equal(false);
+      expect(result3).to.equal(false);
+    });
+  });
   describe("Register with ETH", function () {
     it("Should register a new offer", async function () {
       const { offerManagerReverse, maker, taker } = await loadFixture(
@@ -130,6 +188,141 @@ describe("OfferManagerReverseV2", function () {
           );
         await expect(tx).to.emit(offerManagerReverse, "OfferRegistered");
         await expect(tx).to.changeEtherBalance(taker, takerAmount.mul(-1));
+      }
+    });
+    it("Should register a new offer and transfer token", async function () {
+      const { offerManagerReverse, testToken, owner, maker, taker } =
+        await loadFixture(deployOfferManager);
+
+      const { takerIntmaxAddress, takerAmount, makerAssetId, makerAmount } =
+        sampleOffer;
+
+      const takerTokenAddress = testToken.address;
+      await offerManagerReverse.addTokenAddressToAllowList([takerTokenAddress]);
+      await testToken.connect(owner).transfer(taker.address, takerAmount);
+      await testToken
+        .connect(taker)
+        .approve(offerManagerReverse.address, takerAmount);
+      {
+        const tx = offerManagerReverse
+          .connect(taker)
+          .register(
+            takerIntmaxAddress,
+            takerTokenAddress,
+            takerAmount,
+            maker.address,
+            makerAssetId,
+            makerAmount
+          );
+        await expect(tx).to.emit(offerManagerReverse, "OfferRegistered");
+        const takerBalance = await testToken.balanceOf(taker.address);
+        await expect(takerBalance.toString()).to.be.equal("0");
+      }
+    });
+    it("maker is 0 address", async function () {
+      const { offerManagerReverse, taker } = await loadFixture(
+        deployOfferManager
+      );
+
+      const { takerIntmaxAddress, takerAmount, makerAssetId, makerAmount } =
+        sampleOffer;
+
+      const takerTokenAddress = ZERO_ADDRESS;
+
+      {
+        const tx = offerManagerReverse
+          .connect(taker)
+          .register(
+            takerIntmaxAddress,
+            takerTokenAddress,
+            takerAmount,
+            ZERO_ADDRESS,
+            makerAssetId,
+            makerAmount,
+            { value: takerAmount }
+          );
+        expect(tx).to.be.revertedWith("`maker` must not be zero address.");
+      }
+    });
+    it("Token address that does not exist in the allow list", async function () {
+      const { offerManagerReverse, maker, taker } = await loadFixture(
+        deployOfferManager
+      );
+
+      const { takerIntmaxAddress, takerAmount, makerAssetId, makerAmount } =
+        sampleOffer;
+
+      const takerTokenAddress = ethers.Wallet.createRandom().address;
+
+      {
+        const tx = offerManagerReverse
+          .connect(taker)
+          .register(
+            takerIntmaxAddress,
+            takerTokenAddress,
+            takerAmount,
+            maker.address,
+            makerAssetId,
+            makerAmount,
+            { value: takerAmount }
+          );
+        expect(tx).to.be.revertedWith(
+          "the taker's token address is not in the token allow list"
+        );
+      }
+    });
+    it("token amount is different from msg.value", async function () {
+      const { offerManagerReverse, maker, taker } = await loadFixture(
+        deployOfferManager
+      );
+
+      const { takerIntmaxAddress, takerAmount, makerAssetId, makerAmount } =
+        sampleOffer;
+
+      const takerTokenAddress = ZERO_ADDRESS;
+
+      {
+        const tx = offerManagerReverse
+          .connect(taker)
+          .register(
+            takerIntmaxAddress,
+            takerTokenAddress,
+            takerAmount,
+            maker.address,
+            makerAssetId,
+            makerAmount
+          );
+        expect(tx).to.be.revertedWith(
+          "takerAmount must be the same as msg.value"
+        );
+      }
+    });
+    it("Tried to transfer eth instead of token", async function () {
+      const { offerManagerReverse, maker, taker } = await loadFixture(
+        deployOfferManager
+      );
+
+      const { takerIntmaxAddress, takerAmount, makerAssetId, makerAmount } =
+        sampleOffer;
+
+      const takerTokenAddress = ethers.Wallet.createRandom().address;
+      await offerManagerReverse.addTokenAddressToAllowList([takerTokenAddress]);
+
+      {
+        const tx = offerManagerReverse
+          .connect(taker)
+          .register(
+            takerIntmaxAddress,
+            takerTokenAddress,
+            takerAmount,
+            maker.address,
+            makerAssetId,
+            makerAmount,
+            { value: takerAmount }
+          );
+        await expect(tx).to.be.revertedWith(
+          "transmission method other than ETH is specified"
+        );
       }
     });
   });
@@ -175,7 +368,87 @@ describe("OfferManagerReverseV2", function () {
         await expect(tx).to.changeEtherBalance(maker, takerAmount);
       }
     });
+    it("Should activate an offer abd transfer token", async function () {
+      const { offerManagerReverse, owner, testToken, maker, taker } = await loadFixture(
+        deployOfferManager
+      );
 
+      const { takerIntmaxAddress, takerAmount, makerAssetId, makerAmount } =
+        sampleOffer;
+
+      const takerTokenAddress = testToken.address;
+      await testToken.connect(owner).transfer(taker.address, takerAmount);
+      await testToken.connect(taker).approve(offerManagerReverse.address, takerAmount);
+      await offerManagerReverse.addTokenAddressToAllowList([takerTokenAddress]);
+      // Call the register function on the offer manager contract.
+      // Verify that the transaction was successful.
+      await expect(
+        offerManagerReverse
+          .connect(taker)
+          .register(
+            takerIntmaxAddress,
+            takerTokenAddress,
+            takerAmount,
+            maker.address,
+            makerAssetId,
+            makerAmount,
+          )
+      ).not.to.be.reverted;
+
+      const offerId = 0;
+
+      const witness = await calcWitness(owner);
+
+      {
+        const tx = offerManagerReverse
+          .connect(maker)
+          .activate(offerId, witness);
+        await expect(tx).to.changeTokenBalances(
+            testToken,
+            [offerManagerReverse, maker],
+            [takerAmount.mul(-1), takerAmount]
+          );
+      }
+    });
+    it("maker is not sender", async function () {
+      const { offerManagerReverse, owner, maker, taker } = await loadFixture(
+        deployOfferManager
+      );
+
+      const { takerIntmaxAddress, takerAmount, makerAssetId, makerAmount } =
+        sampleOffer;
+
+      const takerTokenAddress = ZERO_ADDRESS;
+
+      // Call the register function on the offer manager contract.
+      // Verify that the transaction was successful.
+      await expect(
+        offerManagerReverse
+          .connect(taker)
+          .register(
+            takerIntmaxAddress,
+            takerTokenAddress,
+            takerAmount,
+            maker.address,
+            makerAssetId,
+            makerAmount,
+            { value: takerAmount }
+          )
+      ).not.to.be.reverted;
+
+      const offerId = 0;
+
+      const witness = await calcWitness(owner);
+
+      {
+        const tx = offerManagerReverse
+          .connect(taker)
+          .activate(offerId, witness);
+        await expect(tx).to.be.revertedWith(
+          "Only the maker can unlock this offer."
+        );
+      }
+    });
     it("Should not activate an offer with already used witness", async function () {
       const { offerManagerReverse, owner, maker, taker } = await loadFixture(
         deployOfferManager

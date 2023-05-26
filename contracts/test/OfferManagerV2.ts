@@ -215,7 +215,7 @@ describe("OfferManagerV2", function () {
       expect(result3).to.equal(true);
     });
     it("Multiple addresses can be deleted to the allow list", async function () {
-      const { offerManager, maker } = await loadFixture(deployOfferManager);
+      const { offerManager } = await loadFixture(deployOfferManager);
       const wallet1 = ethers.Wallet.createRandom();
       const wallet2 = ethers.Wallet.createRandom();
       const wallet3 = ethers.Wallet.createRandom();

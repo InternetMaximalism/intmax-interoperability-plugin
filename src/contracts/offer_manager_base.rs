@@ -38,16 +38,22 @@ impl<M: Middleware> TokenAllowListContractWrapper<M> {
         }
     }
 
-    pub async fn get_token_allow_list(&self) -> anyhow::Result<Vec<Address>> {
+    pub async fn get_token_allow_list(&self, latest_block: u64) -> anyhow::Result<Vec<Address>> {
+        let from_block_num = if latest_block < 9900 {
+            0
+        } else {
+            latest_block - 9900
+        };
         let filter: Event<M, TokenAllowListUpdatedFilter> = self
             .token_allow_list_updated_filter()
             .address(self.address.into())
-            .from_block(0);
+            .from_block(from_block_num);
 
         let logs: Vec<TokenAllowListUpdatedFilter> = filter
             .query()
             .await
             .map_err(|err| anyhow::anyhow!("{}", err))?;
+        println!("logs.len() = {}", logs.len());
         let mut result = HashSet::new();
         for log in logs {
             if log.is_allowed {

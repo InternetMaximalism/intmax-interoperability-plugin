@@ -62,11 +62,18 @@ impl<M: Middleware> OfferManagerReverseContractWrapper<M> {
         &self,
         topic_offer_id: Option<Vec<H256>>,
         topic_taker: Option<Vec<H256>>,
+        latest_block: u64,
     ) -> anyhow::Result<Vec<LockEvent>> {
+        let from_block_num = if latest_block < 9900 {
+            0
+        } else {
+            latest_block - 9900
+        };
+        println!("from_block_num: {from_block_num}");
         let filter: Event<M, OfferRegisteredFilter> = self
             .offer_registered_filter()
             .address(self.address.into())
-            .from_block(0);
+            .from_block(from_block_num);
         let filter = if let Some(topic_offer_id) = topic_offer_id.clone() {
             filter.topic1(topic_offer_id)
         } else {
@@ -82,6 +89,7 @@ impl<M: Middleware> OfferManagerReverseContractWrapper<M> {
             .query()
             .await
             .map_err(|err| anyhow::anyhow!("{}", err))?;
+        println!("logs.len() = {}", logs.len());
         let logs = logs
             .into_iter()
             .filter_map(|log| {
@@ -118,16 +126,22 @@ impl<M: Middleware> OfferManagerReverseContractWrapper<M> {
         Ok(logs)
     }
 
-    pub async fn get_activate_events(&self) -> anyhow::Result<Vec<UnlockEvent>> {
+    pub async fn get_activate_events(&self, latest_block: u64) -> anyhow::Result<Vec<UnlockEvent>> {
         // Activate(indexed offerId, indexed takerIntmax)
+        let from_block_num = if latest_block < 9900 {
+            0
+        } else {
+            latest_block - 9900
+        };
         let filter: Event<M, OfferActivatedFilter> = self
             .offer_activated_filter()
             .address(self.address.into())
-            .from_block(0);
+            .from_block(from_block_num);
         let logs: Vec<OfferActivatedFilter> = filter
             .query()
             .await
             .map_err(|err| anyhow::anyhow!("{}", err))?;
+        println!("logs.len() = {}", logs.len());
         let logs = logs
             .into_iter()
             .map(|log| UnlockEvent {
